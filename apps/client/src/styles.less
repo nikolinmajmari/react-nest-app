@@ -1,0 +1,35 @@
+/* You can add global styles to this file, and also import other style files */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root,html,body {
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  display: flex;
+}
+
+/* Works on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(78, 154, 167)  whitesmoke;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: whitesmoke;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(78, 154, 167);
+  border-radius: 20px;
+}

@@ -1,5 +1,6 @@
 import { ActionReducerMapBuilder, createAsyncThunk } from "@reduxjs/toolkit";
 import { IAuthState, LoginCredentials, SuccessfullLoginResult } from "../auth.model";
+import storage from "../../core/storage";
 
 
 const loginThunk = createAsyncThunk<SuccessfullLoginResult,LoginCredentials>(
@@ -26,6 +27,8 @@ export function registerLoginThunk(builder: ActionReducerMapBuilder<IAuthState>)
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.refreshToken = action.payload.refreshToken;
+        //// store the data 
+        storage.setAuthData(action.payload);
     })
     .addCase(loginThunk.pending,(state,action)=>{
         state.status = "loading";

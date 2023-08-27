@@ -1,17 +1,17 @@
 import { TfiMenu, TfiMenuAlt } from "react-icons/tfi";
-import { Link } from "react-router-dom";
-
 
 export interface IChatTileProps{
     avatar:string,
     name: string,
+    active:boolean,
     label:string,
+    navigate:()=>void,
+    onClick?: ()=>void,
 }
 
 export default function ChatTile(props:IChatTileProps){
     return (
-         <Link to={"channels/12"}>
-          <div className='room cursor-pointer px-6 py-4 flex flex-row hover:bg-stone-100 transition-colors shadow-sm'>
+         <div onClick={props.navigate} className={`${props.active?"bg-stone-200":""} room  cursor-pointer px-6 py-4 flex flex-row hover:bg-stone-100 transition-colors shadow-sm`}>
             <div className='avatar w-14 h-14 flex items-center justify-center rounded-full text-white bg-teal-600'>
               <span className='text-white text-xl m-auto'>{props.avatar}</span>
             </div>
@@ -19,10 +19,9 @@ export default function ChatTile(props:IChatTileProps){
               <span className='text-gray-700 font-bold text-lg'>{props.name}</span>
               <span className='text-xs text-gray-600'>{props.label}</span>
             </div>
-            <div>
+            <span onClick={props.onClick}>
               <TfiMenuAlt className='cursor-pointer'/>
-            </div>
+            </span>
           </div>
-         </Link>
     );
 }

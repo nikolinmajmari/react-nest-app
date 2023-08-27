@@ -15,7 +15,11 @@ export function useLoadChannelsDispatch(){
     return ()=>dispatch(loadChannelsThunk());
 }
 
-export function useSetActiveChannel(id:number){
+export function useSetActiveChannel(){
     const dispatch = useAppDispatch();
-    return ()=>dispatch(setActiveChannel(id));
+    return (id:number)=>dispatch(setActiveChannel(id));
+}
+
+export function useGetActiveChannel(){
+    return useAppSelector(root=>root.channels.activeChannel);
 }

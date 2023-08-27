@@ -1,12 +1,14 @@
-import ChannelSettings from "./slices/channel/channel.settings";
-import ChannelEmpty from "./slices/channel/channel.empty";
-import ChannelMain from "./slices/channel/channel.main"; 
-import ChannelsNavigation from "./slices/channels/channels.navigation";
+import ChannelSettings from "./slices/channel/containers/Settings";
+import ChannelEmpty from "./components/channel/ChannelEmpty";
+import ChannelMain from "./slices/channel/containers"; 
+import ChannelsNavigation from "./slices/channels/Navigation";
 import { Outlet} from "react-router-dom";
+import { ModalProvider } from "../components/Modal";
 
 export default function Chat(){
     return (
-        <div className='flex flex-row w-full h-full bg-cyan-50'>
+       <ModalProvider>
+         <div className='flex flex-row w-full h-full bg-cyan-50'>
             <div className="flex w-96 overflow-y-scroll">
                 <ChannelsNavigation/>
             </div>
@@ -14,6 +16,7 @@ export default function Chat(){
                 <Outlet/>
             </div>
         </div>
+       </ModalProvider>
     );
 }
 

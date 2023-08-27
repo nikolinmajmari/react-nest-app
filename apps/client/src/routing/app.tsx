@@ -5,8 +5,19 @@ import { ChannelSettings,ChannelEmpty, ChannelMain } from "../chat";
 import { Login } from "../auth/login";
 import { SignUp } from "../auth/signup";
 import Authenticated from "./components/authenticated";
+import { useAppDispatch } from "../app/hooks";
+import { attemptSilentSignIn } from "../auth/auth.slice";
+import React from "react";
+import { useGetCurrentUser } from "../hooks/auth.hooks";
 
 export function App() {
+  const dispatch = useAppDispatch();
+  const user = useGetCurrentUser();
+  React.useEffect(()=>{
+    if(!user){
+      dispatch(attemptSilentSignIn());
+    }
+  });
   return (
     <Routes>
       <Route path="/login" element={<Login/>}/>

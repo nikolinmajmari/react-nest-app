@@ -1,45 +1,18 @@
 import { ActionReducerMapBuilder, createAsyncThunk } from "@reduxjs/toolkit";
 import { Channel, IChannelsState } from "../channels.model";
+import storage from "../../../../core/storage";
 
 
-const loadChannelsThunk = createAsyncThunk<Channel[],void>("channels/load",(arg,thunkApi)=>{
-    console.log("updating channels");
-    return new Promise((resolve,reject)=>{
-            setTimeout(()=>resolve([
-                {
-                    alias: "Lorem Lipsum",
-                    id:1,
-                    lastMessage: "Lorem nasil lor dorem",
-                    lastSender: "LeyLasa",
-                    memberNo: 2,
-                    type: "direct"
-                },
-                {
-                    alias: "Lorem Lipsum",
-                    id:2,
-                    lastMessage: "Lorem nasil lor dorem",
-                    lastSender: "LeyLasa",
-                    memberNo: 2,
-                    type: "direct"
-                },
-                {
-                     alias: "Lorem Lipsum",
-                    id:3,
-                    lastMessage: "Lorem nasil lor dorem",
-                    lastSender: "LeyLasa",
-                    memberNo: 2,
-                    type: "direct"
-                },
-                {
-                     alias: "Lorem Lipsum",
-                    id:4,
-                    lastMessage: "Lorem nasil lor dorem",
-                    lastSender: "LeyLasa",
-                    memberNo: 2,
-                    type: "direct"
-                }
-            ]),850)
-    });
+const loadChannelsThunk = createAsyncThunk<Channel[],void>("channels/load",async (arg,thunkApi)=>{
+     const token = storage.getAuthData().accessToken;
+        const response = await fetch("http://127.0.0.1:3000/api/channels",{
+            method:'get',
+            headers:{
+                'Content-Type':'application/json',
+                'Authorization':`Bearer ${token}`
+            }
+        });
+        return await response.json();
 }
 );
 

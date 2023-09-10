@@ -4,12 +4,13 @@ import ChannelSkeleton from "../../components/ChannelsSkeleton";
 import ChannelGroupContainer from "../../components/GroupContainer";
 import ChatTile from "../../components/Tile";
 import React from "react";
-import { setChannel } from "../channel/channel.slice";
 import { useSetChannelDispatch } from "../../../hooks/channel.hooks";
 import Modal, { ModalContext } from "../../../components/Modal";
+import { useGetCurrentUser } from "../../../hooks/auth.hooks";
 
 export default function ChannelsNavigation(){
     const channels = useGetChannelsList();
+    const user = useGetCurrentUser();
     const navigate = useNavigate();
     const state = useGetChannelsStateStatus();
     const loadChannels = useLoadChannelsDispatch();
@@ -36,7 +37,28 @@ export default function ChannelsNavigation(){
     }
 
     const renderChannels = ()=>{
-        return  channels.map((ch)=><ChatTile
+        return  channels.map((ch)=>{
+            const other = ch.members.find(m=>m.user?.id !== user.id)
+            if(ch.type==="direct" && other){
+                return  <ChatTile
+                        avatar={`${other.user.firstName.charAt(0)}${other.user.lastName.charAt(0)}`}
+                        active={ch.id===id}
+                        label={ch.lastMessage}
+                        name={other.user.firstName+' '+other.user.lastName}
+                        onClick={showModal}
+                        key={ch.id}
+                        navigate={
+                            ()=>{
+                                console.log('navigating',ch.id);
+                                setActiveChannel(ch.id);
+                                setChannel(ch.id);
+                                navigate(`channels/${ch.id}`);
+                            }
+                        }
+                    />
+            }
+            return (
+                <ChatTile
                         avatar="NM"
                         active={ch.id===id}
                         label={ch.lastMessage}
@@ -51,7 +73,9 @@ export default function ChannelsNavigation(){
                                 navigate(`channels/${ch.id}`);
                             }
                         }
-                    />);
+                    />
+            )
+        });
     }
 
 

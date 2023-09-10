@@ -1,31 +1,23 @@
 import { ActionReducerMapBuilder, createAsyncThunk } from "@reduxjs/toolkit";
 import { IAuthState, LoginCredentials, SuccessfullLoginResult } from "../auth.model";
 import storage from "../../core/storage";
+import {auth} from "../../api.client/client";
+import { IAuthLoginResult } from "@mdm/mdm-js-client";
 
 
-const loginThunk = createAsyncThunk<SuccessfullLoginResult,LoginCredentials>(
+const loginThunk = createAsyncThunk<IAuthLoginResult,LoginCredentials>(
     "auth/login",async (credentials:LoginCredentials,thunkApi)=>{
-        return new Promise((resolve,reject)=>{
-            setTimeout(()=>resolve({
-            refreshToken: "refresh-token",
-            token:"this is a token",
-            user: {
-                email: "user@email.com",
-                firstName: "FirstName",
-                lastName: "LastName",
-                id: 32
-            }
-        } as SuccessfullLoginResult),350)
-        });
+        return await auth.login(credentials);
     }
 );
 
 export function registerLoginThunk(builder: ActionReducerMapBuilder<IAuthState>){
     builder
     .addCase(loginThunk.fulfilled,(state,action)=>{
+        console.log(action.payload);
         state.status = "succeeded";
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
         //// store the data 
         storage.setAuthData(action.payload);

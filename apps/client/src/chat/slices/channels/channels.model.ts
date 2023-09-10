@@ -5,6 +5,7 @@ export interface Channel{
     memberNo: number,
     lastMessage:string,
     lastSender:string,
+    members: ChannelMember[];
 }
 
 
@@ -16,6 +17,7 @@ export interface ChannelMember{
 }
 
 export interface UserContact{
+    id:string;
     firstName:string,
     lastName:string,
     email:string,

@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IChannelMessage, IChannelState } from "./channel.model";
+import storage from "../../../core/storage";
 
 
 const initialState:IChannelState  = {

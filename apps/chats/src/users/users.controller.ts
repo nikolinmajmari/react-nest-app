@@ -1,23 +1,38 @@
-import { Body, ConflictException, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, ConflictException, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/user.dto';
+import { Public } from '../auth/decorator';
+import { ApiBearerAuth, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { FindUserDTO } from './dto/findUser.dto';
 
+@ApiBearerAuth()
 @Controller('users')
+@ApiTags("users")
 export class UsersController {
 
     constructor(
         private readonly service:UsersService
     ){}
 
-
+    
     @HttpCode(HttpStatus.OK)
     @Get("")
-    async get(){
-       return this.service.get();
+    @Public()
+    async get(
+        @Query() dto:FindUserDTO,
+        @Req() request,
+        ){
+        return this.service.get({
+            ...dto,
+            limit: dto.limit ? parseInt(dto.limit.toString()):10,
+            offset: dto.offset ? parseInt(dto.offset.toString()):0,
+            user: request.user
+        });
     }
 
     @HttpCode(HttpStatus.CREATED)
     @Post("")
+    @Public()
     async create(@Body() dto:CreateUserDTO){
         if(await this.service.findUserByIdentifier(dto.email)){
             throw new ConflictException();

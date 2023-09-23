@@ -6,7 +6,6 @@ export class AuthHandler{
         private readonly baseClient:BaseClient
     ){}
 
-
     async login(credentials:ICredential):Promise<IAuthLoginResult>{
         return await this.baseClient.post('/auth/login',credentials);
     }

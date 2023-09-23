@@ -1,6 +1,6 @@
+import { ChannelType, IChannel, IChannelMember } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { setActiveChannel } from "../chat/slices/channels/channels.slice";
-import loadChannelsThunk from "../chat/slices/channels/thunks/loadChannelsThunk";
+import { createPrivateChannelThunk, loadChannelsThunk, setActiveChannel } from "../chat/channels/slices/channels.slice";
 
 export function useGetChannelsList(){
     return useAppSelector(root=>root.channels.channels);
@@ -17,9 +17,18 @@ export function useLoadChannelsDispatch(){
 
 export function useSetActiveChannel(){
     const dispatch = useAppDispatch();
-    return (id:number)=>dispatch(setActiveChannel(id));
+    return (id:string)=>dispatch(setActiveChannel(id));
 }
 
 export function useGetActiveChannel(){
     return useAppSelector(root=>root.channels.activeChannel);
+}
+
+export function useCreatePrivateChannel(){
+    const dispatch = useAppDispatch();
+    return (data:Partial<IChannel>)=>{
+       return dispatch(createPrivateChannelThunk({
+        ...data,
+       }));
+    }
 }

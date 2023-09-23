@@ -1,8 +1,9 @@
+import { IUser } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { LoginCredentials } from "../auth/auth.model";
 import loginThunk from "../auth/thunks/signInThunk";
 
-export function useGetCurrentUser(){
+export function useGetCurrentUser():IUser{
     return useAppSelector(root=>root.auth.user);
 }
 

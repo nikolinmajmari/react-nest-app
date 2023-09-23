@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import Message from "./message.entity";
 import ChannelMember from "./channel-member.entity";
 import { ChannelType, IChannel } from "@mdm/mdm-core";
@@ -52,6 +52,7 @@ export default class Channel implements IChannel {
     @OneToOne(
         ()=>Message,
     )
+    @JoinColumn()
     lastMessage:Promise<Message>;
 
 }

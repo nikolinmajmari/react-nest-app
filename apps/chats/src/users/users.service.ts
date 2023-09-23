@@ -19,6 +19,7 @@ export class UsersService{
 
 
     async get(filter:FindUserDTO&AuthenticatedDTO):Promise<User[]>{
+        console.log(filter);
         const query =  this.repository.createQueryBuilder('u')
         .select('u');
         if(filter.privateChannelCandidate && filter.user && filter.user.id){

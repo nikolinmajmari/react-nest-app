@@ -72,8 +72,9 @@ export class BaseClient implements IClient{
     }
 
     private handleError(e:any):Error{
+        console.log(e);
         if(e instanceof AxiosError){
-            return new HttpError(e.message);
+            return new HttpError(e.response?.data?.message??e.message);
         }
         return new Error('an error occured');
     }

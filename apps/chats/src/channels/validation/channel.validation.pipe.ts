@@ -8,10 +8,9 @@ import { CreateChannelDTO } from "../dto/channel.dto.ts";
 
 export class ChannelValidationPipe implements PipeTransform<CreateChannelDTO,CreateChannelDTO>{
     transform(value: CreateChannelDTO) {
-        if(value.type==="private" && value.members.length>1){
-            throw new BadRequestException("Can not add more than one user for private channels");
+        if(value.type==="private" && value.members.length!=1){
+            throw new BadRequestException("You can add only one user in a private channel");
         }
         return  value;
     }
-    
 }

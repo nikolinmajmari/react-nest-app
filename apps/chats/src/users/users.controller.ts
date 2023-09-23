@@ -22,6 +22,7 @@ export class UsersController {
         @Query() dto:FindUserDTO,
         @Req() request,
         ){
+            console.log('finding',dto);
         return this.service.get({
             ...dto,
             limit: dto.limit ? parseInt(dto.limit.toString()):10,

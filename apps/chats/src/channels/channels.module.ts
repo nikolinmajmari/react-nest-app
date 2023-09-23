@@ -10,6 +10,7 @@ import Channel from './entities/channel.entity';
 import { ChannelValidationPipe } from './validation/channel.validation.pipe';
 import { MembersService } from './services/members.service';
 import { MembersController } from './controllers/members.controller';
+import { MessagingService } from './services/messaging.service';
 
 @Module({
   imports:[
@@ -23,6 +24,7 @@ import { MembersController } from './controllers/members.controller';
     ChannelsService,
     ChannelValidationPipe,
     MembersService,
+    MessagingService
   ],
   exports:[
     ChannelsService,

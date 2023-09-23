@@ -1,9 +1,10 @@
 import { Navigate } from "react-router-dom";
-import { useGetCurrentUser } from "../../hooks/auth.hooks";
+import { useGetAuthStateStatus, useGetCurrentUser } from "../../hooks/auth.hooks";
 
 export default function Authenticated(props:any){
     const user = useGetCurrentUser();
-    if(!user){
+    const state = useGetAuthStateStatus();
+    if(!user && state!=="loading"){
         return <Navigate to={"/login"}/>
     };
     return (

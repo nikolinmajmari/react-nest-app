@@ -1,6 +1,7 @@
-import { Column, Entity, Index, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { Exclude, Expose } from 'class-transformer';
 import { IUser } from "@mdm/mdm-core";
+import Message from "../../channels/entities/message.entity";
 
 @Entity({
     name:"user"
@@ -52,4 +53,7 @@ export default class User implements IUser{
         type:"text"
     })
     avatar:string;
+
+    @OneToMany(()=>Message,(m)=>m.sender,{lazy:true,onDelete:'SET NULL'})
+    messages: Message|Promise<Message>;
 }

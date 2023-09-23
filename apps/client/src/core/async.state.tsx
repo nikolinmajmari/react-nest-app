@@ -1,9 +1,4 @@
 export interface IAsyncState{
-    status: 'idle' | 'loading' | 'succeeded' | 'failed',
-    error: string | null
-}
-
-export const initialState:IAsyncState =  {
-    status: "idle",
-    error: null
+    status: 'idle' | 'loading' | 'succeeded' | 'failed' | "mutating",
+    error: string | null | any;
 }

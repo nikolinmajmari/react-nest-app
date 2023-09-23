@@ -1,25 +1,31 @@
-import ChannelSettings from "./slices/channel/containers/Settings";
-import ChannelEmpty from "./components/channel/ChannelEmpty";
-import ChannelMain from "./slices/channel/containers"; 
-import ChannelsNavigation from "./slices/channels/Navigation";
+import ChannelSettings from "./channel/containers/settings/ChannelSettings";
+import Channels from "./channels";
 import { Outlet} from "react-router-dom";
-import { ModalProvider } from "../components/Modal";
+import storage from "../core/storage";
+import ChannelContainer from "./channel";
 
 export default function Chat(){
+    const handleLogout = ()=>{
+        storage.clear();
+        window.location.reload();
+    }
     return (
-       <ModalProvider>
-         <div className='flex flex-row w-full h-full bg-cyan-50'>
-            <div className="flex w-96 overflow-y-scroll">
-                <ChannelsNavigation/>
+        <div className="flex flex-col w-full h-full items-stretch">
+            <div className="h-16 bg-emerald-900 flex flex-row-reverse items-center px-12">
+                <button onClick={handleLogout}>Log Out</button>
             </div>
-            <div className="flex flex-1 relative">
-                <Outlet/>
+            <div className='flex flex-row w-full flex-1 overflow-hidden bg-cyan-50'>
+                <div className="flex w-96 overflow-y-scroll">
+                    <Channels/>
+                </div>
+                <div className="flex flex-1 relative">
+                    <Outlet/>
+                </div>
             </div>
         </div>
-       </ModalProvider>
     );
 }
 
 export {
-    ChannelSettings,ChannelEmpty,ChannelMain,ChannelsNavigation
+    ChannelSettings,ChannelContainer
 };

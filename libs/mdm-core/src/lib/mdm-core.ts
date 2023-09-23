@@ -1,5 +1,5 @@
 
-type U<T> = T|unknown;
+type U<T> = Promise<T>|T|any;
 
 export enum ChannelType{
     private="private",
@@ -53,10 +53,10 @@ export enum MessageType{
 }
 
 export interface IMessage{
-  id:string;
+  id?:string;
   type:MessageType;
   content:string;
   createdAt:Date;
-  sender:IUser;
-  channel:IChannel;
+  sender?:U<IUser>;
+  channel?:U<IChannel>;
 }

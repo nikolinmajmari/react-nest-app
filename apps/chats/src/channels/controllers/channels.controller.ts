@@ -4,6 +4,8 @@ import { ChannelsService } from '../services/channels.service';
 import { Public } from '../../auth/decorator';
 import { CreateChannelDTO, UpdateChannelDTO } from '../dto/channel.dto.ts';
 import { ChannelValidationPipe } from '../validation/channel.validation.pipe';
+import { MessagingService } from '../services/messaging.service';
+import { CreateMessageDTO } from '../dto/channel.message.dto';
 
 @Controller('channels')
 @ApiTags("channels")
@@ -11,7 +13,8 @@ import { ChannelValidationPipe } from '../validation/channel.validation.pipe';
 export class ChannelsController {
 
     constructor(
-         private readonly service: ChannelsService
+         private readonly service: ChannelsService,
+         private readonly messagingService: MessagingService
     ){}
 
     @Get("")
@@ -56,6 +59,34 @@ export class ChannelsController {
     @Delete(":id")
     async delete(@Param("id") id :string){
         await this.service.deleteChannel(id);
+    }
+
+
+    @HttpCode(HttpStatus.OK)
+    @Get(":id/messages")
+    async getMessages(
+         @Param("id") id:string,
+         @Req() req
+    ){
+        const channel = await this.service.findOneChannel(id);
+        const messages = await this.messagingService.getMessages(
+            channel,{}
+        );
+        return messages;
+    }
+
+    @HttpCode(HttpStatus.CREATED)
+    @Post(":id/messages")
+    async postMessage(
+        @Param("id") id:string,
+        @Body() dto:CreateMessageDTO,
+        @Req() req
+    ){
+        const channel = await this.service.findOneChannel(id);
+        const message = await this.messagingService.createMessage({
+            channel,user: req.user,dto
+        });
+        return message?.id;
     }
 
 }

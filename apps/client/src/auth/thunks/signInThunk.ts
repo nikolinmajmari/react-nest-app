@@ -7,7 +7,12 @@ import { IAuthLoginResult } from "@mdm/mdm-js-client";
 
 const loginThunk = createAsyncThunk<IAuthLoginResult,LoginCredentials>(
     "auth/login",async (credentials:LoginCredentials,thunkApi)=>{
-        return await auth.login(credentials);
+        try{
+            return await auth.login(credentials);
+        }catch(e){
+            console.log(e);
+            throw e;
+        }
     }
 );
 

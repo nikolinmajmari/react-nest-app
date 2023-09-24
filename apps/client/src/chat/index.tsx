@@ -15,7 +15,7 @@ export default function Chat(){
                 <button onClick={handleLogout}>Log Out</button>
             </div>
             <div className='flex flex-row w-full flex-1 overflow-hidden bg-cyan-50'>
-                <div className="flex w-96 overflow-y-scroll">
+                <div className="flex w-96 overflow-y-scroll bg-white">
                     <Channels/>
                 </div>
                 <div className="flex flex-1 relative">

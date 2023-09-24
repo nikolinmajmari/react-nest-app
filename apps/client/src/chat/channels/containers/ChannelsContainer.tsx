@@ -13,7 +13,7 @@ import {ContextMenu, MenuContext } from "../../../components/menu/ContextMenu";
 import useContextMenu from "../../../components/menu/useContextMenu";
 import { createPortal } from "react-dom";
 import { Menu, MenuItem } from "../../../components/menu/Menu";
-import { TfiAlert, TfiArchive, TfiArrowCircleRight, TfiArrowLeft, TfiBell, TfiDownload, TfiTrash } from "react-icons/tfi";
+import { TfiAlert, TfiArchive, TfiArrowCircleRight, TfiArrowLeft, TfiBell, TfiDownload, TfiIdBadge, TfiTrash } from "react-icons/tfi";
 
 
 
@@ -47,10 +47,7 @@ export default function ChannelsContainer(){
             avatar: avatar??'UU',
             active: channel.id === activeChannelId,
             navigate: ()=>{
-                menuContext.showMenu(
-                    <ContextMenu/>
-                )
-                return;
+                
                 setActiveChannel(channel.id);
                 navigate(`channels/${channel.id}`)
             }
@@ -92,9 +89,10 @@ export default function ChannelsContainer(){
 export function ChannelTileContainer(props:IChatTileProps){
     const ref = React.useRef();
     return (
-        <>
-         <ChatTile key={props.name} {...props} ref={ref}/>
-         <ContextMenu ref={ref}>
+        <ContextMenu ref={ref} trigger={
+            <ChatTile key={props.name} {...props} ref={ref}/>
+         }>
+            <MenuItem icon={TfiIdBadge} onClick={()=>1}>{props.name}</MenuItem>
             <MenuItem icon={TfiArrowCircleRight} onClick={() => 1}>
                 Open
             </MenuItem>
@@ -111,7 +109,5 @@ export function ChannelTileContainer(props:IChatTileProps){
                Delete
             </MenuItem>
          </ContextMenu>
-         <></>
-        </>
     );
 }

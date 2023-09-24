@@ -9,27 +9,19 @@ const useContextMenu:(ref:React.RefObject<HTMLDivElement>,builder:MenuBuilder)=>
     (event:MouseEvent) => {
      if(ref.current?.contains(event.target as Node)){
         event.preventDefault();
+        event.stopPropagation();
         context.showMenu(builder({ x: event.pageX, y: event.pageY }))
-      }else if(context.show){
-        event.preventDefault();
-        context.hideMenu();
       }
+      console.log('context menu event with ',event);
     },
     [ref, context, builder]
   );
-
-  const handleClick = useCallback((e:MouseEvent) => {
-    context.hideMenu();
-  }, [context]);
-
   useEffect(() => {
-    document.addEventListener("click", handleClick);
-    document.addEventListener("contextmenu", handleContextMenu);
+    ref.current?.addEventListener("contextmenu", handleContextMenu);
     return () => {
-      document.removeEventListener("click", handleClick);
-      document.removeEventListener("contextmenu", handleContextMenu);
+      ref.current?.removeEventListener("contextmenu", handleContextMenu);
     };
-  },[handleClick, handleContextMenu]);
+  },[handleContextMenu, ref]);
   return { ...context };
 };
 

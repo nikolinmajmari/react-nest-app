@@ -1,5 +1,5 @@
 import { Menu } from './Menu';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import useContextMenu from './useContextMenu';
 
@@ -22,12 +22,33 @@ export const MenuContext = React.createContext<IMenuContext>({
 export function ContextMenuProvider(props:any){
     const [show,setShow] = React.useState<boolean>(false);
     const [node,setNode] = React.useState<React.ReactNode|null>(null);
+    const ref = React.useRef();
     const handleShowMenu  = (node:React.ReactNode)=>{
-        console.log('showing',node);
         setShow(true);
         setNode(node);
     }
-    const handleHideMenu = ()=>setShow(false);
+    
+    const handleHideMenu = ()=>{
+        setShow(false);
+    };
+
+    const hideMenuOnContextMenu = useCallback(
+        (event:MouseEvent)=>{
+        if(show && node && !ref.current?.contains(event.target as Node)){
+            event.preventDefault();
+            event.stopPropagation();
+            handleHideMenu();
+        }
+    },[show,node]);
+
+    React.useEffect(()=>{
+        document.addEventListener('contextmenu',hideMenuOnContextMenu);
+        document.addEventListener('click',handleHideMenu);
+        return ()=>{
+            document.removeEventListener('contextmenu',hideMenuOnContextMenu);
+            document.removeEventListener('click',handleHideMenu);
+        }
+    },[show, node, hideMenuOnContextMenu])
     return (
         <MenuContext.Provider value={{
                 show: show,
@@ -36,17 +57,27 @@ export function ContextMenuProvider(props:any){
             }}>
             {props.children}
             { show && node && createPortal(
-                 node
+                 <RefWrapper ref={ref}>{node}</RefWrapper>
                 ,document.body) }
         </MenuContext.Provider>
     );
 }
 
+const RefWrapper = React.forwardRef((props:any,ref)=>{
+    return (
+        <div ref={ref}>
+            {props.children}
+        </div>
+    );
+})
+
 export interface IContextMenuProps{
-    children?:any
+    children?:React.ReactNode,
+    trigger:React.ReactNode;
 }
 
-export const ContextMenu = React.forwardRef((props:IContextMenuProps,ref)=>{
+export function ContextMenu(props:IContextMenuProps){
+    const ref = React.useRef();
     useContextMenu(
         ref,
         function(pos){
@@ -54,7 +85,8 @@ export const ContextMenu = React.forwardRef((props:IContextMenuProps,ref)=>{
         }
     );
     return (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
-        <></>
-    )
-});
+        <div ref={ref}>
+            {props.trigger}
+        </div>
+    );
+};

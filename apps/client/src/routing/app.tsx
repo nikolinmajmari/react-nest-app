@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Chat from '../chat';
-import { ChannelSettings } from "../chat";
 import { Login } from "../auth/login";
 import { SignUp } from "../auth/signup";
 import Authenticated from "./components/authenticated";
@@ -9,9 +8,13 @@ import { useAppDispatch } from "../app/hooks";
 import { attemptSilentSignIn } from "../auth/auth.slice";
 import React from "react";
 import { useGetCurrentUser } from "../hooks/auth.hooks";
-import ChannelContainer from "../chat/channel";
+import ChannelContainer, { ChannelMembers, ChannelSettings } from "../chat/channel";
 import ChannelEmpty from "../components/channels/ChannelEmpty";
 import { ContextMenuProvider } from "../components/menu/ContextMenu";
+import NewChannelModal from "../chat/channels/containers/new/NewChannelModal";
+import NewChannelTypeModal from "../chat/channels/containers/new/NewChannelTypeSelectModal";
+import SettingsNavigator from "../chat/channel/containers/settings";
+import NotificationProvider from "../components/notifications/Toastify";
 
 export function App() {
   const dispatch = useAppDispatch();
@@ -21,20 +24,39 @@ export function App() {
       dispatch(attemptSilentSignIn());
     }
   });
+  const location = useLocation();
+  const previousLocation = location.state?.previousLocation;
   return (
-    <ContextMenuProvider>
-      <Routes>
-      <Route path="/login" element={<Login/>}/>
-      <Route path="/signup" element={<SignUp/>}/>
-        <Route path='/chat/*' element={<Authenticated><Chat/></Authenticated>}>
-          <Route path="channels/:id" element={<ChannelContainer/>}>
-            <Route path="settings" element={<ChannelSettings/>}/>
+    <NotificationProvider>
+      <ContextMenuProvider>
+        <Routes location={previousLocation || location}>
+        <Route path="/login" element={<Login/>}/>
+        <Route path="/signup" element={<SignUp/>}/>
+          <Route path='/chat/*' element={<Authenticated><Chat/></Authenticated>}>
+            <Route path="channels/:id" element={<ChannelContainer/>}>
+              <Route path="settings" element={<SettingsNavigator/>}>
+                <Route path="members" element={<ChannelMembers/>}/>
+                <Route path="*" element={<ChannelSettings/>}/>
+              </Route>
+            </Route>
+            <Route path="*" element={<ChannelEmpty/>}/>
           </Route>
-          <Route path="*" element={<ChannelEmpty/>}/>
-        </Route>
-        <Route path="*" element={<Navigate to={"/login"}/>}/>
-      </Routes>
+          <Route path="*" element={<Navigate to={"/login"}/>}/>
+        </Routes>
+        {
+          previousLocation && 
+          <Routes>
+            <Route path="/chat/channels/new" element={<NewChannelTypeModal/>}></Route>
+            <Route path="/chat/channels/private/new" 
+              element={<NewChannelModal title="Create new Private Channel" type="private"/>}>
+            </Route>
+            <Route path="/chat/channels/group/new" 
+              element={<NewChannelModal title="Create new Group Channel" type="group"/>}>
+            </Route>
+          </Routes>
+        }
     </ContextMenuProvider>
+    </NotificationProvider>
   );
 }
 

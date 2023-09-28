@@ -1,19 +1,16 @@
-import React, { Fragment, useRef, useState } from 'react';
+import { Fragment, useRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
 export interface IModalProps{
   children?: any
-  open:boolean,
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  close: ()=>void
 }
 
-export default function Modal(props:IModalProps) {
-  const {open,setOpen} = props;
+export default function Modal({close,children}:IModalProps) {
   const cancelButtonRef = useRef(null);
-
   return (
-    <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+    <Transition.Root show={true} as={Fragment}>
+      <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={close}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -37,7 +34,7 @@ export default function Modal(props:IModalProps) {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-opacity-100 bg-white p-6 text-left align-middle shadow-xl transition-all">
-                {props.children}
+                {children}
               </Dialog.Panel>
             </Transition.Child>
           </div>

@@ -1,5 +1,5 @@
 import { useAppDispatch } from "../../../../app/hooks";
-import React, { forwardRef } from "react";
+import React, { FormEventHandler, forwardRef } from "react";
 import { postMessageThunk } from "../../slices/channel-messages.slice";
 import { TfiReceipt } from "react-icons/tfi";
 import { ChannelContext } from "../../channel-context";
@@ -11,10 +11,7 @@ const ChannelEntry = forwardRef(function (props,ref){
     const dispatch = useAppDispatch();
     const user = useGetCurrentUser();
     const [text,setText] = React.useState("");
-    const channel = React.useContext(ChannelContext);
-    if(!channel){
-        throw new Error('');
-    }
+    const {channel} = React.useContext(ChannelContext);
     const handleAddMessage = ()=>{
         dispatch(postMessageThunk({
             channelId: channel.id,
@@ -22,7 +19,7 @@ const ChannelEntry = forwardRef(function (props,ref){
             message: {
                 content: text,
                 type: MessageType.text,
-                sender: user
+                sender:user
             }
         }));
         setText("");
@@ -36,13 +33,22 @@ const ChannelEntry = forwardRef(function (props,ref){
             }
         )
     }
+    const handleFormSubmit:FormEventHandler<HTMLFormElement> = (e)=>{
+        e.preventDefault();
+        handleAddMessage();
+    }
+    if(!channel){
+        throw new Error('');
+    }
     return (
-         <div className=" bg-slate-100 shadow-y-md bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-row items-center">
-            <div className="h-20 flex flex-row items-center justify-between w-full px-6 py-4">
-            <input value={text} onChange={e=>setText(e.target.value)} className='bg-white focus:shadow-md px-4 py-2 rounded-lg flex-1 outline-none focus:outline-none'/>
-            <button onClick={handleAddMessage} className="mx-2 bg-teal-900 text-white p-4 rounded-full "><TfiReceipt/></button>
+         <form onSubmit={handleFormSubmit}>
+            <div className=" bg-slate-100 shadow-y-md bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-row items-center">
+                <div className="h-20 flex flex-row items-center justify-between w-full px-6 py-4">
+                <input value={text} onChange={e=>setText(e.target.value)} className='bg-white focus:shadow-md px-4 py-2 rounded-lg flex-1 outline-none focus:outline-none'/>
+                <button type="submit" className="mx-2 bg-teal-900 text-white p-4 rounded-full "><TfiReceipt/></button>
+                </div>
             </div>
-         </div>
+         </form>
     );
 });
 

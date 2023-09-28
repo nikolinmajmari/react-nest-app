@@ -36,9 +36,16 @@ const slice = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-            .addCase(createPrivateChannelThunk.fulfilled,(state,action)=>{
+            .addCase(createChannelThunk.fulfilled,(state,action)=>{
                 state.status = "succeeded";
                 state.channels.unshift(action.payload);
+            })
+            .addCase(deleteChannelThunk.pending,(state,action)=>{
+                state.status = "mutating";
+            })
+            .addCase(deleteChannelThunk.fulfilled,(state,action)=>{
+                state.status = "succeeded";
+                state.channels = state.channels.filter((i)=>i.id!==action.payload);
             })
             return builder;
         }
@@ -52,13 +59,17 @@ export const loadChannelsThunk = createAsyncThunk<IChannel[],void>("channels/loa
     }
 );
 
-export const createPrivateChannelThunk = createAsyncThunk<IChannel,Partial<IChannel>>('channels/create',async (data,thunkApi)=>{
+export const createChannelThunk = createAsyncThunk<IChannel,Partial<IChannel>>('channels/create',async (data,thunkApi)=>{
     const channel =  await channels.createChannel({
         ...data,
-        type: ChannelType.private
     });
     return await channels.getChannel((channel as any).id);
 });
+
+export const deleteChannelThunk = createAsyncThunk<string,Partial<IChannel>>('channels/delete',async (data,thunkApi)=>{
+    await channels.deleteChannel(data.id!);
+    return data.id!;
+})
 
 //// actions 
 export const {setActiveChannel}  = slice.actions;

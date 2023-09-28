@@ -7,21 +7,20 @@ import ChannelFeedContainer from "./feed/ChannelFeedContainer";
 import ChannelNavigation from "./ChannelNavigation";
 
 export default function ChannelContainer(){
-    const stateStatus = useGetChannelStateStatus();
+    const status = useGetChannelStateStatus();
     const loadChannel = useLoadChannelDispatch();
-    const channel = useGetChannel();
     const { id } = useParams();
     React.useEffect(()=>{
         if(id){
             loadChannel(id);
         }
     },[id]);
-    if(stateStatus==="idle"||stateStatus==="loading"){
+    if(status==="idle"||status==="loading"){
         return <ChannelSkeleton/>
     }
-    if(stateStatus==="succeeded" && channel){
+    if(status==="succeeded"){
         return (
-        <ChannelProvider channel={channel}>
+        <ChannelProvider>
             <ChannelFeedContainer navigation={<ChannelNavigation/>}/>
             <Outlet/>
         </ChannelProvider>)

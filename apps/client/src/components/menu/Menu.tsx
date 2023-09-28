@@ -15,6 +15,16 @@ export function MenuItem(props:MenuItemProps){
     );
 }
 
+
+export function MenuHeader(props:Partial<MenuItemProps>){
+    return (
+    <div onClick={props.onClick} className="py-1 flex flex-row px-1 items-center bg-opacity-10 hover:bg-slate-200 hover:bg-opacity-80 cursor-pointer">
+        <div className="text-gray-700 text-center text-md font-bold block px-4 py-2">{props.children}</div>
+    </div>
+    );
+}
+
+
 export interface MenuProps{
     anchorPoint: {x:number;y:number};
     children?:any;

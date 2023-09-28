@@ -7,6 +7,7 @@ import { useGetCurrentUser } from "../../../../hooks/auth.hooks";
 
 const ChannelFeed = forwardRef(function(props,ref){
     const messages = useGetMessageList();
+    console.log(messages);
     const user = useGetCurrentUser();
     //// handle scroll
     React.useEffect(()=>{
@@ -24,7 +25,7 @@ const ChannelFeed = forwardRef(function(props,ref){
                             <Message  
                                 key={index}
                                 content={_.content} 
-                                sender={`${_.sender?.firstName} ${_.sender.lastName}`} 
+                                sender={`${_.sender?.firstName} ${_.sender?.lastName}`} 
                                 timestamp={_.createdAt?.toString()??'-'} 
                                 reduced={false} 
                                 align={_.sender?.id===user?.id ? Align.right:Align.left}

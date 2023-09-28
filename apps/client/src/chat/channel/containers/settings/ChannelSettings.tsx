@@ -1,38 +1,35 @@
 import { animated, useSpring } from "@react-spring/web";
 import { TfiArrowLeft, TfiCamera, TfiHeadphone, TfiMenu } from "react-icons/tfi";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { NavigationHeader } from "../../../../components/channels/NavigationHeader";
 import { LinkNavigationButton } from "../../../../components/channels/default";
-import AnimatedOpacity from "../../../../components/AnimatedOpacity";
 import { useGetChannel } from "../../../../hooks/channel.hooks";
 import { useGetCurrentUser } from "../../../../hooks/auth.hooks";
-import { IChannelMember } from "@mdm/mdm-core";
+import { ChannelType, IChannelMember } from "@mdm/mdm-core";
+import { ChannelContext } from "../../channel-context";
+import React from "react";
+import { SettingsAvatar, SettingsBody, SettingsChannelName, SettingsListItemLink } from "./Components";
 
-export default function Settings(){
-    const channel = useGetChannel();
-    const user = useGetCurrentUser();
-    const otherMember  =  channel?.members?.find((m:IChannelMember)=>m.user.id!==user.id);
+export default function ChannelSettings(){
+    const {channel} = React.useContext(ChannelContext);
     return (
-    <AnimatedOpacity className='lex z-50 w-full h-full bg-white absolute flex-col flex-1 overflow-y-auto transition-opacity opacity-100'>
-        <NavigationHeader leading={
+        <>
+         <NavigationHeader leading={
             <LinkNavigationButton to={"/chat/channels/"+channel?.id}>
                 <TfiArrowLeft/>
             </LinkNavigationButton>
         }>
         </NavigationHeader>
-        <div className="flex flex-col flex-1 items-center container bg-white py-2">
-            <div className="flex flex-1 w-2/3 flex-col items-stretch pb-40">
-                <span className="flex flex-row justify-center">
-                    <div className="bg-teal-800 w-40 h-40 rounded-full">
-                        <span className="text-lg"></span>
-                    </div>
-                </span>
-                <span className="text-center text-2xl font-bold py-2">
-                    {
-                        otherMember? `${otherMember.user.firstName} ${otherMember.user.lastName}`
-                        : `${user.firstName} ${user.lastName}`
-                    }
-                </span>
+       <SettingsBody>
+          <SettingsAvatar label="A"/>
+          <SettingsChannelName label={channel?.alias??'-'}/>
+                {
+                    channel?.type===ChannelType.group  && (
+                        <SettingsListItemLink to="members">
+                             Channel Members ({channel?.members.length})
+                        </SettingsListItemLink>
+                    )
+                }
                 <div className="p-4 cursor-pointer hover:bg-gray-100 transition-colors border-b-gray-100 border-b-2">
                     Media, Links, and docs
                 </div>
@@ -51,7 +48,7 @@ export default function Settings(){
                 <div className="p-4 cursor-pointer hover:bg-gray-100 transition-colors border-b-gray-100 border-b-2">
                     Block
                 </div>
-            </div>
-        </div>
-    </AnimatedOpacity>);
+       </SettingsBody>
+        </>
+    );
 }

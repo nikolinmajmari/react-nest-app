@@ -32,15 +32,15 @@ interface ISearchedUserProps{
 export function SearchedUserItem(props:ISearchedUserProps){
     const {user} = props;
     return (
-        <div onClick={props.onPress} className={`rounded-lg flex flex-row cursor-pointer px-3 py-2 mx-4 my-1 ${props.selected ? 'shadow-lg bg-blue-50':'bg-slate-50'} text-gray-700`}>
-            <div className={`"avatar flex items-center justify-center font-bold ${props.selected?'bg-slate-700 text-white':'bg-gray-100'} w-12 h-12 mr-4 rounded-full text-white"`}>
+        <div onClick={props.onPress} className={`rounded-lg flex flex-row cursor-pointer px-3 py-1 mx-3 my-1 ${props.selected ? 'shadow-lg bg-blue-50':'bg-slate-50'} text-gray-700`}>
+            <div className={`"avatar flex items-center justify-center font-bold ${props.selected?'bg-slate-700 text-white':'bg-gray-100'} w-10 h-10 mr-4 rounded-full text-white"`}>
                 <span>
                     {user.firstName.charAt(0)}
                     {user.lastName.charAt(0)}
                 </span>
             </div>
             <div className="content flex flex-1 flex-start flex-col">
-                <span className="name text-md font-medium pb-2">
+                <span className="name text-sm font-medium pb-1">
                     {user.firstName} {user.lastName}
                 </span>
                 <span className="text-xs">

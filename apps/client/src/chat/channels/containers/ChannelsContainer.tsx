@@ -1,6 +1,6 @@
 import { ChannelType, IChannel, IChannelMember } from "@mdm/mdm-core";
 import { useGetCurrentUser } from "../../../hooks/auth.hooks";
-import { setActiveChannel } from "../slices/channels.slice";
+import { deleteChannelThunk, setActiveChannel } from "../slices/channels.slice";
 import { useNavigate } from "react-router-dom";
 import ChatTile, { IChatTileProps } from "../../../components/channels/Tile";
 import { useGetActiveChannel, useGetChannelsList, useGetChannelsStateStatus, useLoadChannelsDispatch } from "../../../hooks/channels.hooks";
@@ -12,8 +12,11 @@ import ErrorComponent from "../../../components/ErrorComponent";
 import {ContextMenu, MenuContext } from "../../../components/menu/ContextMenu";
 import useContextMenu from "../../../components/menu/useContextMenu";
 import { createPortal } from "react-dom";
-import { Menu, MenuItem } from "../../../components/menu/Menu";
+import { Menu, MenuHeader, MenuItem } from "../../../components/menu/Menu";
 import { TfiAlert, TfiArchive, TfiArrowCircleRight, TfiArrowLeft, TfiBell, TfiDownload, TfiIdBadge, TfiTrash } from "react-icons/tfi";
+import { useAppDispatch } from "../../../app/hooks";
+import { channel } from "diagnostics_channel";
+import { NotificationContext } from "../../../components/notifications/Toastify";
 
 
 
@@ -55,7 +58,7 @@ export default function ChannelsContainer(){
     }
 
     const renderChannels = ()=>{
-        return channels.map((ch:IChannel)=>(<ChannelTileContainer key={ch.id} {...getChannelTileProps(ch)}/>));
+        return channels.map((ch:IChannel)=>(<ChannelTileContainer channel={ch} key={ch.id} {...getChannelTileProps(ch)}/>));
     }
     return (
           <aside className='flex flex-col flex-1 bg-white'>
@@ -86,13 +89,20 @@ export default function ChannelsContainer(){
 }
 
 
-export function ChannelTileContainer(props:IChatTileProps){
+export function ChannelTileContainer(props:IChatTileProps&{channel:Partial<IChannel>}){
+    const notification = React.useContext(NotificationContext);
+    const dispatch = useAppDispatch();
+    const handleDeleteChannel = ()=>{
+        dispatch(deleteChannelThunk(props.channel)).unwrap()
+        .then(()=>notification?.success('Channel deleted successfully'))
+        .catch((e)=>notification?.error('An error occured'));
+    };
     const ref = React.useRef();
     return (
         <ContextMenu ref={ref} trigger={
             <ChatTile key={props.name} {...props} ref={ref}/>
          }>
-            <MenuItem icon={TfiIdBadge} onClick={()=>1}>{props.name}</MenuItem>
+            <MenuHeader>{props.name}</MenuHeader>
             <MenuItem icon={TfiArrowCircleRight} onClick={() => 1}>
                 Open
             </MenuItem>
@@ -105,7 +115,7 @@ export function ChannelTileContainer(props:IChatTileProps){
              <MenuItem icon={TfiDownload} onClick={() => 1}>
                 Download
             </MenuItem>
-             <MenuItem icon={TfiTrash} onClick={() => 1}>
+             <MenuItem icon={TfiTrash} onClick={() => handleDeleteChannel()}>
                Delete
             </MenuItem>
          </ContextMenu>

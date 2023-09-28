@@ -12,11 +12,11 @@ import { CreateMessageDTO } from '../dto/channel.message.dto';
 @ApiBearerAuth()
 export class ChannelsController {
 
+
     constructor(
          private readonly service: ChannelsService,
          private readonly messagingService: MessagingService
     ){}
-
     @Get("")
     @HttpCode(HttpStatus.OK)
     get(@Req() request){

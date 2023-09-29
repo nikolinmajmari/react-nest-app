@@ -61,7 +61,7 @@ export default function ChannelsContainer(){
         return channels.map((ch:IChannel)=>(<ChannelTileContainer channel={ch} key={ch.id} {...getChannelTileProps(ch)}/>));
     }
     return (
-          <aside className='flex flex-col flex-1 bg-white'>
+          <aside className='flex flex-col flex-1 bg-white overflow-y-auto'>
             <ChannelsHeader/>
              {
                 (status==="idle" || status==="loading") 

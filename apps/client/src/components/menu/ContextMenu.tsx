@@ -28,7 +28,7 @@ export function ContextMenuProvider(props:any){
         setNode(node);
     }
     
-    const handleHideMenu = ()=>{
+    const handleHideMenu = (event:MouseEvent)=>{
         setShow(false);
     };
 
@@ -37,7 +37,7 @@ export function ContextMenuProvider(props:any){
         if(show && node && !ref.current?.contains(event.target as Node)){
             event.preventDefault();
             event.stopPropagation();
-            handleHideMenu();
+            setShow(false);
         }
     },[show,node]);
 
@@ -65,7 +65,7 @@ export function ContextMenuProvider(props:any){
 
 const RefWrapper = React.forwardRef((props:any,ref)=>{
     return (
-        <div ref={ref}>
+        <div ref={ref} className=''>
             {props.children}
         </div>
     );

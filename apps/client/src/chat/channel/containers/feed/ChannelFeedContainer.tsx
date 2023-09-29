@@ -21,12 +21,12 @@ export default function ChannelFeedContainer({navigation}:IChannelFeedContainerP
         if(channel && channel.id){
             loadMessages(channel.id);
         }
-    },[channel]);
+    },[channel?.id]);
 
 
     return (
     <div className="flex flex-1 flex-col">
-        <AnimatedOpacity className='flex flex-col flex-1 overflow-y-auto'>
+        <AnimatedOpacity className='flex flex-col flex-1 overflow-y-scroll'>
             { navigation }
             { ( status === "idle" || status === "loading" ) && <ChannelMessagesSkeleton/> }
             { status === "succeeded" && <ChannelFeed ref={feedRef}/>}

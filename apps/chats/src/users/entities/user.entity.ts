@@ -2,6 +2,7 @@ import { Column, Entity, Index, OneToMany, PrimaryColumn, PrimaryGeneratedColumn
 import { Exclude, Expose } from 'class-transformer';
 import { IUser } from "@mdm/mdm-core";
 import Message from "../../channels/entities/message.entity";
+import ChannelMember from "../../channels/entities/channel-member.entity";
 
 @Entity({
     name:"user"
@@ -55,5 +56,9 @@ export default class User implements IUser{
     avatar:string;
 
     @OneToMany(()=>Message,(m)=>m.sender,{lazy:true,onDelete:'SET NULL'})
-    messages: Message|Promise<Message>;
+    messages: Message|Promise<Message>[];
+
+
+    @OneToMany(()=>ChannelMember,(m)=>m.user,{lazy:true,onDelete:'SET NULL'})
+    members?: Promise<ChannelMember[]>|ChannelMember[];
 }

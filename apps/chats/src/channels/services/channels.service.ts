@@ -45,6 +45,20 @@ constructor(
     async findUserChannels(user:Partial<User>){
         const query = this.repository.createQueryBuilder('ch')
         .select(['ch','m','u.id','u.firstName','u.lastName','u.email','u.avatar'])
+        .addSelect(
+            (qb)=>
+            qb.select(`
+                case when _ch.type = 'private' then 
+                CONCAT(_u."firstName",' ',_u."lastName")
+                else _ch.alias end
+            `)
+            .from("user",'_u')
+            .innerJoin('_u.members','_chm')
+            .innerJoin('_chm.channel','_ch')
+            .where('_chm.channelId = ch.id')
+            .andWhere('u.id <> :userId')
+            .limit(1),'ch_alias'
+        )
         .leftJoin('ch.members','m')
         .leftJoin('m.user','u');
         query.andWhere(
@@ -56,6 +70,7 @@ constructor(
             .andWhere('u.id = :userId')
             .getQuery()
         ).setParameter('userId',user.id)
+        .cache(false)
        return await query.getMany();
     }
 

@@ -16,6 +16,7 @@ export default class Channel implements IChannel {
 
     @Column({
         type: "text",nullable:true,
+        select: false,
     })
     alias?:string;
 

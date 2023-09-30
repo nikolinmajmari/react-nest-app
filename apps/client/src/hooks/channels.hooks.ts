@@ -1,6 +1,7 @@
 import { ChannelType, IChannel, IChannelMember } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { createChannelThunk, loadChannelsThunk, setActiveChannel } from "../chat/channels/slices/channels.slice";
+import { useGetCurrentUser } from "./auth.hooks";
 
 export function useGetChannelsList(){
     return useAppSelector(root=>root.channels.channels);

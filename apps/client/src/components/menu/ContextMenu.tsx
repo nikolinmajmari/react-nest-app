@@ -28,7 +28,7 @@ export function ContextMenuProvider(props:any){
         setNode(node);
     }
     
-    const handleHideMenu = (event:MouseEvent)=>{
+    const handleHideMenu = ()=>{
         setShow(false);
     };
 

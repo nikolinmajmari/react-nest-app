@@ -34,31 +34,11 @@ export default function ChannelsContainer(){
         }
     },[status,loadChannels]);
 
-    const getChannelTileProps =function (channel:IChannel):IChatTileProps{
-        let name = channel.alias;
-        let avatar = channel.avatar;
-        if(channel.type===ChannelType.private){
-            const otherMember = (channel.members as IChannelMember[]).find(m=>m.user?.id !== user.id);
-            /// for private channels, other member name will be used as alias 
-            name = `${otherMember?.user.firstName} ${otherMember?.user.lastName}`;
-            avatar = name.split(' ').map(e=>e.charAt(0)).join('');
+    const createNavigateHandler = (channel:IChannel)=>{   
+        return ()=>{
+            setActiveChannel(channel.id);
+            navigate(`channels/${channel.id}`)
         }
-        return {
-            ...channel,
-            label: channel.lastMessage??' ',
-            name: name??'Unknown',
-            avatar: avatar??'UU',
-            active: channel.id === activeChannelId,
-            navigate: ()=>{
-                
-                setActiveChannel(channel.id);
-                navigate(`channels/${channel.id}`)
-            }
-        }
-    }
-
-    const renderChannels = ()=>{
-        return channels.map((ch:IChannel)=>(<ChannelTileContainer channel={ch} key={ch.id} {...getChannelTileProps(ch)}/>));
     }
     return (
           <aside className='flex flex-col flex-1 bg-white overflow-y-auto'>
@@ -76,7 +56,16 @@ export default function ChannelsContainer(){
              {
               (status==="succeeded" || status === "mutating" ) && 
                 <ChannelGroupContainer label="Channels">
-                    { renderChannels()}
+                    {
+                    channels.map(
+                        (ch:IChannel)=>
+                            <ChannelTileContainer 
+                                channel={ch} 
+                                active={ch.id===activeChannelId}
+                                navigate={createNavigateHandler(ch)}
+                            />
+                        )
+                    }
                 </ChannelGroupContainer>
              }
              {
@@ -89,20 +78,33 @@ export default function ChannelsContainer(){
 }
 
 
-export function ChannelTileContainer(props:IChatTileProps&{channel:Partial<IChannel>}){
+export interface IChannelTileContainerProps{
+    channel: Partial<IChannel>;
+    active:boolean;
+    navigate:()=>void;
+}
+
+export function ChannelTileContainer(props:IChannelTileContainerProps){
     const notification = React.useContext(NotificationContext);
     const dispatch = useAppDispatch();
     const handleDeleteChannel = ()=>{
-        dispatch(deleteChannelThunk(props.channel)).unwrap()
+        dispatch(deleteChannelThunk(channel)).unwrap()
         .then(()=>notification?.success('Channel deleted successfully'))
         .catch((e)=>notification?.error('An error occured'));
     };
+    const {channel,active,navigate} = props;
     const ref = React.useRef();
     return (
         <ContextMenu ref={ref} trigger={
-            <ChatTile key={props.name} {...props} ref={ref}/>
+            <ChatTile key={channel.id}
+                active={active}
+                avatar={channel.avatar??"U"}
+                label={channel.lastMessage??"Unknown"}
+                name={channel.alias??"Unkonwn"}
+                navigate={navigate}
+            ref={ref}/>
          }>
-            <MenuHeader>{props.name}</MenuHeader>
+            <MenuHeader>{channel.alias??"Unknown"}</MenuHeader>
             <MenuItem icon={TfiArrowCircleRight} onClick={() => 1}>
                 Open
             </MenuItem>

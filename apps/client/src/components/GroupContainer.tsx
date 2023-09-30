@@ -4,7 +4,9 @@ export default function ChannelGroupContainer(props:IChanelGroupContainerProps){
     const {label,children,...rest} = props;
     return (
         <div {...rest}>
-                <div className="px-4 text-gray-500 text-opacity-80 font-bold text-2xl py-2 bg-slate-50">
+                <div className="px-4 text-gray-500 text-opacity-80 font-bold text-2xl py-2 bg-slate-50
+                    dark:text-white dark:bg-gray-800
+                ">
                     {label}
                 </div>
                 {

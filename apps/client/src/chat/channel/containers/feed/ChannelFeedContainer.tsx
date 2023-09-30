@@ -25,7 +25,7 @@ export default function ChannelFeedContainer({navigation}:IChannelFeedContainerP
 
 
     return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col bg-gray-700">
         <AnimatedOpacity className='flex flex-col flex-1 overflow-y-scroll'>
             { navigation }
             { ( status === "idle" || status === "loading" ) && <ChannelMessagesSkeleton/> }

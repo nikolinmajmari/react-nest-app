@@ -48,7 +48,7 @@ export class MembersController{
 
 
     @Delete(':id')
-    @HttpCode(HttpStatus.NOT_FOUND)
+    @HttpCode(HttpStatus.NO_CONTENT)
     async deleteMember(
         @Req() request,
         @Param('id') id:string,

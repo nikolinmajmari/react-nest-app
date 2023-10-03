@@ -4,8 +4,13 @@ import { LinkNavigationButton } from "../../../../components/channels/default";
 import { IChannelMember } from "@mdm/mdm-core";
 import React from "react";
 import { ChannelContext } from "../../channel-context";
+import { useGetChannelStateStatus } from "../../../../hooks/channel.hooks";
+import { useAppDispatch } from "../../../../app/hooks";
+import { deleteMemberThunk } from "../../slices/channel.slice";
 
 export default function ChannelMembers(){
+    const status = useGetChannelStateStatus();
+    const dispatch = useAppDispatch();
     const {channel,isAdmin} = React.useContext(ChannelContext);
     return (
     <div className='lex z-50 w-full h-full bg-white absolute flex-col flex-1 overflow-y-auto transition-opacity opacity-100'>
@@ -25,25 +30,32 @@ export default function ChannelMembers(){
                 </span>
             </div>
             <span className="text-mb">Members</span>
-            <div className="flex flex-1 flex-col w-2/3 justify-start pt-6">
-              {
-                channel?.members.map((member:IChannelMember)=>(<MemberItemContainer isAdmin={isAdmin??false} member={member}/>))
-              }
+            <div className="flex flex-1 flex-col w-2/3 justify-start pt-6 relative">
+                {
+                    status === "loading" && <div className="absolute z-10 bg-slate-800 bg-opacity-20 top-0 w-full h-full"></div>
+                }
+                {
+                    channel?.members.map((member:IChannelMember)=>(
+                        <MemberItemContainer 
+                            isAdmin={isAdmin??false} 
+                            member={member}
+                            deleteMember={()=>dispatch(deleteMemberThunk(member))}
+                        />)
+                    )
+                }
             </div>
         </div>
     </div>);
 }
 
-function MemberItemContainer({member,isAdmin}:{member:IChannelMember,isAdmin:boolean}){
+function MemberItemContainer({member,isAdmin,deleteMember}:{member:IChannelMember,isAdmin:boolean,deleteMember:()=>void}){
     return (
          <MemberItem 
             alias={`${member.user.firstName} ${member.user.lastName}`} 
             avatar={"A"} 
             role={member.role} 
             isAdmin={isAdmin??false} 
-            onActionClick={function (): void {
-                throw new Error("Function not implemented.");
-            }}
+            onActionClick={deleteMember}
             />
     );
 }

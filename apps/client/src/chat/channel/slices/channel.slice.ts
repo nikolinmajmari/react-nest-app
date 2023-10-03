@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { IChannel } from "@mdm/mdm-core";
+import { IChannel, IChannelMember } from "@mdm/mdm-core";
 import { channels } from "../../../api.client/client";
 import { IAsyncState } from "../../../core/async.state";
 
@@ -33,7 +33,21 @@ const channelSlice = createSlice({
         .addCase(loadChannelThunk.fulfilled,(state,action)=>{
             state.status = "succeeded";
             state.channel = action.payload;
-        });
+        })
+        .addCase(deleteMemberThunk.fulfilled,(state,action)=>{
+            if(state.channel){
+                state.channel.members = state.channel?.members.filter((m:IChannelMember)=>m.id!==action.payload.id);
+            }
+            state.status = "succeeded";
+        })
+        .addCase(deleteMemberThunk.pending,(state,action)=>{
+            state.status = 'mutating';
+        })
+        .addCase(deleteMemberThunk.rejected,(state,action)=>{
+            state.status = "failed";
+            state.error = action.error;
+        })
+        ;
         return builder;
     },
 });
@@ -44,6 +58,13 @@ export const loadChannelThunk = createAsyncThunk<IChannel,string>(
         return await channels.getChannel(channelId)
     }
 );
+
+export const deleteMemberThunk = createAsyncThunk<IChannelMember,IChannelMember>(
+    'chat_channel_members_delete',async (member:IChannelMember)=>{
+        await channels.deleteMember(member.id);
+        return member;
+    }
+)
 
 
 export  const {setChannel} = channelSlice.actions;

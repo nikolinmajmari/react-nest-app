@@ -53,7 +53,7 @@ export default class Channel implements IChannel {
     @OneToOne(
         ()=>Message,
     )
-    @JoinColumn()
-    lastMessage:Promise<Message>;
+    @JoinColumn({})
+    lastMessage?:Promise<Message>|Message;
 
 }

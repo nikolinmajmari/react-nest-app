@@ -33,4 +33,8 @@ export class ChannelsHandler{
     async postChannelMessage(id:string,message:Partial<IMessage>){
         return await this.baseClient.post<string>(`/channels/${id}/messages`,message);
     }
+
+    async deleteMember(id:string){
+        return await this.baseClient.delete(`/members/${id}`);
+    }
 }

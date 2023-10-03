@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectEntityManager, InjectRepository } from "@nestjs/typeorm";
 import Message from "../entities/message.entity";
-import { Repository } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 import Channel from "../entities/channel.entity";
 import User from "../../users/entities/user.entity";
 import { ChannelMessagesQuery } from "../dto/query.dto";
@@ -20,7 +20,9 @@ export class MessagingService{
 
     constructor(
         @InjectRepository(Message)
-        private readonly repository: Repository<Message>
+        private readonly repository: Repository<Message>,
+        @InjectEntityManager()
+        private readonly em:EntityManager
     ){}
 
     async getMessages(channel:Channel,query:any){
@@ -41,6 +43,9 @@ export class MessagingService{
         dto.sender = user as User;
         dto.channel = channel;
         const message = this.repository.create(dto as Message);
-        return await this.repository.save(message);
+        const saved =  await this.repository.save(message);
+        channel.lastMessage = saved;
+        await this.em.save(channel);
+        return saved;
     }
 }

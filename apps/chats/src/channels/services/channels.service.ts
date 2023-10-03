@@ -6,6 +6,7 @@ import Channel from "../entities/channel.entity";
 import ChannelMember from "../entities/channel-member.entity";
 import User from "../../users/entities/user.entity";
 import { ChannelType, MemberRole } from "@mdm/mdm-core";
+import Message from "../entities/message.entity.js";
 
 
 
@@ -58,6 +59,14 @@ constructor(
             .where('_chm.channelId = ch.id')
             .andWhere('u.id <> :userId')
             .limit(1),'ch_alias'
+        )
+        .addSelect(
+            (qb)=>
+            qb.select('_m.content')
+            .from("message",'_m')
+            .where('_m.channelId = ch.id')
+            .orderBy('id','DESC')
+            .limit(1),'ch_lastMessage'
         )
         .leftJoin('ch.members','m')
         .leftJoin('m.user','u');

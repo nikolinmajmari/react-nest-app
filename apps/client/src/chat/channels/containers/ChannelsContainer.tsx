@@ -2,7 +2,7 @@ import { ChannelType, IChannel, IChannelMember } from "@mdm/mdm-core";
 import { deleteChannelThunk, setActiveChannel } from "../slices/channels.slice";
 import { useNavigate } from "react-router-dom";
 import ChatTile from "../../../components/channels/Tile";
-import { useGetActiveChannel, useGetChannelsList, useGetChannelsStateStatus, useLoadChannelsDispatch } from "../../../hooks/channels.hooks";
+import { useGetActiveChannel, useGetChannelsList, useGetChannelsStateStatus, useLoadChannelsDispatch, useSetActiveChannel } from "../../../hooks/channels.hooks";
 import ChannelGroupContainer from "../../../components/GroupContainer";
 import React from "react";
 import ChannelsSkeleton from "../../../components/channels/ChannelsSkeleton";
@@ -22,6 +22,7 @@ export default function ChannelsContainer(){
     const navigate = useNavigate();
     const status = useGetChannelsStateStatus();
     const loadChannels = useLoadChannelsDispatch();
+    const setActiveChannel = useSetActiveChannel();
     React.useEffect(()=>{
         if(status==="idle"){
             loadChannels();

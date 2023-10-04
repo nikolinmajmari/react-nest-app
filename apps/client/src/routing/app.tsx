@@ -15,6 +15,7 @@ import NewChannelModal from "../chat/channels/containers/new/NewChannelModal";
 import NewChannelTypeModal from "../chat/channels/containers/new/NewChannelTypeSelectModal";
 import SettingsNavigator from "../chat/channel/containers/settings";
 import NotificationProvider from "../components/notifications/Toastify";
+import NavigationContainer from "./components/Navigation";
 
 export function App() {
   const dispatch = useAppDispatch();
@@ -30,18 +31,25 @@ export function App() {
     <NotificationProvider>
       <ContextMenuProvider>
         <Routes location={previousLocation || location}>
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/signup" element={<SignUp/>}/>
-          <Route path='/chat/*' element={<Authenticated><Chat/></Authenticated>}>
-            <Route path="channels/:id" element={<ChannelContainer/>}>
-              <Route path="settings" element={<SettingsNavigator/>}>
-                <Route path="members" element={<ChannelMembers/>}/>
-                <Route path="*" element={<ChannelSettings/>}/>
-              </Route>
+        <Route path="/auth/*">
+            <Route path="login" element={<Login/>}/>
+            <Route path="signup" element={<SignUp/>}/>
+        </Route>
+        <Route path="/*" element={<NavigationContainer/>}>
+          <Route path='chat/*' element={<Chat/>}>
+          <Route path="channels/:id" element={<ChannelContainer/>}>
+            <Route path="settings" element={<SettingsNavigator/>}>
+              <Route path="members" element={<ChannelMembers/>}/>
+              <Route path="*" element={<ChannelSettings/>}/>
             </Route>
-            <Route path="*" element={<ChannelEmpty/>}/>
           </Route>
-          <Route path="*" element={<Navigate to={"/login"}/>}/>
+          <Route path="*" element={<ChannelEmpty/>}/>
+        </Route>
+        <Route path='calls/*' element={<div>Calls</div>}>
+          <Route path="*" element={<div>Calls</div>}/>
+        </Route>
+        </Route>
+        <Route path="*" element={<Navigate to={"/auth/login"}/>}/>
         </Routes>
         {
           previousLocation && 

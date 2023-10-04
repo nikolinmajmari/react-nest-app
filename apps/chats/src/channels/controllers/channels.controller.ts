@@ -6,6 +6,9 @@ import { CreateChannelDTO, UpdateChannelDTO } from '../dto/channel.dto.ts';
 import { ChannelValidationPipe } from '../validation/channel.validation.pipe';
 import { MessagingService } from '../services/messaging.service';
 import { CreateMessageDTO } from '../dto/channel.message.dto';
+import { ChannelType } from '@mdm/mdm-core';
+import User from '../../users/entities/user.entity';
+import ChannelMember from '../entities/channel-member.entity';
 
 @Controller('channels')
 @ApiTags("channels")
@@ -33,13 +36,30 @@ export class ChannelsController {
         return this.service.createChannelForUser(dto,request.user);
     }
 
-    @Public()
     @HttpCode(HttpStatus.OK)
     @Get(":id")
     async getChannel(
+        @Req() request,
         @Param("id") id :string
     ){
-        return await this.service.findOneChannel(id);
+        const channel =  await this.service.findOneChannel(id);
+        if(channel.type===ChannelType.group || !request.user){
+            return channel;
+        }
+        let other:User|undefined;
+        (await channel.members).forEach(async function(m:ChannelMember){
+            if(((await m).user as User).id!==request.user.id){
+                other = (await m.user) as User;
+            }
+        })
+        if(!other){
+            return channel;
+        }
+        return {
+            ...channel,
+            alias: `${other.firstName} ${other.lastName}`,
+
+        }
     }
 
 

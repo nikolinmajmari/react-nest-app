@@ -14,7 +14,7 @@ export interface IChatTileProps{
 const ChatTile = React.forwardRef(
   function(props:IChatTileProps,ref){
     return (
-         <div ref={ref} onClick={props.navigate} className={`${props.active?"bg-stone-200":""} room  cursor-pointer px-6 py-4 flex flex-row hover:bg-stone-100 transition-colors shadow-sm
+         <div ref={ref} onClick={props.navigate} className={`${props.active?"bg-stone-200 dark:bg-gray-600":""} room  cursor-pointer px-6 py-4 flex flex-row hover:bg-stone-100 transition-colors shadow-sm
             dark:hover:bg-gray-700
          `}>
             <div className='avatar w-14 h-14 flex items-center justify-center rounded-full text-white bg-teal-600 dark:bg-teal-800'>

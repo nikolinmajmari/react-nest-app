@@ -102,7 +102,6 @@ constructor(
             throw new BadRequestException('channel is already created between these users');
         }
 
-
         /// if channel is private check if there are 
         return await this.repository.save(entity)
     }

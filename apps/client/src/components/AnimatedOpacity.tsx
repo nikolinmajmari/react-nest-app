@@ -1,5 +1,5 @@
 import { animated } from "@react-spring/web";
-import { useSpringOpacity } from "../hooks/springs.hooks";
+import { useSpringOpacity } from "../app/hooks/springs";
 
 export default function AnimatedOpacity(props:any){
     const springs = useSpringOpacity();

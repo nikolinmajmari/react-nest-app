@@ -1,10 +1,10 @@
 import React from "react";
 import ChannelMessagesSkeleton from "../../../../components/messages/MessagesSkeleton";
 import AnimatedOpacity from "../../../../components/AnimatedOpacity";
-import  ChannelEntry  from "./ChannelEntry";
+import  ChannelEntry  from "./Entry";
 import { ChannelContext } from "../../channel-context";
-import { useGetChannelMessagesStatus, useLoadMessagesThunk } from "../../../../hooks/messages.hooks";
-import ChannelFeed from "./ChannelFeed";
+import ChannelFeed from "./Feed";
+import { useChannelFeedStatus, useDispatchLoadFeed } from "../../../../app/hooks/feed";
 
 export interface IChannelFeedContainerProps{
     navigation:React.ReactElement
@@ -14,14 +14,14 @@ export interface IChannelFeedContainerProps{
 export default function ChannelFeedContainer({navigation}:IChannelFeedContainerProps){
     const feedRef = React.useRef<HTMLDivElement>(null);
     const {channel} = React.useContext(ChannelContext)
-    const loadMessages = useLoadMessagesThunk();
-    const status = useGetChannelMessagesStatus();
-    // effects 
+    const loadMessages = useDispatchLoadFeed();
+    const status = useChannelFeedStatus();
+    console.log(loadMessages);
     React.useEffect(()=>{
         if(channel && channel.id){
-            loadMessages(channel.id);
+            loadMessages(channel);
         }
-    },[channel?.id]);
+    },[channel,loadMessages]);
 
 
     return (

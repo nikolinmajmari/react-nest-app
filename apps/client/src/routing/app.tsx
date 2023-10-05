@@ -1,14 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Chat from '../chat';
+import Chat, { ChannelContainer } from '../chat';
 import { Login } from "../auth/login";
 import { SignUp } from "../auth/signup";
-import Authenticated from "./components/authenticated";
 import { useAppDispatch } from "../app/hooks";
 import { attemptSilentSignIn } from "../auth/auth.slice";
 import React from "react";
-import { useGetCurrentUser } from "../hooks/auth.hooks";
-import ChannelContainer, { ChannelMembers, ChannelSettings } from "../chat/channel";
+import { useCurrentUser } from "../app/hooks/auth";
 import ChannelEmpty from "../components/channels/ChannelEmpty";
 import { ContextMenuProvider } from "../components/menu/ContextMenu";
 import NewChannelModal from "../chat/channels/containers/new/NewChannelModal";
@@ -16,10 +14,12 @@ import NewChannelTypeModal from "../chat/channels/containers/new/NewChannelTypeS
 import SettingsNavigator from "../chat/channel/containers/settings";
 import NotificationProvider from "../components/notifications/Toastify";
 import NavigationContainer from "./components/Navigation";
+import ChannelMembers from "../chat/channel/containers/settings/ChannelMembers";
+import ChannelSettings from "../chat/channel/containers/settings/ChannelSettings";
 
 export function App() {
   const dispatch = useAppDispatch();
-  const user = useGetCurrentUser();
+  const user = useCurrentUser();
   React.useEffect(()=>{
     if(!user){
       dispatch(attemptSilentSignIn());
@@ -31,25 +31,30 @@ export function App() {
     <NotificationProvider>
       <ContextMenuProvider>
         <Routes location={previousLocation || location}>
+
         <Route path="/auth/*">
-            <Route path="login" element={<Login/>}/>
-            <Route path="signup" element={<SignUp/>}/>
+          <Route path="login" element={<Login/>}/>
+          <Route path="signup" element={<SignUp/>}/>
         </Route>
-        <Route path="/*" element={<NavigationContainer/>}>
-          <Route path='chat/*' element={<Chat/>}>
-          <Route path="channels/:id" element={<ChannelContainer/>}>
-            <Route path="settings" element={<SettingsNavigator/>}>
-              <Route path="members" element={<ChannelMembers/>}/>
-              <Route path="*" element={<ChannelSettings/>}/>
+
+        <Route path="/chat/*" element={<NavigationContainer/>}>
+
+          <Route path='channels' element={<Chat/>}>
+            <Route path=":id" element={<ChannelContainer/>}>
+              <Route path="settings" element={<SettingsNavigator/>}>
+                <Route path="members" element={<ChannelMembers/>}/>
+                <Route path="*" element={<ChannelSettings/>}/>
+              </Route>
+            </Route>
+             <Route path="*" element={<ChannelEmpty/>}/>
+          </Route>
+
+          <Route path='calls' element={<div>Calls</div>}>
+            <Route path="*" element={<div>Calls</div>}/>
             </Route>
           </Route>
-          <Route path="*" element={<ChannelEmpty/>}/>
-        </Route>
-        <Route path='calls/*' element={<div>Calls</div>}>
-          <Route path="*" element={<div>Calls</div>}/>
-        </Route>
-        </Route>
-        <Route path="*" element={<Navigate to={"/auth/login"}/>}/>
+
+        <Route path="*" element={<Navigate to={'/auth/login'}></Navigate>}/>
         </Routes>
         {
           previousLocation && 

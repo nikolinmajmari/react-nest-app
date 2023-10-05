@@ -16,8 +16,8 @@ export default function NavigationContainer(){
             </div>
             <div className='relative flex flex-col-reverse items-stretch md:flex-row w-full flex-1 overflow-hidden bg-cyan-50'>
                 <div className={`${id===undefined ? 'flex':'hidden'} md:w-20 md:flex md:flex-col md:justify-center md:items-center bg-emerald-800 bg-opacity-40 z-10`}>
-                    <LinkNavigationButton to={"/chat"}><TfiComments/></LinkNavigationButton>
-                     <LinkNavigationButton to={"/calls"}><TfiHeadphone/></LinkNavigationButton>
+                    <LinkNavigationButton to={"/chat/channels"}><TfiComments/></LinkNavigationButton>
+                     <LinkNavigationButton to={"/chat/calls"}><TfiHeadphone/></LinkNavigationButton>
                 </div>
                <div className="relative flex flex-col-reverse items-stretch md:flex-row w-full flex-1 overflow-hidden bg-cyan-50">
                 <Outlet/>

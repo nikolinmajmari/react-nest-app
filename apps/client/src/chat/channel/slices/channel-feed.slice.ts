@@ -15,7 +15,7 @@ const initialState:IChannelMessagesState  = {
     status:"idle"
 }
 
-const channelMessagesSlice = createSlice({
+const channelFeedSlice = createSlice({
     initialState,
     name:"chat_channels_id_messages",
     reducers:{
@@ -42,16 +42,16 @@ const channelMessagesSlice = createSlice({
     },
     extraReducers(builder) {
         builder
-        .addCase(loadMessagesThunk.rejected,(state,action)=>{
+        .addCase(loadFeedThunk.rejected,(state,action)=>{
             if(action.payload){
                 state.status = "failed";
                 state.error = action.payload;
             }
         })
-        .addCase(loadMessagesThunk.pending,(state,action)=>{
+        .addCase(loadFeedThunk.pending,(state,action)=>{
             state.status = "loading";
         })
-        .addCase(loadMessagesThunk.fulfilled,(state,action)=>{
+        .addCase(loadFeedThunk.fulfilled,(state,action)=>{
             state.status = "succeeded";
             state.messages = action.payload;
         })
@@ -75,7 +75,7 @@ const channelMessagesSlice = createSlice({
 });
 
 
-const loadMessagesThunk = createAsyncThunk<IMessage[],string>(
+const loadFeedThunk = createAsyncThunk<IMessage[],string>(
     "/channels/messages/paginate",async (channelId,thunkapi)=>{
         return await channels.getChannelMessages(channelId);
     }
@@ -90,13 +90,14 @@ export const postMessageThunk = createAsyncThunk<IMessage,IPostMessageArgs>(
         const id = await channels.postChannelMessage(args.channelId,args.message);
         return {
             ...args.message,
-            user: args.user,
-            id
+                        user: args.user,
+                    id,
+            createdAt:new Date()
         } as IMessage;
     }
 );
 
 
-export  const {addMessage,markMessageFailed,markMessageSent} = channelMessagesSlice.actions;
-export {loadMessagesThunk};
-export default channelMessagesSlice.reducer;
+export  const {addMessage,markMessageFailed,markMessageSent} = channelFeedSlice.actions;
+export {loadFeedThunk};
+export default channelFeedSlice.reducer;

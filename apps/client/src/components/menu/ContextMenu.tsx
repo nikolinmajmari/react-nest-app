@@ -76,8 +76,7 @@ export interface IContextMenuProps{
     trigger:React.ReactNode;
 }
 
-export function ContextMenu(props:IContextMenuProps){
-    const ref = React.useRef();
+export const  ContextMenu = React.forwardRef((props:IContextMenuProps,ref)=>{
     useContextMenu(
         ref,
         function(pos){
@@ -89,4 +88,4 @@ export function ContextMenu(props:IContextMenuProps){
             {props.trigger}
         </div>
     );
-};
+})

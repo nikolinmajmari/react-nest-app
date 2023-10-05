@@ -1,17 +1,17 @@
 import { Dialog } from "@headlessui/react";
-import Modal, { IModalProps } from "../../../../components/modals/Modal";
+import Modal from "../../../../components/modals/Modal";
 import React, { FormEvent, useCallback } from "react";
 import { ChannelType, IChannelMember, IUser, MemberRole } from "@mdm/mdm-core";
 import { users } from "../../../../api.client/client";
-import { useCreateChannel } from "../../../../hooks/channels.hooks";
-import { useAsyncHook } from "../../../../hooks/core.hooks";
 import { SearchComponent, SearchedUserItem } from "../../../../components/inputs/Search";
 import ErrorComponent from "../../../../components/ErrorComponent";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useGetCurrentUser } from "../../../../hooks/auth.hooks";
 import { InputGroup } from "../../../../components/inputs/InputGroup";
 import AsyncRender from "../../../../components/core/AsyncRender";
 import { NotificationContext } from "../../../../components/notifications/Toastify";
+import { useCurrentUser } from "../../../../app/hooks/auth";
+import { useDispatchCreateChannel } from "../../../../app/hooks/channels";
+import { useAsyncHook } from "../../../../app/hooks/core";
 
 export interface ICreateChannelModalProps{
     type:"private"|"group",
@@ -28,8 +28,8 @@ export default function NewChannelModal(props:ICreateChannelModalProps){
     /// usefull hooks and callbacks
     const location = useLocation();
     const navigate = useNavigate();
-    const user = useGetCurrentUser();
-    const createChannel = useCreateChannel(
+    const user = useCurrentUser();
+    const createChannel = useDispatchCreateChannel(
         props.type==="private"?ChannelType.private:ChannelType.group
     );
     const notification = React.useContext(NotificationContext);

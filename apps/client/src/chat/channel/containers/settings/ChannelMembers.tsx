@@ -4,12 +4,12 @@ import { LinkNavigationButton } from "../../../../components/channels/default";
 import { IChannelMember } from "@mdm/mdm-core";
 import React from "react";
 import { ChannelContext } from "../../channel-context";
-import { useGetChannelStateStatus } from "../../../../hooks/channel.hooks";
 import { useAppDispatch } from "../../../../app/hooks";
 import { deleteMemberThunk } from "../../slices/channel.slice";
+import { useCurrentChannelStatus } from "../../../../app/hooks/channel";
 
 export default function ChannelMembers(){
-    const status = useGetChannelStateStatus();
+    const status = useCurrentChannelStatus();
     const dispatch = useAppDispatch();
     const {channel,isAdmin} = React.useContext(ChannelContext);
     return (

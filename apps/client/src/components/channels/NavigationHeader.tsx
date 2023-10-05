@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface INavigationHeaderProps{
     children:any,
     leading:React.ReactElement
@@ -19,3 +21,5 @@ export function NavigationHeader(props:any){
             </div>
     );
 }
+
+export default React.memo(NavigationHeader);

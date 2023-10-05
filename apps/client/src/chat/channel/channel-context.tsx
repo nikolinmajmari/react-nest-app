@@ -1,20 +1,21 @@
 import { ChannelType, IChannel, IChannelMember, MemberRole } from "@mdm/mdm-core";
 import React from "react";
-import { useGetCurrentUser } from "../../hooks/auth.hooks";
-import { useGetChannel } from "../../hooks/channel.hooks";
+import { useCurrentUser } from "../../app/hooks/auth";
 
 export interface IChannelContext{
-    channel?:IChannel|null;
+    channel?:IChannel;
     isAdmin?:boolean;
 }
 
 export const ChannelContext = React.createContext<IChannelContext>({});
 
+export interface IChannelProviderProps{
+    channel:IChannel,
+    children?:React.ReactNode
+}
 
-export function ChannelProvider(props:any){
-    const user = useGetCurrentUser();
-    const channel = useGetChannel();
-    /// updated channel props
+export function ChannelProvider({channel,children}:IChannelProviderProps){
+    const user = useCurrentUser();
     const getChannel = React.useCallback(()=>{
         if(channel?.type===ChannelType.group){
             return channel;
@@ -32,7 +33,7 @@ export function ChannelProvider(props:any){
             channel: getChannel(),
             isAdmin
         }}>
-            {props.children}
+            {children}
         </ChannelContext.Provider>
     )
 }

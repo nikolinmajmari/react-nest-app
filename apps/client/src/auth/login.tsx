@@ -1,11 +1,11 @@
 import { Link, Navigate } from "react-router-dom";
-import { useGetAuthStateStatus, useGetCurrentUser, useSignInAppDispatch } from "../hooks/auth.hooks";
 import React from "react";
+import { useAuthStatus, useCurrentUser, useDispatchSignIn } from "../app/hooks/auth";
 
 export function Login(){
-    const user = useGetCurrentUser();
-    const status = useGetAuthStateStatus();
-    const signIn = useSignInAppDispatch();
+    const user = useCurrentUser();
+    const status = useAuthStatus();
+    const signIn = useDispatchSignIn();
     const [email,setEmail] = React.useState<string>("");
     const [password,setPassword] = React.useState<string>("");
 

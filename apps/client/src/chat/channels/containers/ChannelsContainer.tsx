@@ -1,8 +1,7 @@
-import { ChannelType, IChannel, IChannelMember } from "@mdm/mdm-core";
-import { deleteChannelThunk, setActiveChannel } from "../slices/channels.slice";
+import { IChannel } from "@mdm/mdm-core";
+import { deleteChannelThunk } from "../slices/channels.slice";
 import { useNavigate } from "react-router-dom";
 import ChatTile from "../../../components/channels/Tile";
-import { useGetActiveChannel, useGetChannelsList, useGetChannelsStateStatus, useLoadChannelsDispatch, useSetActiveChannel } from "../../../hooks/channels.hooks";
 import ChannelGroupContainer from "../../../components/GroupContainer";
 import React from "react";
 import ChannelsSkeleton from "../../../components/channels/ChannelsSkeleton";
@@ -13,16 +12,17 @@ import {  MenuHeader, MenuItem } from "../../../components/menu/Menu";
 import { TfiAlert, TfiArchive, TfiArrowCircleRight, TfiArrowLeft, TfiBell, TfiDownload, TfiIdBadge, TfiTrash } from "react-icons/tfi";
 import { useAppDispatch } from "../../../app/hooks";
 import { NotificationContext } from "../../../components/notifications/Toastify";
+import { useActiveChannel, useChannels, useChannelsStatus, useDispatchLoadChannels, useDispatchSetActiveChannel } from "../../../app/hooks/channels";
 
 
 
 export default function ChannelsContainer(){
-    const channels = useGetChannelsList();
-    const activeChannelId = useGetActiveChannel();
+    const channels = useChannels();
+    const setActiveChannel = useDispatchSetActiveChannel();
+    const activeChannel = useActiveChannel();
     const navigate = useNavigate();
-    const status = useGetChannelsStateStatus();
-    const loadChannels = useLoadChannelsDispatch();
-    const setActiveChannel = useSetActiveChannel();
+    const status = useChannelsStatus();
+    const loadChannels = useDispatchLoadChannels();
     React.useEffect(()=>{
         if(status==="idle"){
             loadChannels();
@@ -31,8 +31,8 @@ export default function ChannelsContainer(){
 
     const createNavigateHandler = (channel:IChannel)=>{   
         return ()=>{
-            setActiveChannel(channel.id);
-            navigate(`channels/${channel.id}`)
+            setActiveChannel(channel);
+            navigate(`${channel.id}`)
         }
     }
     return (
@@ -49,8 +49,9 @@ export default function ChannelsContainer(){
                     { channels.map(
                         (ch:IChannel)=>
                             <ChannelTileContainer 
+                                key={ch.id}
                                 channel={ch} 
-                                active={ch.id===activeChannelId}
+                                active={ch.id===activeChannel}
                                 navigate={createNavigateHandler(ch)}
                             />
                         )

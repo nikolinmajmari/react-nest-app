@@ -1,11 +1,8 @@
-import { animated, useSpring } from "@react-spring/web";
-import { TfiArrowLeft, TfiCamera, TfiHeadphone, TfiMenu } from "react-icons/tfi";
-import { Link, Outlet } from "react-router-dom";
+
+import { TfiArrowLeft } from "react-icons/tfi";
 import { NavigationHeader } from "../../../../components/channels/NavigationHeader";
 import { LinkNavigationButton } from "../../../../components/channels/default";
-import { useGetChannel } from "../../../../hooks/channel.hooks";
-import { useGetCurrentUser } from "../../../../hooks/auth.hooks";
-import { ChannelType, IChannelMember } from "@mdm/mdm-core";
+import { ChannelType } from "@mdm/mdm-core";
 import { ChannelContext } from "../../channel-context";
 import React from "react";
 import { SettingsAvatar, SettingsBody, SettingsChannelName, SettingsListItemLink } from "./Components";

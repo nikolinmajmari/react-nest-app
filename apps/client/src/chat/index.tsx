@@ -2,7 +2,7 @@
 import Channels from "./channels";
 import { Outlet, useParams} from "react-router-dom";
 import storage from "../core/storage";
-import ChannelContainer from "./channel";
+import ChannelContainer from "./channel/containers/ChannelContainer";
 import { NavigationButton } from "../components/channels/default";
 import { TfiComments, TfiHeadphone } from "react-icons/tfi";
 

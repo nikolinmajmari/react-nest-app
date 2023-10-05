@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 export interface IAsyncHook<T>{
     status: "idle"|"loading"|"success"|"failed";
@@ -10,7 +10,7 @@ export function useAsyncHook<T>(handler:()=>Promise<T>):[IAsyncHook<T> ,() => Pr
     const  [async,setAsync] = React.useState<IAsyncHook<T>>({
         status: 'idle'
     });
-    const startAsync = async ()=>{
+    const startAsync = async function(){
         try{
             setAsync({
                 'status':"loading"
@@ -27,5 +27,5 @@ export function useAsyncHook<T>(handler:()=>Promise<T>):[IAsyncHook<T> ,() => Pr
             })
         }
     }
-    return [async,startAsync];
+    return [async,useCallback(startAsync,[handler])];
 }

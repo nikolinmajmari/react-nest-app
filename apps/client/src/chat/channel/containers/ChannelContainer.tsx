@@ -1,28 +1,27 @@
-import { useGetChannel, useGetChannelStateStatus, useLoadChannelDispatch } from "./../../../hooks/channel.hooks";
 import React from "react";
 import { Outlet, useParams } from "react-router-dom";
 import { ChannelProvider } from "../channel-context";
 import { ChannelSkeleton } from "../../../components/channels/ChannelSkeleton";
-import ChannelFeedContainer from "./feed/ChannelFeedContainer";
+import ChannelFeedContainer from "./feed/FeedContainer";
 import ChannelNavigation from "./ChannelNavigation";
-import { channel } from "diagnostics_channel";
+import { useCurrentChannel, useCurrentChannelStatus, useDispatchLoadChannel } from "../../../app/hooks/channel";
 
 export default function ChannelContainer(){
-    const status = useGetChannelStateStatus();
-    const channel = useGetChannel();
-    const loadChannel = useLoadChannelDispatch();
+    const status = useCurrentChannelStatus();
+    const channel = useCurrentChannel();
+    const loadChannel = useDispatchLoadChannel();
     const { id } = useParams();
     React.useEffect(()=>{
         if(id){
             loadChannel(id);
         }
-    },[id]);
-    if(status==="idle" || (status==="loading" && (channel === null || channel===undefined))){
+    },[id,loadChannel]);
+    if(status==="idle" || status==="loading" ){
         return <ChannelSkeleton/>
     }
-    if(status==="succeeded" || (channel !=null && channel!==undefined)){
+    if(status==="succeeded" && channel !==null && channel!==undefined){
         return (
-        <ChannelProvider>
+        <ChannelProvider channel={channel}>
             <ChannelFeedContainer navigation={<ChannelNavigation/>}/>
             <Outlet/>
         </ChannelProvider>)

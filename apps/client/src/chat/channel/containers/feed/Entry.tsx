@@ -1,36 +1,27 @@
 import { useAppDispatch } from "../../../../app/hooks";
 import React, { FormEventHandler, forwardRef } from "react";
-import { postMessageThunk } from "../../slices/channel-messages.slice";
+import { postMessageThunk } from "../../slices/channel-feed.slice";
 import { TfiReceipt } from "react-icons/tfi";
 import { ChannelContext } from "../../channel-context";
 import { MessageType } from "@mdm/mdm-core";
-import { useGetCurrentUser } from "../../../../hooks/auth.hooks";
+import { useCurrentUser } from "../../../../app/hooks/auth";
+import { usePostMessageThunk } from "../../../../app/hooks/feed";
 
 
 const ChannelEntry = forwardRef(function (props,ref){
-    const dispatch = useAppDispatch();
-    const user = useGetCurrentUser();
+    const postMessage = usePostMessageThunk();
+    const user = useCurrentUser();
     const [text,setText] = React.useState("");
     const {channel} = React.useContext(ChannelContext);
     const handleAddMessage = ()=>{
-        dispatch(postMessageThunk({
-            channelId: channel.id,
-            user,
-            message: {
-                content: text,
-                type: MessageType.text,
-                sender:user
-            }
-        }));
+        postMessage({
+            content: text,
+            type: MessageType.text,
+            sender: user,
+        })
         setText("");
         setTimeout(
-            ()=>{
-                ref?.current?.scrollIntoView({
-                    behavior:"smooth",
-                    block: "end",
-                    inline: "nearest"
-                });
-            }
+            ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
         )
     }
     const handleFormSubmit:FormEventHandler<HTMLFormElement> = (e)=>{

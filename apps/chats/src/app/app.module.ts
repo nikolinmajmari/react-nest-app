@@ -7,9 +7,10 @@ import { TypeOrmCustomModule } from '../common/typeorm.module';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { ChannelsModule } from '../channels/channels.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
-  imports: [CommonModule,TypeOrmCustomModule,AuthModule,UsersModule,ChannelsModule],
+  imports: [CommonModule,TypeOrmCustomModule,AuthModule,UsersModule,ChannelsModule,MediaModule],
   controllers: [AppController],
   providers: [AppService],
 })

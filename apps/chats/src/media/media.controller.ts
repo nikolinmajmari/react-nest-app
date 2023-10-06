@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {FileInterceptor} from "@nestjs/platform-express";
 
 @Controller('media')
-export class MediaController {}
+export class MediaController {
+    
+    @Post('')
+    @UseInterceptors(FileInterceptor('file'))
+    upload(@UploadedFile() file){
+        return file.name;
+    }
+}

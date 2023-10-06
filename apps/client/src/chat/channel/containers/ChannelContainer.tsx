@@ -4,30 +4,37 @@ import { ChannelProvider } from "../channel-context";
 import { ChannelSkeleton } from "../../../components/channels/ChannelSkeleton";
 import ChannelFeedContainer from "./feed/FeedContainer";
 import ChannelNavigation from "./ChannelNavigation";
-import { useCurrentChannel, useCurrentChannelStatus, useDispatchLoadChannel } from "../../../app/hooks/channel";
+import { useChannel } from "../../../app/hooks/channel";
+
 
 export default function ChannelContainer(){
-    const status = useCurrentChannelStatus();
-    const channel = useCurrentChannel();
-    const loadChannel = useDispatchLoadChannel();
+    const {status,channel,loadChannel} = useChannel();
     const { id } = useParams();
-    React.useEffect(()=>{
-        if(id){
-            loadChannel(id);
-        }
+    React.useEffect(function(){
+        const timeout = id && setTimeout(()=>loadChannel(id));
+        return ()=>{
+            timeout && clearTimeout(timeout)
+        };
     },[id,loadChannel]);
-    if(status==="idle" || status==="loading" ){
-        return <ChannelSkeleton/>
-    }
-    if(status==="succeeded" && channel !==null && channel!==undefined){
-        return (
-        <ChannelProvider channel={channel}>
-            <ChannelFeedContainer navigation={<ChannelNavigation/>}/>
-            <Outlet/>
-        </ChannelProvider>)
-    }
-    return <div>
-        "error";
-    </div>
+    return(
+        <>
+        {(status==="idle" || status === "loading") && <ChannelSkeleton/>}
+        {
+            (status==="succeeded" && channel!==null || channel!==null) && (
+            <ChannelProvider channel={channel}>
+                <ChannelFeedContainer navigation={<ChannelNavigation/>}/>
+                <Outlet/>
+            </ChannelProvider>
+            )
+        }
+        {
+            status==="failed" && (
+            <div>
+                "error"
+            </div>
+            )
+        }
+        </>
+    );
     
 }

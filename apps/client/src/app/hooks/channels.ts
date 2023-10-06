@@ -5,8 +5,16 @@ import { createChannelThunk, loadChannelsThunk, setActiveChannel } from "../../c
 import { useCallback } from "react";
 
 
-
 export function useChannels(){
+    const channels = useChannelsList();
+    const setActiveChannel = useDispatchSetActiveChannel();
+    const activeChannel = useActiveChannel();
+    const status = useChannelsStatus();
+    const loadChannels = useDispatchLoadChannels();
+    return {channels,activeChannel,status,loadChannels,setActiveChannel};
+}
+
+export function useChannelsList(){
     return useAppSelector(root=>root.channels.channels);
 }
 

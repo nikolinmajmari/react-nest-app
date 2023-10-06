@@ -3,7 +3,12 @@ import { useAppDispatch, useAppSelector } from ".";
 import { loadChannelThunk, setChannel } from "../../chat/channel/slices/channel.slice";
 import { useCallback } from "react";
 
-
+export function useChannel(){
+    const status = useCurrentChannelStatus();
+    const channel = useCurrentChannel();
+    const loadChannel = useDispatchLoadChannel();
+    return {status,channel,loadChannel};
+}
 
 export function useCurrentChannelStatus(){
     return useAppSelector(root=>root.channel.status);

@@ -16,12 +16,11 @@ export default function ChannelFeedContainer({navigation}:IChannelFeedContainerP
     const {channel} = React.useContext(ChannelContext)
     const loadMessages = useDispatchLoadFeed();
     const status = useChannelFeedStatus();
-    console.log(loadMessages);
     React.useEffect(()=>{
         if(channel && channel.id){
             loadMessages(channel);
         }
-    },[channel,loadMessages]);
+    },[channel?.id,loadMessages]);
 
 
     return (

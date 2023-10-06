@@ -56,6 +56,7 @@ export interface IMessage{
   id?:string;
   type:MessageType;
   content:string;
+  media?:string;
   createdAt:Date;
   sender?:U<IUser>;
   channel?:U<IChannel>;

@@ -1,3 +1,4 @@
+import { MessageType } from "@mdm/mdm-core";
 
 export enum Align{
     left="left",
@@ -14,7 +15,7 @@ interface IAlignProp {
 
 export interface IMessageProps extends React.HTMLProps<HTMLDivElement>{
     content: string;
-    type?:"text";
+    type?:MessageType;
     sender:string,
     timestamp:string,
 }
@@ -50,9 +51,12 @@ export default function RawMessage(props:IMessageProps&IAlignProp){
                     <span className="text-md font-semibold text-gray-800 dark:text-gray-100">{sender}</span>
                     <span className="text-xs text-gray-700 dark:text-gray-300 text-opacity-70">{timestamp.slice(0,10)}</span>
                 </MessageHeader>
-               <MessageContent>
-                 {content}
-               </MessageContent>
+                <MessageContent>
+                    {
+                        props.type===MessageType.image && (<MessageContentImage src="https://media.kasperskycontenthub.com/wp-content/uploads/sites/103/2019/09/26105755/fish-1.jpg"/>)
+                    }
+                    <MessageLabel>{content}</MessageLabel>
+                </MessageContent>
             </MessageBodyWrapper>
          </MessageWrapper>
     );
@@ -111,10 +115,23 @@ function MessageAvatar(props:React.HTMLProps<HTMLDivElement>){
 
 function MessageContent(props:React.HTMLProps<HTMLDivElement>){
     return (
-         <div className="bubble bg-white px-4 py-3 rounded-2xl break-all dark:bg-slate-800 dark:text-white">
+         <div className="bubble bg-white p-1 rounded-lg break-all dark:bg-slate-800 dark:text-white">
                 {props.children}
         </div>
     );
+}
+
+function MessageLabel(props:React.HTMLProps<HTMLDivElement>){
+  return (
+         <div className="px-2 py-1">
+                {props.children}
+        </div>
+    );
+}
+
+function MessageContentImage(props:React.HTMLProps<HTMLImageElement>){
+    // eslint-disable-next-line jsx-a11y/alt-text
+    return <img {...props} className="w-56 p-1 object-cover h-32 rounded-lg"/>;
 }
 
 function MessageHeader(props:IAlignProp& React.HTMLProps<HTMLDivElement>){

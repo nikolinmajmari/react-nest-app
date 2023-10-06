@@ -20,7 +20,7 @@ export function useChannelFeedError(){
 
 export function useDispatchLoadFeed(){
     const dispatch = useAppDispatch();
-    return useCallback( function(channel:IChannel){
+    return useCallback(function(channel:IChannel){
         dispatch(loadFeedThunk(channel.id));
     },[dispatch]);
 }

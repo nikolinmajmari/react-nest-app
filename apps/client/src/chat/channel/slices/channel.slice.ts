@@ -4,7 +4,7 @@ import { channels } from "../../../api.client/client";
 import { IAsyncState } from "../../../core/async.state";
 
 export interface  IChannelState extends IAsyncState  {
-    channel: IChannel|undefined|null,
+    channel: IChannel|null,
 }
 
 const initialState:IChannelState = {

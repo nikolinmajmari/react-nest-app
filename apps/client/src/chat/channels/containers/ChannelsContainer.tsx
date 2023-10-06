@@ -12,17 +12,13 @@ import {  MenuHeader, MenuItem } from "../../../components/menu/Menu";
 import { TfiAlert, TfiArchive, TfiArrowCircleRight, TfiArrowLeft, TfiBell, TfiDownload, TfiIdBadge, TfiTrash } from "react-icons/tfi";
 import { useAppDispatch } from "../../../app/hooks";
 import { NotificationContext } from "../../../components/notifications/Toastify";
-import { useActiveChannel, useChannels, useChannelsStatus, useDispatchLoadChannels, useDispatchSetActiveChannel } from "../../../app/hooks/channels";
+import { useChannels} from "../../../app/hooks/channels";
 
 
 
 export default function ChannelsContainer(){
-    const channels = useChannels();
-    const setActiveChannel = useDispatchSetActiveChannel();
-    const activeChannel = useActiveChannel();
+    const {channels,activeChannel,status,loadChannels,setActiveChannel} = useChannels()
     const navigate = useNavigate();
-    const status = useChannelsStatus();
-    const loadChannels = useDispatchLoadChannels();
     React.useEffect(()=>{
         if(status==="idle"){
             loadChannels();

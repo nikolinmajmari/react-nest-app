@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } f
 import Channel from "./channel.entity";
 import User from "../../users/entities/user.entity";
 import { IMessage, MessageType } from "@mdm/mdm-core";
+import { string } from "joi";
 
 
 @Entity({name: "message"})
@@ -16,6 +17,9 @@ export default class Message implements IMessage{
         MessageType.file,MessageType.image,MessageType.recording,MessageType.text,MessageType.video
     ]})
     type: MessageType;
+
+    @Column({type:"text",nullable:true})
+    media?: string;
 
     @Column({type:"text"})
     content: string;

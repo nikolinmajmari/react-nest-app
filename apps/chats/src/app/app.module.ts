@@ -10,7 +10,7 @@ import { ChannelsModule } from '../channels/channels.module';
 import { MediaModule } from '../media/media.module';
 
 @Module({
-  imports: [CommonModule,TypeOrmCustomModule,AuthModule,UsersModule,ChannelsModule,MediaModule],
+  imports: [CommonModule,TypeOrmCustomModule,MediaModule,AuthModule,UsersModule,ChannelsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

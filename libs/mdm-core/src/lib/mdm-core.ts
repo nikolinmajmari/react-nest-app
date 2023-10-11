@@ -62,6 +62,10 @@ export interface IMessage{
   channel?:U<IChannel>;
 }
 
+export interface INewMessage extends IMessage{
+  slug?:string;
+}
+
 export enum MediaType{
   image="media/image",
   video="media/video",

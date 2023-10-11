@@ -1,4 +1,4 @@
-import { IChannel, IMessage } from "@mdm/mdm-core";
+import { IChannel, IMessage, INewMessage } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from ".";
 import { loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
 import { useCurrentUser } from "./auth";
@@ -37,7 +37,8 @@ export function usePostMessageThunk(){
             dispatch(postMessageThunk({
                 channelId: channel?.id,
                 message: message,
-                user
+                user,
+                key:Math.random().toString(36).slice(2, 7)
             }))
         },
         [dispatch,user,channel]

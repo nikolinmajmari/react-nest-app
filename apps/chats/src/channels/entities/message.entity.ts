@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import Channel from "./channel.entity";
 import User from "../../users/entities/user.entity";
 import { IMessage, MessageType } from "@mdm/mdm-core";
 import { string } from "joi";
+import Media from "../../media/media.entity";
 
 
 @Entity({name: "message"})
@@ -18,7 +19,8 @@ export default class Message implements IMessage{
     ]})
     type: MessageType;
 
-    @Column({type:"text",nullable:true})
+    @OneToOne(()=>Media)
+    @JoinColumn()
     media?: string;
 
     @Column({type:"text"})

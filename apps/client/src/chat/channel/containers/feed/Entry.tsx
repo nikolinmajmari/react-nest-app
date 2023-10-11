@@ -1,5 +1,5 @@
 import React, { FormEventHandler, forwardRef } from "react";
-import { TfiReceipt } from "react-icons/tfi";
+import { TfiCrown, TfiFile, TfiReceipt } from "react-icons/tfi";
 import { ChannelContext } from "../../channel-context";
 import { MessageType } from "@mdm/mdm-core";
 import { useCurrentUser } from "../../../../app/hooks/auth";
@@ -12,7 +12,6 @@ const ChannelEntry = forwardRef(function (props,ref){
     const postMessage = usePostMessageThunk();
     const {channel} = React.useContext(ChannelContext);
 
-    const [content,setContent] = React.useState('');
     const [media,setMedia] = React.useState<string|null>(null);
 
     const contentRef = React.useRef<HTMLDivElement>();
@@ -22,11 +21,17 @@ const ChannelEntry = forwardRef(function (props,ref){
         console.log(mediaRef.current);
         mediaRef.current?.click();
     }
+    const clearMedia = ()=>{
+        setMedia(null);
+        mediaRef.current!.value = "";
+    }
 
     const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const path = e.target.value.split('\\').pop();
         if(path){
             setMedia(path);
+            contentRef.current?.focus();
+            /// set crusor in the end 
         }
     }
 
@@ -40,7 +45,6 @@ const ChannelEntry = forwardRef(function (props,ref){
     const handleResize = (target:HTMLDivElement)=>{
         target.style.height = "1px";
         target.style.height = `${Math.min(Math.max(target?.scrollHeight,20),160)}px`;
-        setContent(target.innerHTML);
     }
     if(!channel){
         throw new Error('');
@@ -48,13 +52,18 @@ const ChannelEntry = forwardRef(function (props,ref){
     return (
          <form onSubmit={handleFormSubmit}>
             <input onChange={handleFileChange} type="file" ref={mediaRef} className="hidden"></input>
-            <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col items-start
+            <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start
                 dark:bg-slate-800
             ">
                 {
-                    media && <div>{media}</div>
+                    media && <div className="media-container flex flex-row flex-wrap">
+                        <div className="mx-2 my-2 flex relative flex-row items-center bg-gray-600 px-3 py-1 rounded-md text-white text-xs">
+                            <TfiFile className="text-gray-100 font-bold"/>&nbsp;{media}
+                            <span onClick={()=>clearMedia()} className="absolute right-0 top-0"><TfiCrown/></span>
+                        </div>
+                    </div>
                 }
-             <div className="flex flex-row items-center justify-between w-full px-2 py-4">
+             <div className="flex flex-row items-center justify-between w-full px-2">
                 <EntryOptionButton onClick={handleMediaClick}>
                     <GrAttachment/>
                 </EntryOptionButton>
@@ -65,8 +74,8 @@ const ChannelEntry = forwardRef(function (props,ref){
                         ref={contentRef}
                         onKeyUp={(e)=>handleResize(e.target as HTMLDivElement)}
                         onKeyDown={(e)=>handleResize(e.target as HTMLDivElement)}
-                        className='flex-1 overflow-auto h-8 bg-transparent outline-none focus:outline-none'
-                        dangerouslySetInnerHTML={{__html:content}}
+                        className='flex-1 overflow-auto h-5 bg-transparent outline-none focus:outline-none'
+                        
                         >
                     </div>
                 </div>

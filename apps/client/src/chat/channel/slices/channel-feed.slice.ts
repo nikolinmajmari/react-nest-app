@@ -1,12 +1,23 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import storage from "../../../core/storage";
-import { IChannel, IMessage, IUser } from "@mdm/mdm-core";
+import { IChannel, IMessage, INewMessage, IUser } from "@mdm/mdm-core";
 import { channels } from "../../../api.client/client";
 import { IAsyncState } from "../../../core/async.state";
 
+export enum ClientMessageStatus{
+    sent='sent',
+    pending='pending',
+    failed='failed'
+}
+
+export interface IClientMessage extends IMessage{
+    slug?:string
+    sentStatus?: ClientMessageStatus
+}
+
 
 export interface IChannelMessagesState extends IAsyncState {
-    messages:IMessage[];
+    messages:(IClientMessage)[];
 };
 
 const initialState:IChannelMessagesState  = {
@@ -56,18 +67,25 @@ const channelFeedSlice = createSlice({
             state.messages = action.payload;
         })
         .addCase(postMessageThunk.fulfilled,(state,action)=>{
-            state.messages.pop();
+            const index =  state.messages.findIndex(
+                (m:INewMessage)=>m.slug !== action.meta.arg.key
+            );
+            state.messages = state.messages.splice(index,1);
             state.messages.push(action.payload);
         })
         .addCase(postMessageThunk.pending,(state,action)=>{
             state.messages.push({
-                id:"sent",
+                slug: action.meta.arg.key,
                 ...action.meta.arg.message,
-                sender: action.meta.arg.user
-            }as IMessage);
+                sender: action.meta.arg.user,
+                sentStatus: ClientMessageStatus.pending,
+            } as IClientMessage);
         })
         .addCase(postMessageThunk.rejected,(state,action)=>{
-            state.messages.pop();
+            const index =  state.messages.findIndex(
+                (m:INewMessage)=>m.slug !== action.meta.arg.key
+            );
+            state.messages[index].sentStatus = ClientMessageStatus.failed;
         })
         ;
         return builder;
@@ -83,15 +101,22 @@ const loadFeedThunk = createAsyncThunk<IMessage[],string>(
 export interface IPostMessageArgs{
     user:Partial<IUser>
     channelId:string,
-    message:Partial<IMessage>
+    message:Partial<IMessage>,
+    key:string
 }
 export const postMessageThunk = createAsyncThunk<IMessage,IPostMessageArgs>(
     '/channels/messages/post', async (args,thunkapi)=>{
         const id = await channels.postChannelMessage(args.channelId,args.message);
+        
+        return new Promise((resolve,reject)=>{
+            setTimeout(()=>reject(1),1000)
+        })
+        
+        
         return {
             ...args.message,
-                        user: args.user,
-                    id,
+            user: args.user,
+            id,
             createdAt:new Date()
         } as IMessage;
     }

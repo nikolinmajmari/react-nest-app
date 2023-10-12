@@ -33,8 +33,7 @@ export class MediaController {
     upload(@UploadedFile(
         new ParseFilePipe({
             validators:[
-                new MaxFileSizeValidator({maxSize:10000000}),
-                new FileTypeValidator({fileType:'image/jpeg'})
+                new MaxFileSizeValidator({maxSize:10000000000000000}),
             ],
             errorHttpStatusCode:HttpStatus.UNPROCESSABLE_ENTITY
         })

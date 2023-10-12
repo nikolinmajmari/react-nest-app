@@ -12,7 +12,8 @@ export enum ClientMessageStatus{
 
 export interface IClientMessage extends IMessage{
     slug?:string
-    sentStatus?: ClientMessageStatus
+    sentStatus?: ClientMessageStatus,
+    progress?:number;
 }
 
 
@@ -31,24 +32,30 @@ const channelFeedSlice = createSlice({
     name:"chat_channels_id_messages",
     reducers:{
         markMessageSent(state,action){
-            // const index = state.messages.findIndex(
-            //     (message)=>message.token===action.payload
-            // );
-            // state.messages[index].status = "sent";
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            state.messages[index].createdAt =  new Date();
+            state.messages[index].sentStatus = ClientMessageStatus.sent;
         },
         markMessageFailed(state,action){
-            // const index = state.messages.findIndex(
-            //     (message)=>message.token===action.payload
-            // );
-            // state.messages[index].status = "failed";
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            state.messages[index].sentStatus = ClientMessageStatus.failed;
         },
         addMessage(state,action){
             state.messages.push(
-                {
-                    ...action.payload,
-                    status: "pending"
-                }
+                { ...action.payload, sentStatus: ClientMessageStatus.pending }
             );
+        },
+        updateMessage(state,action){
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            if(index){
+                state.messages[index] = {...state.messages[index],...action.payload};
+            }
+        },
+        updateMediaUploadProgress(state,action){
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            if(index){
+                state.messages[index] = {...state.messages[index],progress:action.payload.progress};
+            }
         },
     },
     extraReducers(builder) {
@@ -123,6 +130,6 @@ export const postMessageThunk = createAsyncThunk<IMessage,IPostMessageArgs>(
 );
 
 
-export  const {addMessage,markMessageFailed,markMessageSent} = channelFeedSlice.actions;
+export  const {addMessage,updateMessage,markMessageFailed,markMessageSent} = channelFeedSlice.actions;
 export {loadFeedThunk};
 export default channelFeedSlice.reducer;

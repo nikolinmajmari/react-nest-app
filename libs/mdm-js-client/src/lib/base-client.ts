@@ -1,4 +1,4 @@
-import { AxiosError, AxiosInstance } from "axios";
+import { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { IClient } from "./client";
 import { Query, Json } from "./types";
 import { HttpError } from "./errors/error";
@@ -23,18 +23,24 @@ export class BaseClient implements IClient{
            throw this.handleError(e);
         }
     }
-    async post<T>(path: string, body: Json | undefined): Promise<T> {
+    async post<T>(path: string, body: Json | undefined|FormData,config:AxiosRequestConfig<any>|undefined=undefined): Promise<T> {
         try{
+            const headers:Json = {};
+            if(body instanceof FormData){
+                headers['Content-Type'] = "multipart/form-data";
+            }else{
+                headers['Content-Type'] = 'application/json';
+            }
             const response = await this.client.post(path,body,{
-                headers:{
-                    'Content-Type':'application/json',
-                },
+                headers:headers,
+                ...config
             });
             return response.data as T;
         }catch(e){
            throw this.handleError(e);
         }
     }
+
     async put<T>(path: string, body: Json | undefined): Promise<T> {
         try{
             const response = await this.client.put(path,body,{

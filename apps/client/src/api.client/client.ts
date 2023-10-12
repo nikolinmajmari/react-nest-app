@@ -1,4 +1,4 @@
-import { AuthHandler, BaseClient, ChannelsHandler, UsersHandler } from "@mdm/mdm-js-client";
+import { AuthHandler, BaseClient, ChannelsHandler, MediaHandler, UsersHandler } from "@mdm/mdm-js-client";
 import axios from "axios";
 import storage from "../core/storage";
 
@@ -26,3 +26,5 @@ export const auth = new AuthHandler(client);
 export const channels = new ChannelsHandler(client);
 
 export const users = new UsersHandler(client);
+
+export const media = new MediaHandler(client);

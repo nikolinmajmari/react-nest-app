@@ -5,15 +5,21 @@ import { MessageType } from "@mdm/mdm-core";
 import { useCurrentUser } from "../../../../app/hooks/auth";
 import { usePostMessageThunk } from "../../../../app/hooks/feed";
 import { GrAttachment } from "react-icons/gr";
+import { media as mediaClient } from "../../../../api.client/client";
+import { useDispatch } from "react-redux";
+import { useAppDispatch } from "../../../../app/hooks";
+import { addMessage, updateMessage } from "../../slices/channel-feed.slice";
 
 
 const ChannelEntry = forwardRef(function (props,ref){
     const user = useCurrentUser();
+    const dispatch = useAppDispatch();
     const postMessage = usePostMessageThunk();
     const {channel} = React.useContext(ChannelContext);
 
     const [media,setMedia] = React.useState<string|null>(null);
 
+    const formRef = React.useRef<HTMLFormElement>()
     const contentRef = React.useRef<HTMLDivElement>();
     const mediaRef = React.useRef<HTMLInputElement>();
 
@@ -29,15 +35,52 @@ const ChannelEntry = forwardRef(function (props,ref){
     const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const path = e.target.value.split('\\').pop();
         if(path){
+            console.log(mediaRef.current?.files[0]);
             setMedia(path);
             contentRef.current?.focus();
             /// set crusor in the end 
         }
     }
 
-    const handleFormSubmit:FormEventHandler<HTMLFormElement> = (e)=>{
+    const handleFormSubmit:FormEventHandler<HTMLFormElement> = async (e)=>{
         e.preventDefault();
-        postMessage({ content: contentRef.current?.innerText, type: MessageType.text, sender: user,})
+        if(mediaRef.current?.value){
+            const formData = new FormData(formRef.current);
+            console.log(formData,formRef.current);
+            const reader = new FileReader();
+            const slug = (Math.random() + 1).toString(36).substring(7);
+
+            reader.onload = async function (load) {
+
+                dispatch(addMessage({
+                    media: load.target.result,
+                    slug: slug,
+                    progress:0,
+                    content: contentRef.current?.innerText, 
+                    type: MessageType.text,
+                    sender: user,
+                }));
+                const res = await mediaClient.upload(formData,(e)=>{
+                  dispatch(updateMessage({
+                    slug:slug,
+                    progress: e.progress
+                  }))
+               });
+                setTimeout(
+            ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
+        )
+            };
+
+            reader.readAsDataURL(mediaRef.current.files[0]);
+            
+            // const res = await mediaClient.upload(formData,(e)=>{
+            //     console.log(e.progress);
+            // });
+            
+            ////
+        }else{
+             postMessage({ content: contentRef.current?.innerText, type: MessageType.text, sender: user,})
+        }
         setTimeout(
             ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
         )
@@ -50,8 +93,8 @@ const ChannelEntry = forwardRef(function (props,ref){
         throw new Error('');
     }
     return (
-         <form onSubmit={handleFormSubmit}>
-            <input onChange={handleFileChange} type="file" ref={mediaRef} className="hidden"></input>
+         <form onSubmit={handleFormSubmit} ref={formRef} encType="multipart/form-data">
+            <input onChange={handleFileChange} type="file" id="form-file-input-id" name="file" ref={mediaRef} className="hidden"></input>
             <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start
                 dark:bg-slate-800
             ">

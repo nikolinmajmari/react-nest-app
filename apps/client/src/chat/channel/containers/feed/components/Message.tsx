@@ -1,4 +1,28 @@
-import { MessageType } from "@mdm/mdm-core";
+import { IUser, MessageType } from "@mdm/mdm-core";
+
+export interface IChatMessageProps{
+    content:string;
+    media:string|undefined;
+    progress:number;
+    sender:IUser|string;
+    status:IChatMessageProgress;
+    timestamp:string;
+    mediaStatus:IChatMessageProgress|undefined;
+    onMediaProgressRestart:()=>void,
+    onMediaProgressCancel:()=>void,
+    type:MessageFlowType;
+}
+
+export enum IChatMessageProgress{
+    failed,
+    pending,
+    succeded
+}
+export enum MessageFlowType{
+    sent,
+    received
+}
+
 
 export enum Align{
     left="left",
@@ -13,26 +37,20 @@ interface IAlignProp {
     align:Align;
 }
 
-export interface IMessageProps extends React.HTMLProps<HTMLDivElement>{
-    content: string;
-    type?:MessageType;
-    sender:string,
-    timestamp:string,
-}
 
-export function ReceivedMessage(props:IMessageProps&IBubbleReduced){
+export function ReceivedMessage(props:IChatMessageProps&IBubbleReduced){
      return (
-        <Message align={Align.left} {...props}></Message>
+        <Message {...props}></Message>
     )
 }
 
-export function SentMessage(props:IMessageProps&IBubbleReduced){
+export function SentMessage(props:IChatMessageProps&IBubbleReduced){
     return (
-        <Message align={Align.right} {...props}></Message>
+        <Message {...props}></Message>
     )
 }
 
-export function Message(props:IMessageProps&IBubbleReduced&IAlignProp){
+export function Message(props:IChatMessageProps&IBubbleReduced){
     const {reduced,...rest} = props;
 
     return (reduced ? 
@@ -41,30 +59,36 @@ export function Message(props:IMessageProps&IBubbleReduced&IAlignProp){
          <RawMessage {...rest}/>);
 }
 
-export default function RawMessage(props:IMessageProps&IAlignProp){
-    const {align,content,sender,timestamp} = props;
+export default function RawMessage(props:IChatMessageProps){
+    const align = props.type === MessageFlowType.sent ? Align.right:Align.left;
+
     return (
          <MessageWrapper align={align}>
             <MessageAvatar/>
             <MessageBodyWrapper align={align}>
                 <MessageHeader align={align}>
-                    <span className="text-md font-semibold text-gray-800 dark:text-gray-100">{sender}</span>
-                    <span className="text-xs text-gray-700 dark:text-gray-300 text-opacity-70">{timestamp.slice(0,10)}</span>
+                    <span className="text-md font-semibold text-gray-800 dark:text-gray-100">{typeof props.sender === 'string' ? props.sender : `${props.sender.firstName} ${props.sender.lastName}` }</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300 text-opacity-70">{props.timestamp}</span>
                 </MessageHeader>
                 <MessageContent>
                     {
-                        props.type===MessageType.image && (<MessageContentImage src="https://media.kasperskycontenthub.com/wp-content/uploads/sites/103/2019/09/26105755/fish-1.jpg"/>)
+                        props.media && (
+                            <div className={`${props.progress!==1 ? 'blur-sm':''} m-2`}>
+                                <MessageContentImage src={props.media}/>
+                            </div>
+                        )
                     }
-                    <MessageLabel>{content}</MessageLabel>
+                    <MessageLabel>{props.content}</MessageLabel>
                 </MessageContent>
             </MessageBodyWrapper>
          </MessageWrapper>
     );
 }
 
-export  function RawReducedMessage(props:IMessageProps&IAlignProp){
+export  function RawReducedMessage(props:IChatMessageProps){
+     const align = props.type !== MessageFlowType.sent ? Align.right:Align.left;
     return (
-        <MessageWrapper align={props.align}>
+        <MessageWrapper align={align}>
             <MessageAvatar className="bg-transparent"></MessageAvatar>
             <MessageBodyWrapper align={Align.right}>
                 <MessageContent>
@@ -98,7 +122,7 @@ function MessageWrapper(props:IAlignProp& React.HTMLProps<HTMLDivElement>){
             ${align===Align.left? "flex-row":"flex-row-reverse"}`
             }>
            {props.children}
-         </div>
+        </div>
     );
 }
 
@@ -131,7 +155,7 @@ function MessageLabel(props:React.HTMLProps<HTMLDivElement>){
 
 function MessageContentImage(props:React.HTMLProps<HTMLImageElement>){
     // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...props} className="w-56 p-1 object-cover h-32 rounded-lg"/>;
+    return <img {...props} className="w-56 z-0 object-cover h-32 rounded-lg"/>;
 }
 
 function MessageHeader(props:IAlignProp& React.HTMLProps<HTMLDivElement>){

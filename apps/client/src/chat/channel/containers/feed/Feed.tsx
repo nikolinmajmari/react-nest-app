@@ -1,41 +1,56 @@
 import { forwardRef } from "react";
-import { Align, Message } from "../../../../components/messages/Message";
+import { Align, IChatMessageProgress, IMessageType, Message, MessageFlowType } from "./components/Message";
 import React from "react";
 import { useChannelFeedMessages } from "../../../../app/hooks/feed";
 import { useCurrentUser } from "../../../../app/hooks/auth";
 import { MessageType } from "@mdm/mdm-core";
+import { IClientMessage } from "../../slices/channel-feed.slice";
 
 
 const ChannelFeed = forwardRef(function(props,ref){
     const user = useCurrentUser();
     const messages = useChannelFeedMessages();
+    const handleAutoScroll = React.useCallback(()=>{
+        ref?.current?.scrollIntoView({behavior:"smooth",block: "end",inline: "nearest"})
+    },[ref]);
     
     //// handle scroll
     React.useEffect(()=>{
-        console.log('feed effect');
-        setTimeout(
-            ()=>ref?.current?.scrollIntoView({behavior:"smooth",block: "end",inline: "nearest"})
-        );
+        setTimeout(handleAutoScroll);
     },[]);
-    console.log('building');
     return React.useMemo(()=>(
             <div className="content flex-1">
-            {messages.map((_,index)=>
-                <Message  
-                    key={index}
-                    content={_.content} 
-                    type={MessageType.image}
-                    sender={`${_.sender?.firstName} ${_.sender?.lastName}`} 
-                    timestamp={_.createdAt?.toString()??'-'} 
-                    reduced={false} 
-                    align={_.sender?.id===user?.id ? Align.right:Align.left}
-                />)
+            {messages.map((message,index)=>
+               <ChannelMessageContainer key={index} message={message}/>
+            )
                 
             }
             <div className="py-4" ref={ref}></div>
         </div>
-        ),[messages, ref, user?.id]
+        ),[messages, ref]
     );
 });
+
+export interface IChannelMessageContainerProps{
+    message:IClientMessage,
+}
+export function ChannelMessageContainer({message}:IChannelMessageContainerProps){
+    const user = useCurrentUser();
+    return (
+        <Message 
+            content={message.content} 
+            media={message.file??message.media} 
+            progress={message.progress} 
+            timestamp={message?.createdAt?.toString()?.slice(0,10)}
+            sender={message.sender} 
+            status={IChatMessageProgress.failed} 
+            mediaStatus={IChatMessageProgress.failed} 
+            onMediaProgressRestart={()=>1 } 
+            onMediaProgressCancel={()=>1 } 
+            type={message.sender.id!==user.id ? MessageFlowType.received:MessageFlowType.sent} 
+            reduced={false}/>
+    );
+}
+
 
 export default ChannelFeed;

@@ -11,11 +11,16 @@ export class CreateMessageDTO{
     @IsEnum(MessageType)
     type: MessageType;
 
+    
     @IsString()
     @ApiProperty()
     content: string;
 
     sender:User|string;
+
+    @IsString()
+    @IsOptional()
+    media?:string;
 
     createdAt: Date;
 

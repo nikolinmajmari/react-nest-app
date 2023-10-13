@@ -1,6 +1,6 @@
 import { IChannel, IMessage, INewMessage } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from ".";
-import { loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
+import { IFeedMessage, IFeedMessageSlug, loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
 import { useCurrentUser } from "./auth";
 import { useCurrentChannel } from "./channel";
 import { useCallback } from "react";
@@ -33,12 +33,12 @@ export function usePostMessageThunk(){
         throw new Error('currentUser and channel must be defined in store');
     }
     return useCallback(
-        function(message:Partial<IMessage>){
+        function(slug:string,message:Partial<IFeedMessage>){
             dispatch(postMessageThunk({
                 channelId: channel?.id,
                 message: message,
                 user,
-                key:Math.random().toString(36).slice(2, 7)
+                slug
             }))
         },
         [dispatch,user,channel]

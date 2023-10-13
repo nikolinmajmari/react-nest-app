@@ -1,8 +1,8 @@
-import { IUser, MessageType } from "@mdm/mdm-core";
+import { IMedia, IUser, MediaType, MessageType } from "@mdm/mdm-core";
 
 export interface IChatMessageProps{
     content:string;
-    media:string|undefined;
+    media:Partial<IMedia>&string;
     progress:number;
     sender:IUser|string;
     status:IChatMessageProgress;
@@ -73,7 +73,7 @@ export default function RawMessage(props:IChatMessageProps){
                 <MessageContent>
                     {
                         props.media && (
-                            <div className={`${props.progress!==1 ? 'blur-sm':''} m-2`}>
+                            <div className={`${props.progress && props.progress!==1 ? 'blur-sm':''} m-2`}>
                                 <MessageContentImage src={props.media}/>
                             </div>
                         )

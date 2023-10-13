@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import storage from "../../../core/storage";
-import { IChannel, IMessage, INewMessage, IUser } from "@mdm/mdm-core";
+import { IChannel, IMedia, IMessage, INewMessage, IUser } from "@mdm/mdm-core";
 import { channels } from "../../../api.client/client";
 import { IAsyncState } from "../../../core/async.state";
 
@@ -10,15 +10,35 @@ export enum ClientMessageStatus{
     failed='failed'
 }
 
-export interface IClientMessage extends IMessage{
+export enum SentStatus{
+    sent="sent",
+    pending="pending",
+    failed="failed"
+}
+
+export interface IFeedMessageSlug{
+    slug:string;
+}
+
+export interface IFeedMessage extends Partial<IMessage>{
     slug?:string
-    sentStatus?: ClientMessageStatus,
+    status?: SentStatus,
+    mediaStatus?:"failed"|"pending"|"succeded";
     progress?:number;
 }
 
+export interface IMediaFeedMessage extends Partial<IMessage>{
+    slug:string;
+    media:string;
+}
+
+export interface IMessageUploadMediaProgressPayload{
+    slug:string;
+    progress:number;
+}
 
 export interface IChannelMessagesState extends IAsyncState {
-    messages:(IClientMessage)[];
+    messages:(IFeedMessage)[];
 };
 
 const initialState:IChannelMessagesState  = {
@@ -34,28 +54,35 @@ const channelFeedSlice = createSlice({
         markMessageSent(state,action){
             const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
             state.messages[index].createdAt =  new Date();
-            state.messages[index].sentStatus = ClientMessageStatus.sent;
+            state.messages[index].status = SentStatus.sent;
         },
-        markMessageFailed(state,action){
+        failMediaProgress(state,action){
             const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
-            state.messages[index].sentStatus = ClientMessageStatus.failed;
+            state.messages[index].status = SentStatus.failed;
         },
-        addMessage(state,action){
+        updateMediaProgress(state,action:PayloadAction<IMessageUploadMediaProgressPayload>){
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            state.messages[index].mediaStatus = "pending";
+            state.messages[index].progress = action.payload.progress;
+        },
+        startMediaProgress(state,action:PayloadAction<IFeedMessageSlug>){
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            state.messages[index].mediaStatus = "pending";
+            state.messages[index].progress = 0;
+        },
+        completeMediaProgress(state,action:PayloadAction<IFeedMessageSlug>){
+            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
+            state.messages[index].mediaStatus = "succeded";
+            state.messages[index].progress = 1;
+        },
+        addMessage(state,action:PayloadAction<Partial<IMediaFeedMessage>>){
             state.messages.push(
-                { ...action.payload, sentStatus: ClientMessageStatus.pending }
+                { ...action.payload, 
+                    status: SentStatus.pending,
+                    progress:0,
+                    mediaStatus: "pending"
+                }
             );
-        },
-        updateMessage(state,action){
-            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
-            if(index){
-                state.messages[index] = {...state.messages[index],...action.payload};
-            }
-        },
-        updateMediaUploadProgress(state,action){
-            const index = state.messages.findIndex(m=>m.slug===action.payload.slug);
-            if(index){
-                state.messages[index] = {...state.messages[index],progress:action.payload.progress};
-            }
         },
     },
     extraReducers(builder) {
@@ -75,24 +102,28 @@ const channelFeedSlice = createSlice({
         })
         .addCase(postMessageThunk.fulfilled,(state,action)=>{
             const index =  state.messages.findIndex(
-                (m:INewMessage)=>m.slug !== action.meta.arg.key
+                (m:IFeedMessage)=>m.slug !== action.meta.arg.slug
             );
             state.messages = state.messages.splice(index,1);
             state.messages.push(action.payload);
         })
         .addCase(postMessageThunk.pending,(state,action)=>{
-            state.messages.push({
-                slug: action.meta.arg.key,
+            const index = state.messages.findIndex(s=>action.meta.arg.slug===s.slug);
+            if(!index){
+                state.messages.push({
+                slug: action.meta.arg.slug,
                 ...action.meta.arg.message,
                 sender: action.meta.arg.user,
                 sentStatus: ClientMessageStatus.pending,
-            } as IClientMessage);
+            } as IFeedMessage);
+            }
+            state.messages[index].status = SentStatus.pending;
         })
         .addCase(postMessageThunk.rejected,(state,action)=>{
             const index =  state.messages.findIndex(
-                (m:INewMessage)=>m.slug !== action.meta.arg.key
+                (m:IFeedMessage)=>m.slug !== action.meta.arg.slug
             );
-            state.messages[index].sentStatus = ClientMessageStatus.failed;
+            state.messages[index].status = SentStatus.failed;
         })
         ;
         return builder;
@@ -100,26 +131,28 @@ const channelFeedSlice = createSlice({
 });
 
 
-const loadFeedThunk = createAsyncThunk<IMessage[],string>(
-    "/channels/messages/paginate",async (channelId,thunkapi)=>{
-        return await channels.getChannelMessages(channelId);
+const loadFeedThunk = createAsyncThunk<Partial<IFeedMessage>[],string>(
+    "/channels/messages/paginate",async function(channelId,thunkapi){
+        return (await channels.getChannelMessages(channelId)).map(
+            (im)=>{
+                const media =  im.media ? `http://127.0.0.1:3000${(im.media as Partial<IMedia>).uri}`:null
+                return {
+                    ...im,
+                    media
+                };
+            }
+        );
     }
 );
 export interface IPostMessageArgs{
+    slug:string;
     user:Partial<IUser>
     channelId:string,
     message:Partial<IMessage>,
-    key:string
 }
 export const postMessageThunk = createAsyncThunk<IMessage,IPostMessageArgs>(
     '/channels/messages/post', async (args,thunkapi)=>{
         const id = await channels.postChannelMessage(args.channelId,args.message);
-        
-        return new Promise((resolve,reject)=>{
-            setTimeout(()=>reject(1),1000)
-        })
-        
-        
         return {
             ...args.message,
             user: args.user,
@@ -130,6 +163,6 @@ export const postMessageThunk = createAsyncThunk<IMessage,IPostMessageArgs>(
 );
 
 
-export  const {addMessage,updateMessage,markMessageFailed,markMessageSent} = channelFeedSlice.actions;
+export  const {addMessage,completeMediaProgress,failMediaProgress,markMessageSent,startMediaProgress,updateMediaProgress,} = channelFeedSlice.actions;
 export {loadFeedThunk};
 export default channelFeedSlice.reducer;

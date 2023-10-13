@@ -6,9 +6,8 @@ import { useCurrentUser } from "../../../../app/hooks/auth";
 import { usePostMessageThunk } from "../../../../app/hooks/feed";
 import { GrAttachment } from "react-icons/gr";
 import { media as mediaClient } from "../../../../api.client/client";
-import { useDispatch } from "react-redux";
 import { useAppDispatch } from "../../../../app/hooks";
-import { addMessage, updateMessage } from "../../slices/channel-feed.slice";
+import { addMessage, completeMediaProgress,startMediaProgress,updateMediaProgress,failMediaProgress } from "../../slices/channel-feed.slice";
 
 
 const ChannelEntry = forwardRef(function (props,ref){
@@ -44,42 +43,30 @@ const ChannelEntry = forwardRef(function (props,ref){
 
     const handleFormSubmit:FormEventHandler<HTMLFormElement> = async (e)=>{
         e.preventDefault();
+        const slug = (Math.random() + 1).toString(36).substring(7);
         if(mediaRef.current?.value){
             const formData = new FormData(formRef.current);
-            console.log(formData,formRef.current);
-            const reader = new FileReader();
-            const slug = (Math.random() + 1).toString(36).substring(7);
-
-            reader.onload = async function (load) {
-
-                dispatch(addMessage({
-                    media: load.target.result,
-                    slug: slug,
-                    progress:0,
-                    content: contentRef.current?.innerText, 
-                    type: MessageType.text,
-                    sender: user,
-                }));
-                const res = await mediaClient.upload(formData,(e)=>{
-                  dispatch(updateMessage({
-                    slug:slug,
-                    progress: e.progress
-                  }))
-               });
-                setTimeout(
-            ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
-        )
-            };
-
-            reader.readAsDataURL(mediaRef.current.files[0]);
-            
-            // const res = await mediaClient.upload(formData,(e)=>{
-            //     console.log(e.progress);
-            // });
-            
-            ////
+            const [file] = mediaRef.current.files!;
+            const fileUrl = URL.createObjectURL(file);
+            dispatch(
+                addMessage(
+                    { 
+                        media: fileUrl,
+                        slug: slug, 
+                        content: contentRef.current?.innerText??"", 
+                        type: MessageType.text,
+                        sender: user,
+                    }
+                )
+            );
+            dispatch(startMediaProgress({slug}));
+            const res = await mediaClient.upload(formData,(e)=>{
+                dispatch(updateMediaProgress({slug,progress:e.progress??0}))
+            });
+            postMessage(slug,{ content: contentRef.current?.innerText, type: MessageType.text, sender: user,media:res.id})            
+            setTimeout(()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" }));
         }else{
-             postMessage({ content: contentRef.current?.innerText, type: MessageType.text, sender: user,})
+             postMessage(slug,{ content: contentRef.current?.innerText, type: MessageType.text, sender: user,})
         }
         setTimeout(
             ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })

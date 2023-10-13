@@ -30,10 +30,13 @@ export class MessagingService{
             this.repository.createQueryBuilder('m')
             .select('m')
             .addSelect([
-                "user.id","user.firstName",'user.lastName','user.email','user.avatar'
+                "user.id","user.firstName",'user.lastName','user.email','user.avatar',
+                'media.id','media.uri','media.type'
             ])
             .leftJoin('m.sender','user')
+            .leftJoin('m.media','media')
             .andWhere('m.channelId = :channelId')
+            .addOrderBy('m.createdAt','ASC')
             .setParameter('channelId',channel.id)
         return await builder.getMany();
     }

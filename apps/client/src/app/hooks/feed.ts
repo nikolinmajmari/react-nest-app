@@ -1,9 +1,10 @@
 import { IChannel, IMessage, INewMessage } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from ".";
-import { IFeedMessage, IFeedMessageSlug, loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
 import { useCurrentUser } from "./auth";
 import { useCurrentChannel } from "./channel";
 import { useCallback } from "react";
+import { loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
+import { IFeedMessage } from "../../chat/channel/slices/channel-feed.model";
 
 
 export function useChannelFeedMessages(){

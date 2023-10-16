@@ -21,8 +21,8 @@ export default class ChannelMember implements IChannelMember{
     role: MemberRole;
     
     @ApiProperty({type:"string"})
-    @ManyToOne(()=>User)
-    user: Promise<User>|User|string;
+    @ManyToOne(()=>User,{eager:true})
+    user: User;
 
 
     @Column({
@@ -33,9 +33,9 @@ export default class ChannelMember implements IChannelMember{
     settings:ChannelUserSettings;
 
     @CreateDateColumn({type:"date"})
-    createdAt?:Date;
+    createdAt:Date;
 
     @ManyToOne(()=>Channel,channel=>channel.members,{onDelete: 'CASCADE'})
-    channel?: Promise<Channel>;
+    channel: Promise<Channel>;
 
 }

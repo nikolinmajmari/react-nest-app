@@ -18,7 +18,7 @@ export default function ChannelContainer(){
     },[id,loadChannel]);
     return(
         <>
-        {(status==="idle" || status === "loading") && <ChannelSkeleton/>}
+        {(status==="idle" || status === "loading" ) && <ChannelSkeleton/>}
         {
             (status==="succeeded" && channel!==null || channel!==null) && (
             <ChannelProvider channel={channel}>

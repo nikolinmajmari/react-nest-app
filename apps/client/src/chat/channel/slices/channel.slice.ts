@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { IChannel, IChannelMember } from "@mdm/mdm-core";
+import { IChannel, IChannelMember, IDeepResolveChannel } from "@mdm/mdm-core";
 import { channels } from "../../../api.client/client";
 import { IAsyncState } from "../../../core/async.state";
 
 export interface  IChannelState extends IAsyncState  {
-    channel: IChannel|null,
+    channel: IDeepResolveChannel|null,
 }
 
 const initialState:IChannelState = {
@@ -36,7 +36,7 @@ const channelSlice = createSlice({
         })
         .addCase(deleteMemberThunk.fulfilled,(state,action)=>{
             if(state.channel){
-                state.channel.members = state.channel?.members.filter((m:IChannelMember)=>m.id!==action.payload.id);
+                state.channel.members = state.channel?.members.filter((m)=>m.id===action.payload.id);
             }
             state.status = "succeeded";
         })
@@ -53,9 +53,9 @@ const channelSlice = createSlice({
 });
 
 
-export const loadChannelThunk = createAsyncThunk<IChannel,string>(
+export const loadChannelThunk = createAsyncThunk<IDeepResolveChannel,string>(
     "chat_channel_id",async (channelId:string,thunkapi)=>{
-        return await channels.getChannel(channelId)
+        return (await channels.getChannel(channelId));
     }
 );
 

@@ -1,7 +1,6 @@
 import React, { FormEventHandler, forwardRef } from "react";
 import { TfiCrown, TfiFile, TfiReceipt } from "react-icons/tfi";
 import { ChannelContext } from "../../channel-context";
-import { MessageType } from "@mdm/mdm-core";
 import { useCurrentUser } from "../../../../app/hooks/auth";
 import { usePostMessageThunk } from "../../../../app/hooks/feed";
 import { GrAttachment } from "react-icons/gr";
@@ -54,7 +53,6 @@ const ChannelEntry = forwardRef(function (props,ref){
                         media: fileUrl,
                         slug: slug, 
                         content: contentRef.current?.innerText??"", 
-                        type: MessageType.text,
                         sender: user,
                     }
                 )
@@ -63,10 +61,10 @@ const ChannelEntry = forwardRef(function (props,ref){
             const res = await mediaClient.upload(formData,(e)=>{
                 dispatch(updateMediaProgress({slug,progress:e.progress??0}))
             });
-            postMessage(slug,{ content: contentRef.current?.innerText, type: MessageType.text, sender: user,media:res.id})            
+            postMessage(slug,{ content: contentRef.current?.innerText,sender: user,media:res.id})            
             setTimeout(()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" }));
         }else{
-             postMessage(slug,{ content: contentRef.current?.innerText, type: MessageType.text, sender: user,})
+             postMessage(slug,{ content: contentRef.current?.innerText,  sender: user,})
         }
         setTimeout(
             ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })

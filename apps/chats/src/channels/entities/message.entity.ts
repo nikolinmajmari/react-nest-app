@@ -1,27 +1,23 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import Channel from "./channel.entity";
 import User from "../../users/entities/user.entity";
-import { IMessage, MessageType } from "@mdm/mdm-core";
-import { string } from "joi";
+import {IMessage } from "@mdm/mdm-core";
 import Media from "../../media/media.entity";
+import { CommonEntity } from "../../common/common.entity";
 
 
 @Entity({name: "message"})
-export default class Message implements IMessage{
+export default class Message extends CommonEntity implements IMessage{
     constructor(partial:Partial<Message>){
+        super();
         Object.assign(this,partial);    
     }
     @PrimaryGeneratedColumn("uuid")
-    id?:string;
-
-    @Column({type:"enum",enum:[
-        MessageType.file,MessageType.image,MessageType.recording,MessageType.text,MessageType.video
-    ]})
-    type: MessageType;
+    id:string;
 
     @OneToOne(()=>Media)
     @JoinColumn()
-    media?: string;
+    media: Promise<Media|null>;
 
     @Column({type:"text"})
     content: string;
@@ -30,8 +26,8 @@ export default class Message implements IMessage{
     createdAt: Date;
 
     @ManyToOne(()=>User,{onDelete:"SET NULL",eager:true})
-    sender: User|Promise<User>;
+    sender: Promise<User>;
 
     @ManyToOne(()=>Channel,channel=>channel.messages,{onDelete: 'CASCADE'})
-    channel?: Promise<Channel>|Channel;
+    channel: Promise<Channel>;
 }

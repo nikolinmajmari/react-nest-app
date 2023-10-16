@@ -1,11 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brackets, FindOptionsWhere, Repository } from "typeorm";
-import { CreateChannelDTO, UpdateChannelDTO } from "../dto/channel.dto.ts";
+import { ChannelCreateDTO, ChannelUpdateDTO } from "../dto/channel.dto.ts";
 import Channel from "../entities/channel.entity";
 import ChannelMember from "../entities/channel-member.entity";
 import User from "../../users/entities/user.entity";
-import { ChannelType, MemberRole } from "@mdm/mdm-core";
+import { ChannelType, IChannel, MemberRole } from "@mdm/mdm-core";
 import Message from "../entities/message.entity.js";
 
 
@@ -84,7 +84,7 @@ constructor(
     }
 
 
-    async createChannelForUser(dto:CreateChannelDTO,user:Partial<User>){
+    async createChannelForUser(dto:ChannelCreateDTO,user:Partial<User>){
         if(dto.members.findIndex((m)=>m.user===user.id)!=-1){
             throw new BadRequestException("you can not add yourself on a room you are creating");
         }
@@ -93,11 +93,11 @@ constructor(
             role:MemberRole.admin,
             user:user.id
         });
-        const entity = this.repository.create(dto);
+        const entity = this.repository.create(dto as unknown as  IChannel);
         console.log(entity.members);
         /// check if same channel is already created 
         if (entity.type===ChannelType.private && 
-            await this.privateChannelOfUsersExists(entity.members[0].user,entity.members[1].user)  
+            await this.privateChannelOfUsersExists(entity.members[0].user as unknown as string,entity.members[1].user as unknown as string)  
         ){
             throw new BadRequestException('channel is already created between these users');
         }
@@ -127,13 +127,19 @@ constructor(
         return (await query.execute()).length > 0;
     }
 
-    async create(channel:CreateChannelDTO){
-        const entity = this.repository.create(channel);
+    async create(channel:ChannelCreateDTO){
+        const entity = this.repository.create(channel as unknown as IChannel);
         /// if channel is private check if there are 
         return await this.repository.save(entity)
     }
 
     async findOneChannel(id:string){
+        return this.repository.findOneOrFail({
+            where:{id},
+            relations:{
+                members:true
+            },
+        });
         return this.repository.findOneOrFail({
             where:{id},
             select:{
@@ -160,7 +166,7 @@ constructor(
     }
 
 
-    async updateChannel(channel:Channel,user:Partial<User>,dto:UpdateChannelDTO){
+    async updateChannel(channel:Channel,user:Partial<User>,dto:ChannelUpdateDTO){
 
         const member = await this.findUserChannelMember(channel.id,user.id);
         if(!member){
@@ -170,10 +176,10 @@ constructor(
            throw new ForbiddenException('You should be an admin to make any modification in this channel');
         }
         return await this.repository.save({ id: channel.id, ...channel,
-            members: [
-                ...(await channel.members),
+            members: Promise.resolve([
+                 ...(await channel.members),
                 ...dto.members
-            ]
+            ]),
         });
     }
 

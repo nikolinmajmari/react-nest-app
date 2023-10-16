@@ -2,12 +2,16 @@ import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, Prim
 import Message from "./message.entity";
 import ChannelMember from "./channel-member.entity";
 import { ChannelType, IChannel } from "@mdm/mdm-core";
+import { Expose,} from "class-transformer";
+import { CommonEntity } from "../../common/common.entity";
 
 
 @Entity({name: "channel"})
-export default class Channel implements IChannel {
+export default class Channel extends CommonEntity implements IChannel {
     constructor(partial:Partial<Channel>){
-        Object.assign(this,partial);    
+        super();  
+        Object.assign(this,partial); 
+    
     }
 
     @PrimaryGeneratedColumn("uuid")
@@ -15,16 +19,19 @@ export default class Channel implements IChannel {
 
 
     @Column({
-        type: "text",nullable:true,
+        type: "text",
+        nullable:true,
         select: false,
     })
-    alias?:string;
+    alias:string|null;
 
 
     @Column({
-        type:"text"
+        type:"text",
+        nullable:true,
+        select: false,
     })
-    avatar?:string;
+    avatar:string|null;
 
     @Column({
         type: "enum",
@@ -42,18 +49,20 @@ export default class Channel implements IChannel {
     @OneToMany(()=>Message,message=>message.channel,{
         cascade:true,
     })
-    messages?: Promise<Message[]>| Message[];
+    messages: Promise<Message[]>;
 
     @OneToMany(()=>ChannelMember,member=>member.channel,{
         cascade:true,
-        eager:true
     })
-    members?: Promise<ChannelMember[]>|ChannelMember[];
+    @Expose({
+        name:'members'
+    })
+    members: Promise<ChannelMember[]>;
 
     @OneToOne(
         ()=>Message,
     )
-    @JoinColumn({})
-    lastMessage?:Promise<Message>|Message;
+    @JoinColumn()
+    lastMessage:Promise<Message|null>;
 
 }

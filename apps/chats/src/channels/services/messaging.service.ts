@@ -6,6 +6,7 @@ import Channel from "../entities/channel.entity";
 import User from "../../users/entities/user.entity";
 import { ChannelMessagesQuery } from "../dto/query.dto";
 import { CreateMessageDTO } from "../dto/channel.message.dto";
+import { IMessage } from "@mdm/mdm-core";
 
 
 export interface IUserChannelDTO<T>{
@@ -43,11 +44,11 @@ export class MessagingService{
 
 
     async createMessage({user,channel,dto}:IUserChannelDTO<CreateMessageDTO>):Promise<Message>{
-        dto.sender = user as User;
-        dto.channel = channel;
-        const message = this.repository.create(dto as Message);
+        const message = this.repository.create(dto as unknown as IMessage);
+        message.channel = Promise.resolve( channel);
+        message.sender = Promise.resolve(user as User);
         const saved =  await this.repository.save(message);
-        channel.lastMessage = saved;
+        channel.lastMessage = Promise.resolve(saved);
         await this.em.save(channel);
         return saved;
     }

@@ -1,15 +1,10 @@
 import { ArrayMinSize, IsArray, IsEnum, IsOptional, IsString, IsUUID, IsUrl, Length, ValidateNested } from "class-validator";
-import User from "../../users/entities/user.entity";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, PartialType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { ChannelType, MemberRole } from "@mdm/mdm-core";
+import { ChannelType, IChannelMemberCreate, MemberRole } from "@mdm/mdm-core";
 
 
-export class CreateChannelmemberDTO{
-
-    @IsUUID()
-    @IsOptional()
-    id?:string;
+export class ChannelMemberCreateDTO implements IChannelMemberCreate{
 
     @ApiProperty()
     @IsEnum(MemberRole)
@@ -18,13 +13,14 @@ export class CreateChannelmemberDTO{
     @ApiProperty({type:"string"})
     @IsUUID()
     @IsOptional()
-    user:User|string;
+    user:string;
 }
 
-export class CreateChannelDTO{
+export class ChannelCreateDTO{
 
     @ApiProperty()
     @IsString({always:false})
+    @IsOptional()
     alias?:string;
 
     @ApiProperty()
@@ -33,10 +29,11 @@ export class CreateChannelDTO{
 
     @ApiProperty()
     @IsUrl()
+    @IsOptional()
     avatar?:string;
 
     @ApiProperty({
-        type:CreateChannelmemberDTO,
+        type:ChannelMemberCreateDTO,
         isArray: true
     })
     @IsArray({
@@ -44,36 +41,14 @@ export class CreateChannelDTO{
     })
     @ArrayMinSize(1)
     @ValidateNested({each:true})
-    @Type(()=>CreateChannelmemberDTO)
-    members:CreateChannelmemberDTO[]
+    @Type(()=>ChannelMemberCreateDTO)
+    members:ChannelMemberCreateDTO[]
 }
 
 
 
-export class UpdateChannelDTO{
-
-    @ApiProperty()
-    @IsString({always:false})
-    @IsOptional()
-    alias?:string;
-
-
-    @ApiProperty()
-    @IsUrl()
-    @IsOptional()
-    avatar?:string;
-
-    @ApiProperty({
-        type:CreateChannelmemberDTO,
-        isArray: true
-    })
-    @IsArray({
-        always: false,
-    })
-    @ArrayMinSize(1)
-    @ValidateNested({each:true})
-    @Type(()=>CreateChannelmemberDTO)
-    @IsOptional()
-    members:CreateChannelmemberDTO[]
-
+export class ChannelUpdateDTO extends PartialType(ChannelCreateDTO){
+    @IsUUID()
+    @IsString()
+    id:string;
 }

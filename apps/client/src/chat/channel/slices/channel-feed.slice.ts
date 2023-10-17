@@ -42,7 +42,7 @@ const channelFeedSlice = createSlice({
             state.messages.push(
                 { ...action.payload, 
                     status: MessageStatus.pending,
-                    content: action.payload.content??"",
+                    content: action.payload.content,
                 }
             );
         },
@@ -66,26 +66,40 @@ const channelFeedSlice = createSlice({
             const index =  state.messages.findIndex(
                 (m:IFeedMessage)=>m.slug !== action.meta.arg.slug
             );
-            state.messages = state.messages.splice(index,1);
-            state.messages.push(action.payload);
+            console.log(index);
+            if(index!==-1){
+                state.messages[index] = {
+                    ...state.messages[index],
+                    ...action.payload
+                }
+            }else{
+                state.messages.push(action.payload);
+            }
         })
         .addCase(postMessageThunk.pending,(state,action)=>{
-            const index = state.messages.findIndex(s=>action.meta.arg.slug===s.slug);
-            if(!index){
-                state.messages.push({
-                slug: action.meta.arg.slug,
-                ...action.meta.arg.message,
-                sender: action.meta.arg.user,
-                sentStatus: MediaStatus.pending,
-            } as IFeedMessage);
+            const {slug,message,user} = action.meta.arg;
+            const index = state.messages.findIndex(s=>slug===s.slug);
+            if(index===-1){
+                state.messages = [
+                    ...state.messages,
+                    {
+                        slug: slug,
+                        ...message,
+                        sender: user,
+                        sentStatus: MediaStatus.pending,
+                    } as IFeedMessage
+                ];
+            }else{
+                state.messages[index].status = MessageStatus.pending;
             }
-            state.messages[index].status = MessageStatus.pending;
         })
         .addCase(postMessageThunk.rejected,(state,action)=>{
             const index =  state.messages.findIndex(
                 (m:IFeedMessage)=>m.slug !== action.meta.arg.slug
             );
-            state.messages[index].status = MessageStatus.failed;
+            if(index!==-1){
+                state.messages[index].status = MessageStatus.failed;
+            }
         })
         ;
         return builder;

@@ -1,5 +1,5 @@
 import { IChannelMember, IChannelMemberCreate } from "./channel-member";
-import { DeepResolve, PartialDeepResolve, PartialResolve, Resolve } from "./mdm-core";
+import { DeepResolve, DeepPartialResolve, PartialResolve, Resolve } from "./mdm-core";
 import { IMessage } from "./message";
 
 export enum ChannelType{
@@ -26,7 +26,7 @@ export type IDeepResolveChannel = DeepResolve<IChannel>;
 
 export type IPartialResolveChannel = PartialResolve<IChannel>;
 
-export type IPartialDeepResolveChannel = PartialDeepResolve<IChannel>;
+export type IPartialDeepResolveChannel = DeepPartialResolve<IChannel>;
 
 export interface IChannelCreate extends Omit<IPartialResolveChannel,'members'>{
   members:IChannelMemberCreate[]

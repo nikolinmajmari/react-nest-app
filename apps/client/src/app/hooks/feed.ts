@@ -1,9 +1,9 @@
-import { IChannel, IMessage, INewMessage } from "@mdm/mdm-core";
+import { IChannel, IDeepPartialResolveMessage, IMessageCreateContent, IPartialMessage, IPartialResolveMessage } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from ".";
 import { useCurrentUser } from "./auth";
 import { useCurrentChannel } from "./channel";
 import { useCallback } from "react";
-import { loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
+import { addMessage, loadFeedThunk, postMessageThunk } from "../../chat/channel/slices/channel-feed.slice";
 import { IFeedMessage } from "../../chat/channel/slices/channel-feed.model";
 
 
@@ -26,6 +26,18 @@ export function useDispatchLoadFeed(){
     },[dispatch]);
 }
 
+
+export function useDispatchAddMessage(){
+    const dispatch = useAppDispatch();
+    const user = useCurrentUser();
+    return (message:Partial<IFeedMessage>)=>{
+         dispatch( addMessage({
+            ...message,
+            sender: user
+         }));
+    }
+}
+
 export function usePostMessageThunk(){
     const dispatch = useAppDispatch();
     const user = useCurrentUser();
@@ -34,7 +46,8 @@ export function usePostMessageThunk(){
         throw new Error('currentUser and channel must be defined in store');
     }
     return useCallback(
-        function(slug:string,message:Partial<IFeedMessage>){
+        function(slug:string,message:IDeepPartialResolveMessage){
+            console.log('dispatching',slug,message);
             dispatch(postMessageThunk({
                 channelId: channel?.id,
                 message: message,

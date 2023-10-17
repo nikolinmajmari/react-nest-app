@@ -12,3 +12,5 @@ export interface IMedia{
 }
 
 export type IPartialMedia = Partial<IMedia>;
+
+export type IExposedMedia = Omit<IMedia,"fsPath">;

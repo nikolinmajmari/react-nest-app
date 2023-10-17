@@ -1,4 +1,4 @@
-import { IChannel, IMessage } from "@mdm/mdm-core";
+import { IExposedMedia, IMedia, IPartialMedia } from "@mdm/mdm-core";
 import { BaseClient } from "../base-client";
 import { AxiosProgressEvent } from "axios";
 
@@ -12,5 +12,9 @@ export class MediaHandler{
         return this.baseClient.post(`/media`,data,{
             onUploadProgress: progressHandler
         });
+    }
+
+    get(id:string){
+        return this.baseClient.get<IExposedMedia>(`/media/${id}`,{});
     }
 }

@@ -1,6 +1,6 @@
 
 import { IChannel } from "./channel";
-import { PartialDeepResolve, PartialResolve, Resolve } from "./mdm-core";
+import { DeepPartialResolve, PartialResolve, Resolve } from "./mdm-core";
 import { IPublicUser } from "./user";
 
 export enum MemberRole{

@@ -2,20 +2,26 @@ import React, { FormEventHandler, forwardRef } from "react";
 import { TfiCrown, TfiFile, TfiReceipt } from "react-icons/tfi";
 import { ChannelContext } from "../../channel-context";
 import { useCurrentUser } from "../../../../app/hooks/auth";
-import { usePostMessageThunk } from "../../../../app/hooks/feed";
+import { useDispatchAddMessage, usePostMessageThunk } from "../../../../app/hooks/feed";
 import { GrAttachment } from "react-icons/gr";
 import { media as mediaClient } from "../../../../api.client/client";
 import { useAppDispatch } from "../../../../app/hooks";
-import { addMessage, completeMediaProgress,startMediaProgress,updateMediaProgress,failMediaProgress } from "../../slices/channel-feed.slice";
+import { completeMediaProgress, failMediaProgress, startMediaProgress,updateMediaProgress } from "../../slices/channel-feed.slice";
 import { MediaStatus } from "../../slices/channel-feed.model";
 import { MediaType } from "@mdm/mdm-core";
 
 
-const ChannelEntry = forwardRef(function (props,ref){
+const ChannelEntry = forwardRef<HTMLDivElement>(function (props,ref){
     const user = useCurrentUser();
     const dispatch = useAppDispatch();
     const postMessage = usePostMessageThunk();
+    const addMessage = useDispatchAddMessage();
     const {channel} = React.useContext(ChannelContext);
+    const handleScrollToBottom = function(){
+         setTimeout(
+            ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
+        )
+    };
 
     const [media,setMedia] = React.useState<string|null>(null);
 
@@ -29,52 +35,55 @@ const ChannelEntry = forwardRef(function (props,ref){
     }
     const clearMedia = ()=>{
         setMedia(null);
-        mediaRef.current!.value = "";
+        if(mediaRef.current){
+            mediaRef.current.value = "";
+        }
     }
 
     const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const path = e.target.value.split('\\').pop();
         if(path){
-            console.log(mediaRef.current?.files[0]);
             setMedia(path);
             contentRef.current?.focus();
-            /// set crusor in the end 
         }
     }
 
     const handleFormSubmit:FormEventHandler<HTMLFormElement> = async (e)=>{
         e.preventDefault();
         const slug = (Math.random() + 1).toString(36).substring(7);
-        if(mediaRef.current?.value){
+        const file = mediaRef.current?.files?.item(0);
+        if( mediaRef.current 
+            && mediaRef.current.value 
+            && file
+        ){
             const formData = new FormData(formRef.current);
-            const [file] = mediaRef.current.files!;
             const fileUrl = URL.createObjectURL(file);
-            dispatch(
-                addMessage(
-                    { 
-                        media: {
-                            status: MediaStatus.pending,
-                            uri:fileUrl,
-                            type: MediaType.image
-                        },
-                        slug: slug, 
-                        content: contentRef.current?.innerText??"", 
-                        sender: user,
-                    }
-                )
-            );
+            addMessage({
+                media: { status: MediaStatus.pending, uri:fileUrl, type: MediaType.image },
+                slug: slug, 
+                content: contentRef.current?.innerText??"", 
+                sender: user,
+            })
             dispatch(startMediaProgress({slug}));
-            const res = await mediaClient.upload(formData,(e)=>{
-                dispatch(updateMediaProgress({slug,progress:e.progress??0}))
-            });
-            postMessage(slug,{ content: contentRef.current?.innerText,sender: user,media:{id:res.id}})            
-            setTimeout(()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" }));
+            try{
+                const res = await mediaClient.upload(formData,(e)=>{
+                    dispatch(updateMediaProgress({slug,progress:e.progress??0}))
+                });
+                const media = await mediaClient.get(res.id);
+                completeMediaProgress({slug}); 
+                postMessage(slug,{ 
+                    content: contentRef.current?.innerText??"",
+                    media: media,
+                });    
+            }catch(e){
+                failMediaProgress({slug});
+            }finally{
+                handleScrollToBottom();
+            }         
         }else{
-             postMessage(slug,{ content: contentRef.current?.innerText,  sender: user,})
+            postMessage(slug,{ content: contentRef.current?.innerText})
+            handleScrollToBottom();
         }
-        setTimeout(
-            ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
-        )
     }
     const handleResize = (target:HTMLDivElement)=>{
         target.style.height = "1px";
@@ -90,34 +99,34 @@ const ChannelEntry = forwardRef(function (props,ref){
                 dark:bg-slate-800
             ">
                 {
-                    media && <div className="media-container flex flex-row flex-wrap">
+                    media && 
+                    <div className="media-container flex flex-row flex-wrap">
                         <div className="mx-2 my-2 flex relative flex-row items-center bg-gray-600 px-3 py-1 rounded-md text-white text-xs">
                             <TfiFile className="text-gray-100 font-bold"/>&nbsp;{media}
                             <span onClick={()=>clearMedia()} className="absolute right-0 top-0"><TfiCrown/></span>
                         </div>
                     </div>
                 }
-             <div className="flex flex-row items-center justify-between w-full px-2">
-                <EntryOptionButton onClick={handleMediaClick}>
-                    <GrAttachment/>
-                </EntryOptionButton>
-                <div className="flex flex-row items-start bg-white px-2 py-3 rounded-lg flex-1
-                    dark:bg-gray-700 dark:text-white text-sm">
-                    <div
-                        contentEditable='true' 
-                        ref={contentRef}
-                        onKeyUp={(e)=>handleResize(e.target as HTMLDivElement)}
-                        onKeyDown={(e)=>handleResize(e.target as HTMLDivElement)}
-                        className='flex-1 overflow-auto h-5 bg-transparent outline-none focus:outline-none'
-                        
-                        >
+                <div className="flex flex-row items-center justify-between w-full px-2">
+                    <EntryOptionButton onClick={handleMediaClick}>
+                        <GrAttachment/>
+                    </EntryOptionButton>
+                    <div className="flex flex-row items-start bg-white px-2 py-3 rounded-lg flex-1
+                        dark:bg-gray-700 dark:text-white text-sm">
+                        <div
+                            contentEditable='true' 
+                            ref={contentRef}
+                            onKeyUp={(e)=>handleResize(e.target as HTMLDivElement)}
+                            onKeyDown={(e)=>handleResize(e.target as HTMLDivElement)}
+                            className='flex-1 overflow-auto h-5 bg-transparent outline-none focus:outline-none'
+                            >
+                        </div>
                     </div>
-                </div>
-                <button 
-                    type="submit" 
-                    className="mx-2 bg-teal-900 text-white p-4 rounded-full ">
-                        <TfiReceipt/>
-                </button>
+                    <button 
+                        type="submit" 
+                        className="mx-2 bg-teal-900 text-white p-4 rounded-full ">
+                            <TfiReceipt/>
+                    </button>
                 </div>
             </div>
          </form>

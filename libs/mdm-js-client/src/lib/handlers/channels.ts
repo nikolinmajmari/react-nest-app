@@ -1,4 +1,4 @@
-import { IChannel, IChannelCreate, IDeepResolveChannel,  IPartialResolveChannel, IResolvedMessage } from "@mdm/mdm-core";
+import { IChannel, IChannelCreate, IDeepResolveChannel,  IMessageCreate,  IPartialResolveChannel, IResolvedMessage } from "@mdm/mdm-core";
 import { BaseClient } from "../base-client";
 
 export class ChannelsHandler{
@@ -30,7 +30,7 @@ export class ChannelsHandler{
         return await this.baseClient.get<IResolvedMessage[]>(`/channels/${id}/messages`,{});
     }
 
-    async postChannelMessage(id:string,message:Omit<Partial<IResolvedMessage>,'id'|'createdAt'|'channel'>){
+    async postChannelMessage(id:string,message:IMessageCreate){
         return await this.baseClient.post<string>(`/channels/${id}/messages`,message);
     }
 

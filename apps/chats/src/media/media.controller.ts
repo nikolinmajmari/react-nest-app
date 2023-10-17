@@ -1,5 +1,5 @@
 import { Multer } from 'multer';
-import { Controller, FileTypeValidator, Get, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import {FileInterceptor} from "@nestjs/platform-express";
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorator';
@@ -43,11 +43,17 @@ export class MediaController {
     }
 
     @Get(':id')
+    @HttpCode(HttpStatus.OK)
+    @Public()
+    async get(@Param('id') id:string){
+        return await this.service.getMedia(id);
+    }
+
+    @Get(':id/download')
+    @HttpCode(HttpStatus.OK)
     @Public()
     async download(@Param('id') id:string,@Res() res:Response){
-
         const readable = await this.service.getMediaStream(id);
         readable.pipe(res);
-
     }
 }

@@ -78,7 +78,7 @@ export default function RawMessage(props:IChatMessageProps){
                                     !props.media.id ? 
                                         <MessageContentImage src={props.media.uri}/>
                                         :
-                                        <MessageContentImage src={`http://127.0.0.1:3000/api/media/${props.media.id}`}/>
+                                        <MessageContentImage src={`http://127.0.0.1:3000/api/media/${props.media.id}/download`}/>
                                 }
                             </div>
                         )

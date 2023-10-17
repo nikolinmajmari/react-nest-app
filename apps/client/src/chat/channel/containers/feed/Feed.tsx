@@ -1,10 +1,8 @@
 import { forwardRef } from "react";
-import { Align, IChatMessageProgress, IMessageType, Message, MessageFlowType } from "./components/Message";
+import { Align, IChatMessageProgress, Message, MessageFlowType } from "./components/Message";
 import React from "react";
 import { useChannelFeedMessages } from "../../../../app/hooks/feed";
 import { useCurrentUser } from "../../../../app/hooks/auth";
-import { MessageType } from "@mdm/mdm-core";
-import { IClientMessage } from "../../slices/channel-feed.slice";
 import { IFeedMessage } from "../../slices/channel-feed.model";
 
 

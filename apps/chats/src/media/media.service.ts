@@ -24,7 +24,7 @@ export class MediaService{
         media.type = MediaType.image;
         media.uri = '';
         const saved = await this.repository.save(media);
-        saved.uri = `/api/media/${media.id}`;
+        saved.uri = `/api/media/${media.id}/download`;
         return await this.repository.save(media);
     }
 

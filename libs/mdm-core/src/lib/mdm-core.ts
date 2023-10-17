@@ -12,6 +12,6 @@ export type DeepResolve<T> = {
   [P in keyof T]: DeepResolve<Awaited<T[P]>>;
 }
 
-export type PartialDeepResolve<T> = {
-  [P in keyof T]?: DeepResolve<Awaited<T[P]>>;
+export type DeepPartialResolve<T> = {
+  [P in keyof T]?: DeepPartialResolve<Awaited<T[P]>>;
 }

@@ -1,22 +1,29 @@
-import { IMessage, IUser } from "@mdm/mdm-core";
+import { IDeepPartialResolveMessage, IPartialResolveMessage, IPublicUser} from "@mdm/mdm-core";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { channels } from "../../../../api.client/client";
 import { IFeedMessage } from "../channel-feed.model";
 
 export interface IPostMessageArgs{
     slug:string;
-    user:Partial<IUser>
+    user:IPublicUser,
     channelId:string,
-    message:Partial<IMessage>,
+    message:IDeepPartialResolveMessage,
 }
 
 const postMessageThunk = createAsyncThunk<IFeedMessage,IPostMessageArgs>(
     '/channels/messages/post', async (args,thunkapi)=>{
-        const id = await channels.postChannelMessage(args.channelId,args.message);
+        const {message,user,channelId,slug} = args;
+        const id = await channels.postChannelMessage(channelId,{
+            content: message.content??"",
+            media: message.media?.id,
+            sender:user.id
+        });
         return {
-            ...args.message,
-            user: args.user,
             id,
+            slug:slug,
+            media: message.media,
+            content: message.content,
+            sender:user,
             createdAt:(new Date()).toString() as unknown
         } as IFeedMessage;
     }

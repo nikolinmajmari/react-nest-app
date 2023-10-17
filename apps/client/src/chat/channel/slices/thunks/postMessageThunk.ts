@@ -17,7 +17,7 @@ const postMessageThunk = createAsyncThunk<IFeedMessage,IPostMessageArgs>(
             ...args.message,
             user: args.user,
             id,
-            createdAt:new Date()
+            createdAt:(new Date()).toString() as unknown
         } as IFeedMessage;
     }
 );

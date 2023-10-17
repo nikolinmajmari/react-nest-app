@@ -5,6 +5,7 @@ import { useChannelFeedMessages } from "../../../../app/hooks/feed";
 import { useCurrentUser } from "../../../../app/hooks/auth";
 import { MessageType } from "@mdm/mdm-core";
 import { IClientMessage } from "../../slices/channel-feed.slice";
+import { IFeedMessage } from "../../slices/channel-feed.model";
 
 
 const ChannelFeed = forwardRef(function(props,ref){
@@ -32,22 +33,21 @@ const ChannelFeed = forwardRef(function(props,ref){
 });
 
 export interface IChannelMessageContainerProps{
-    message:IClientMessage,
+    message:IFeedMessage,
 }
 export function ChannelMessageContainer({message}:IChannelMessageContainerProps){
     const user = useCurrentUser();
     return (
         <Message 
-            content={message.content} 
-            media={message.file??message.media} 
-            progress={message.progress} 
-            timestamp={message?.createdAt?.toString()?.slice(0,10)}
-            sender={message.sender} 
+            content={message.content??""} 
+            media={message.media} 
+            timestamp={message?.createdAt?.toString()?.slice(0,10)??""}
+            sender={message.sender??" "} 
             status={IChatMessageProgress.failed} 
             mediaStatus={IChatMessageProgress.failed} 
             onMediaProgressRestart={()=>1 } 
             onMediaProgressCancel={()=>1 } 
-            type={message.sender.id!==user.id ? MessageFlowType.received:MessageFlowType.sent} 
+            type={message.sender?.id!==user.id ? MessageFlowType.received:MessageFlowType.sent} 
             reduced={false}/>
     );
 }

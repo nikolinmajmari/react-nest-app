@@ -7,6 +7,8 @@ import { GrAttachment } from "react-icons/gr";
 import { media as mediaClient } from "../../../../api.client/client";
 import { useAppDispatch } from "../../../../app/hooks";
 import { addMessage, completeMediaProgress,startMediaProgress,updateMediaProgress,failMediaProgress } from "../../slices/channel-feed.slice";
+import { MediaStatus } from "../../slices/channel-feed.model";
+import { MediaType } from "@mdm/mdm-core";
 
 
 const ChannelEntry = forwardRef(function (props,ref){
@@ -50,7 +52,11 @@ const ChannelEntry = forwardRef(function (props,ref){
             dispatch(
                 addMessage(
                     { 
-                        media: fileUrl,
+                        media: {
+                            status: MediaStatus.pending,
+                            uri:fileUrl,
+                            type: MediaType.image
+                        },
                         slug: slug, 
                         content: contentRef.current?.innerText??"", 
                         sender: user,
@@ -61,7 +67,7 @@ const ChannelEntry = forwardRef(function (props,ref){
             const res = await mediaClient.upload(formData,(e)=>{
                 dispatch(updateMediaProgress({slug,progress:e.progress??0}))
             });
-            postMessage(slug,{ content: contentRef.current?.innerText,sender: user,media:res.id})            
+            postMessage(slug,{ content: contentRef.current?.innerText,sender: user,media:{id:res.id}})            
             setTimeout(()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" }));
         }else{
              postMessage(slug,{ content: contentRef.current?.innerText,  sender: user,})

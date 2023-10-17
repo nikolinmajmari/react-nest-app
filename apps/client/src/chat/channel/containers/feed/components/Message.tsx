@@ -1,10 +1,10 @@
-import { IMedia, IUser, MediaType, MessageType } from "@mdm/mdm-core";
+import { IMedia, IPartialMedia, IPublicUser, IUser, MediaType } from "@mdm/mdm-core";
+import { IFeedMessageMedia } from "../../../slices/channel-feed.model";
 
 export interface IChatMessageProps{
     content:string;
-    media:Partial<IMedia>&string;
-    progress:number;
-    sender:IUser|string;
+    media?:IFeedMessageMedia;
+    sender:IPublicUser|string;
     status:IChatMessageProgress;
     timestamp:string;
     mediaStatus:IChatMessageProgress|undefined;
@@ -73,8 +73,13 @@ export default function RawMessage(props:IChatMessageProps){
                 <MessageContent>
                     {
                         props.media && (
-                            <div className={`${props.progress && props.progress!==1 ? 'blur-sm':''} m-2`}>
-                                <MessageContentImage src={props.media}/>
+                            <div className={`${props.media.progress && props.media.progress!==1 ? 'blur-sm':''} m-2`}>
+                                {
+                                    !props.media.id ? 
+                                        <MessageContentImage src={props.media.uri}/>
+                                        :
+                                        <MessageContentImage src={`http://127.0.0.1:3000/api/media/${props.media.id}`}/>
+                                }
                             </div>
                         )
                     }

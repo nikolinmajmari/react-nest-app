@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { IPartialMedia, IResolvedMessage} from "@mdm/mdm-core";
+import { IPartialMedia, IResolveMessage} from "@mdm/mdm-core";
 import { IAsyncState } from "../../../core/async.state";
 
 /** Global State */
@@ -16,7 +16,7 @@ export enum MessageStatus{
     failed
 }
 
-export interface IFeedMessage extends Omit<Partial<IResolvedMessage>,'media'>{
+export interface IFeedMessage extends Omit<Partial<IResolveMessage>,'media'>{
      status?: MessageStatus;
      slug?:string;
      media?:IFeedMessageMedia;
@@ -36,11 +36,6 @@ export interface IFeedMessageMedia extends IPartialMedia{
 
 /** Action Argument types  */
 
-export interface IFeedMessageCreate extends Omit<IFeedMessage,'sender'|'media'>{
-    content:string;
-    media?:string;
-    sender?:string;
-}
 
 export interface IFeedMessageSlug{
     slug:string;

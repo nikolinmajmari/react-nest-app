@@ -1,13 +1,13 @@
 import { IDeepPartialResolveMessage, IPartialResolveMessage, IPublicUser} from "@mdm/mdm-core";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { channels } from "../../../../api.client/client";
-import { IFeedMessage } from "../channel-feed.model";
+import { IFeedMessage} from "../channel-feed.model";
 
 export interface IPostMessageArgs{
     slug:string;
     user:IPublicUser,
     channelId:string,
-    message:IDeepPartialResolveMessage,
+    message:Pick<IFeedMessage,"content"|"media">
 }
 
 const postMessageThunk = createAsyncThunk<IFeedMessage,IPostMessageArgs>(

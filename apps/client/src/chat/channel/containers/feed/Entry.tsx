@@ -1,36 +1,40 @@
 import React, { FormEventHandler, forwardRef } from "react";
 import { TfiCrown, TfiFile, TfiReceipt } from "react-icons/tfi";
 import { ChannelContext } from "../../channel-context";
-import { useCurrentUser } from "../../../../app/hooks/auth";
-import { useDispatchAddMessage, usePostMessageThunk } from "../../../../app/hooks/feed";
+import { usePostMediaMessage, usePostMessageThunk } from "../../../../app/hooks/feed";
 import { GrAttachment } from "react-icons/gr";
-import { media as mediaClient } from "../../../../api.client/client";
-import { useAppDispatch } from "../../../../app/hooks";
-import { completeMediaProgress, failMediaProgress, startMediaProgress,updateMediaProgress } from "../../slices/channel-feed.slice";
-import { MediaStatus } from "../../slices/channel-feed.model";
 import { MediaType } from "@mdm/mdm-core";
 
 
 const ChannelEntry = forwardRef<HTMLDivElement>(function (props,ref){
-    const user = useCurrentUser();
-    const dispatch = useAppDispatch();
-    const postMessage = usePostMessageThunk();
-    const addMessage = useDispatchAddMessage();
+    /// state 
     const {channel} = React.useContext(ChannelContext);
+    const [media,setMedia] = React.useState<string|null>(null);
+
+    /// refs 
+    const formRef = React.useRef<HTMLFormElement>()
+    const contentRef = React.useRef<HTMLDivElement>();
+    const mediaRef = React.useRef<HTMLInputElement>();
+
+    /// post thunks 
+    const postMessage = usePostMessageThunk();
+    const postMediaMessage = usePostMediaMessage();
+
+
+    /// ui
     const handleScrollToBottom = function(){
          setTimeout(
             ()=>ref?.current?.scrollIntoView({ behavior:"smooth", block: "end", inline: "nearest" })
         )
     };
+    const handleResize = (target:HTMLDivElement)=>{
+        target.style.height = "1px";
+        target.style.height = `${Math.min(Math.max(target?.scrollHeight,20),160)}px`;
+    }
 
-    const [media,setMedia] = React.useState<string|null>(null);
 
-    const formRef = React.useRef<HTMLFormElement>()
-    const contentRef = React.useRef<HTMLDivElement>();
-    const mediaRef = React.useRef<HTMLInputElement>();
-
+    /// interactions 
     const handleMediaClick = ()=>{
-        console.log(mediaRef.current);
         mediaRef.current?.click();
     }
     const clearMedia = ()=>{
@@ -39,7 +43,6 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props,ref){
             mediaRef.current.value = "";
         }
     }
-
     const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const path = e.target.value.split('\\').pop();
         if(path){
@@ -48,6 +51,7 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props,ref){
         }
     }
 
+    /// data submit
     const handleFormSubmit:FormEventHandler<HTMLFormElement> = async (e)=>{
         e.preventDefault();
         const slug = (Math.random() + 1).toString(36).substring(7);
@@ -57,37 +61,26 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props,ref){
             && file
         ){
             const formData = new FormData(formRef.current);
-            const fileUrl = URL.createObjectURL(file);
-            addMessage({
-                media: { status: MediaStatus.pending, uri:fileUrl, type: MediaType.image },
-                slug: slug, 
-                content: contentRef.current?.innerText??"", 
-                sender: user,
-            })
-            dispatch(startMediaProgress({slug}));
-            try{
-                const res = await mediaClient.upload(formData,(e)=>{
-                    dispatch(updateMediaProgress({slug,progress:e.progress??0}))
-                });
-                const media = await mediaClient.get(res.id);
-                completeMediaProgress({slug}); 
-                postMessage(slug,{ 
-                    content: contentRef.current?.innerText??"",
-                    media: media,
-                });    
-            }catch(e){
-                failMediaProgress({slug});
-            }finally{
-                handleScrollToBottom();
-            }         
+            const fileUri = URL.createObjectURL(file);
+            clearMedia();
+            postMediaMessage({
+                content: contentRef.current?.innerText??'',
+                media:{
+                    type: MediaType.image,
+                    uri: fileUri
+                },
+                formData,
+                slug,
+                onAfterAdd:handleScrollToBottom
+            });       
         }else{
             postMessage(slug,{ content: contentRef.current?.innerText})
             handleScrollToBottom();
         }
-    }
-    const handleResize = (target:HTMLDivElement)=>{
-        target.style.height = "1px";
-        target.style.height = `${Math.min(Math.max(target?.scrollHeight,20),160)}px`;
+        if(contentRef.current){
+             contentRef.current.innerHTML = "";
+            contentRef.current.focus();
+        }
     }
     if(!channel){
         throw new Error('');

@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { ChannelType, IChannel } from "@mdm/mdm-core";
+import { ChannelType, IChannel, IChannelCreate, IDeepResolveChannel, IPartialChannel, IPartialResolveChannel, IResolveChannel } from "@mdm/mdm-core";
 import { channels } from "../../../api.client/client";
 import { IAsyncState } from "../../../core/async.state";
 
 export interface IChannelsState extends IAsyncState{
-    channels:IChannel[],
+    channels:IDeepResolveChannel[],
     activeChannel:string|null
 }
 
@@ -54,19 +54,19 @@ const slice = createSlice({
 
 //// thunks 
 
-export const loadChannelsThunk = createAsyncThunk<IChannel[],void>("channels/load",async (arg,thunkApi)=>{
+export const loadChannelsThunk = createAsyncThunk<IDeepResolveChannel[],void>("channels/load",async (arg,thunkApi)=>{
         return await channels.get();
     }
 );
 
-export const createChannelThunk = createAsyncThunk<IChannel,Partial<IChannel>>('channels/create',async (data,thunkApi)=>{
+export const createChannelThunk = createAsyncThunk<IDeepResolveChannel,IChannelCreate>('channels/create',async (data:IChannelCreate,thunkApi)=>{
     const channel =  await channels.createChannel({
-        ...data,
+       ...data
     });
-    return await channels.getChannel((channel as any).id);
+    return await channels.getChannel((channel as any).id) as IDeepResolveChannel;
 });
 
-export const deleteChannelThunk = createAsyncThunk<string,Partial<IChannel>>('channels/delete',async (data,thunkApi)=>{
+export const deleteChannelThunk = createAsyncThunk<string,Pick<IChannel,'id'>>('channels/delete',async (data,thunkApi)=>{
     await channels.deleteChannel(data.id!);
     return data.id!;
 })

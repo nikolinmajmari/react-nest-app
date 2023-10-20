@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { IChannelMessagesState, IFeedMessageSlug, IMessageUploadMediaProgressPayload, IFeedMessageCreate, MediaStatus, MessageStatus, IFeedMessage } from "./channel-feed.model";
+import { IChannelMessagesState, IFeedMessageSlug, IMessageUploadMediaProgressPayload, MediaStatus, MessageStatus, IFeedMessage } from "./channel-feed.model";
 import loadFeedThunk from "./thunks/loadFeedThunk";
 import postMessageThunk from "./thunks/postMessageThunk";
 
@@ -64,9 +64,8 @@ const channelFeedSlice = createSlice({
         })
         .addCase(postMessageThunk.fulfilled,(state,action)=>{
             const index =  state.messages.findIndex(
-                (m:IFeedMessage)=>m.slug !== action.meta.arg.slug
+                (m:IFeedMessage)=>m.slug === action.meta.arg.slug
             );
-            console.log(index);
             if(index!==-1){
                 state.messages[index] = {
                     ...state.messages[index],

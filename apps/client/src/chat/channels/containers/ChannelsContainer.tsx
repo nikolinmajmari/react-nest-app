@@ -1,4 +1,4 @@
-import { IChannel } from "@mdm/mdm-core";
+import { IChannel, IPartialDeepResolveChannel } from "@mdm/mdm-core";
 import { deleteChannelThunk } from "../slices/channels.slice";
 import { useNavigate } from "react-router-dom";
 import ChatTile from "../../../components/channels/Tile";
@@ -74,7 +74,7 @@ export function Show(props:{if:boolean,children:React.ReactNode}){
 
 
 export interface IChannelTileContainerProps{
-    channel: Partial<IChannel>;
+    channel: IPartialDeepResolveChannel;
     active:boolean;
     navigate:()=>void;
 }
@@ -89,12 +89,17 @@ export function ChannelTileContainer(props:IChannelTileContainerProps){
     };
     const {channel,active,navigate} = props;
     const ref = React.useRef();
+    const label = 
+        channel.lastMessage?.content ?
+        channel.lastMessage.content.slice(0,40) + (channel.lastMessage.content.length > 40 ? '...':'')
+        :
+        '-';
     return (
         <ContextMenu ref={ref} trigger={
             <ChatTile key={channel.id}
                 active={active}
                 avatar={channel.avatar??"U"}
-                label={channel.lastMessage??"Unknown"}
+                label={label}
                 name={channel.alias??"Unkonwn"}
                 navigate={navigate}
             ref={ref}/>

@@ -45,30 +45,27 @@ constructor(
 
     async findUserChannels(user:Partial<User>){
         const query = this.repository.createQueryBuilder('ch')
-        .select(['ch','m','u.id','u.firstName','u.lastName','u.email','u.avatar'])
-        .addSelect(
-            (qb)=>
-            qb.select(`
-                case when _ch.type = 'private' then 
-                CONCAT(_u."firstName",' ',_u."lastName")
-                else _ch.alias end
+        const sqb = this.repository.manager.createQueryBuilder();
+        sqb.select(`
+                case when "_ch"."type" = 'private' then 
+                CONCAT("_u"."firstName",' ',"_u"."firstName")
+                else "_ch"."alias" end
             `)
             .from("user",'_u')
             .innerJoin('_u.members','_chm')
             .innerJoin('_chm.channel','_ch')
             .where('_chm.channelId = ch.id')
-            .andWhere('u.id <> :userId')
-            .limit(1),'ch_alias'
-        )
-        .addSelect(
-            (qb)=>
-            qb.select('_m.content')
-            .from("message",'_m')
-            .where('_m.channelId = ch.id')
-            .orderBy('id','DESC')
-            .limit(1),'ch_lastMessage'
-        )
+            .andWhere('_u.id <> :userId')
+            .limit(1);
+
+        query.select(["ch","m","lm","u.id","u.firstName","u.lastName","u.email","u.avatar"])
+        .addSelect(`
+        case when "ch"."type" = 'group' 
+        then "ch"."alias"
+        else (${sqb.getQuery()}) end`,
+        'ch_alias')
         .leftJoin('ch.members','m')
+        .leftJoin('ch.lastMessage','lm')
         .leftJoin('m.user','u');
         query.andWhere(
             'ch.id in'+query.subQuery()
@@ -79,7 +76,8 @@ constructor(
             .andWhere('u.id = :userId')
             .getQuery()
         ).setParameter('userId',user.id)
-        .cache(false)
+        .cache(false);
+        console.log(query.getSql());
        return await query.getMany();
     }
 
@@ -93,14 +91,13 @@ constructor(
             role:MemberRole.admin,
             user:user.id
         });
-        const entity = this.repository.create(dto as unknown as  IChannel);
-        console.log(entity.members);
         /// check if same channel is already created 
-        if (entity.type===ChannelType.private && 
-            await this.privateChannelOfUsersExists(entity.members[0].user as unknown as string,entity.members[1].user as unknown as string)  
+        if (dto.type===ChannelType.private && 
+            await this.privateChannelOfUsersExists(dto.members[0].user as unknown as string,dto.members[1].user as unknown as string)  
         ){
             throw new BadRequestException('channel is already created between these users');
         }
+        const entity = this.repository.create(dto as unknown as  IChannel);
 
         /// if channel is private check if there are 
         return await this.repository.save(entity)

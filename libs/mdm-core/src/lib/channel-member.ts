@@ -1,7 +1,7 @@
 
-import { IChannel } from "./channel";
-import { DeepPartialResolve, PartialResolve, Resolve } from "./mdm-core";
-import { IPublicUser } from "./user";
+import {IChannelEntity} from "./channel";
+import {DeepPartialResolve, DeepResolve} from "./mdm-core";
+import { IUser} from "./user";
 
 export enum MemberRole{
   admin="admin",
@@ -12,21 +12,19 @@ export interface ChannelUserSettings {
     muteNotifications?:boolean;
 }
 
-export interface IChannelMember{
+export interface IChannelMemberEntity{
   id:string;
   role:MemberRole;
-  user:IPublicUser;
+  user:IUser;
   settings: ChannelUserSettings;
   createdAt:Date;
-  channel:Promise<IChannel>
+  channel:Promise<IChannelEntity>
 }
 
-export type IPartialChannelMember = Partial<IChannelMember>;
+export type IChannelMember = DeepResolve<IChannelMemberEntity>;
 
-export type IResolveChannelMember = Resolve<IChannelMember>;
+export type IPartialChannelMember = DeepPartialResolve<IChannelMemberEntity>;
 
-export type IPartialResolveChannelMember = PartialResolve<IChannelMember>;
-
-export interface IChannelMemberCreate extends Omit<IPartialResolveChannelMember,"user">{ 
+export interface IChannelMemberCreate extends Omit<IPartialChannelMember,"user">{
     user:string;
 }

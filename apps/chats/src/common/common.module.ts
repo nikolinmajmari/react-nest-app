@@ -1,14 +1,15 @@
-import { Module } from '@nestjs/common';
-import { ConfigurationModule } from './configurations.module';
-import { TypeOrmCustomModule } from './typeorm.module';
+import {Module} from '@nestjs/common';
+import {ConfigurationModule} from './configurations.module';
+import {TypeOrmCustomModule} from './typeorm.module';
 
 @Module({
-    imports:[
-        TypeOrmCustomModule,ConfigurationModule
+    imports: [
+        TypeOrmCustomModule, ConfigurationModule
     ],
-    exports:[
-        TypeOrmCustomModule,ConfigurationModule
+    exports: [
+        TypeOrmCustomModule, ConfigurationModule
     ]
 })
-export class CommonModule {}
+export class CommonModule {
+}
 

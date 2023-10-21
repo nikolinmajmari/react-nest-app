@@ -1,10 +1,8 @@
-
-
 export interface ChannelUserSettings {
-    muteNotifications?:boolean;
+    muteNotifications?: boolean;
 }
 
 
-export interface ChannelSettings{
-    disapearingMessages:boolean;
+export interface ChannelSettings {
+    disapearingMessages: boolean;
 }

@@ -4,13 +4,13 @@ export enum MediaType{
   recording="media/voice",
   file="media/file"
 }
-export interface IMedia{
+export interface IMediaEntity{
   id:string;
   uri:string;
   type: MediaType;
   fsPath:string;
 }
 
-export type IPartialMedia = Partial<IMedia>;
+export type IMedia = Omit<IMediaEntity,"fsPath">;
 
-export type IExposedMedia = Omit<IMedia,"fsPath">;
+export type IPartialMedia = Partial<IMedia>;

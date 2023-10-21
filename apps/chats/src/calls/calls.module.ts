@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
-import { CallsController } from './calls.controller';
+import {Module} from '@nestjs/common';
+import {CallsController} from './calls.controller';
 
 @Module({
-  controllers: [CallsController]
+    controllers: [CallsController]
 })
-export class CallsModule {}
+export class CallsModule {
+}

@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from ".";
-import { ChannelType, IChannel } from "@mdm/mdm-core";
+import {ChannelType, IChannel, IChannelCreate} from "@mdm/mdm-core";
 import { createChannelThunk, loadChannelsThunk, setActiveChannel } from "../../chat/channels/slices/channels.slice";
 import { useCallback } from "react";
 
@@ -49,7 +49,7 @@ export function useDispatchLoadChannels(){
 export function useDispatchCreateChannel(type:ChannelType){
     const dispatch = useAppDispatch();
     return useCallback(
-        function (data:Partial<IChannel>){
+        function (data:IChannelCreate){
             return dispatch(createChannelThunk({
                 ...data,
                 type: type

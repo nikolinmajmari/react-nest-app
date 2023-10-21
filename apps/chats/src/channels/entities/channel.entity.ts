@@ -1,68 +1,57 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import Message from "./message.entity";
 import ChannelMember from "./channel-member.entity";
-import { ChannelType, IChannel } from "@mdm/mdm-core";
-import { Expose,} from "class-transformer";
-import { CommonEntity } from "../../common/common.entity";
+import {ChannelType, IChannelEntity} from "@mdm/mdm-core";
+import {Expose,} from "class-transformer";
+import {CommonEntity} from "../../common/common.entity";
 
 
 @Entity({name: "channel"})
-export default class Channel extends CommonEntity implements IChannel {
-    constructor(partial:Partial<Channel>){
-        super();  
-        Object.assign(this,partial); 
-    
-    }
-
+export default class Channel extends CommonEntity implements IChannelEntity {
     @PrimaryGeneratedColumn("uuid")
-    id:string;
-
-
+    id: string;
     @Column({
         type: "text",
-        nullable:true,
+        nullable: true,
         select: false,
     })
-    alias:string|null;
-
-
+    alias: string | null;
     @Column({
-        type:"text",
-        nullable:true,
+        type: "text",
+        nullable: true,
         select: false,
     })
-    avatar:string|null;
-
+    avatar: string | null;
     @Column({
         type: "enum",
-        enum:[ChannelType.private,ChannelType.group]
+        enum: [ChannelType.private, ChannelType.group]
     })
     type: ChannelType;
-
-
     @CreateDateColumn({
         type: "timestamp",
     })
-    createdAt:Date;
-
-
-    @OneToMany(()=>Message,message=>message.channel,{
-        cascade:true,
+    createdAt: Date;
+    @OneToMany(() => Message, message => message.channel, {
+        cascade: true,
     })
     messages: Promise<Message[]>;
-
-    @OneToMany(()=>ChannelMember,member=>member.channel,{
-        cascade:true,
+    @OneToMany(() => ChannelMember, member => member.channel, {
+        cascade: true,
     })
     @Expose({
-        name:'members'
+        name: 'members'
     })
     members: Promise<ChannelMember[]>;
-
     @OneToOne(
-        ()=>Message,
+        () => Message,
     )
     @JoinColumn()
-    lastMessage:Promise<Message|null>;
+    lastMessage: Promise<Message | null>;
+
+    constructor(partial: Partial<Channel>) {
+        super();
+        Object.assign(this, partial);
+
+    }
 
 }

@@ -1,4 +1,4 @@
-import { IChannel, IChannelCreate, IDeepResolveChannel,  IMessageCreate,  IPartialResolveChannel, IResolvedMessage } from "@mdm/mdm-core";
+import {IChannel, IChannelCreate, IMessage, IMessageCreate} from "@mdm/mdm-core";
 import { BaseClient } from "../base-client";
 
 export class ChannelsHandler{
@@ -6,19 +6,19 @@ export class ChannelsHandler{
         private readonly baseClient:BaseClient
     ){}
 
-    async get():Promise<IDeepResolveChannel[]>{
-        return await this.baseClient.get<IDeepResolveChannel[]>('/channels',{});
+    async get():Promise<IChannel[]>{
+        return await this.baseClient.get<IChannel[]>('/channels',{});
     }
 
     async createChannel(partial:IChannelCreate):Promise<string>{
         return await this.baseClient.post<string>(`/channels/`,partial);
     }
 
-    async getChannel(id:string):Promise<IDeepResolveChannel>{
-        return await this.baseClient.get<IDeepResolveChannel>(`/channels/${id}`,{});
+    async getChannel(id:string):Promise<IChannel>{
+        return await this.baseClient.get<IChannel>(`/channels/${id}`,{});
     }
 
-    async updateChannel(id:string,update:Omit<IPartialResolveChannel,'type'|'createdAt'|'messages'|'lastMessage'>){
+    async updateChannel(id:string,update:Omit<IChannel,'type'|'createdAt'|'messages'|'lastMessage'>){
         return await this.baseClient.patch<IChannel>(`/channels/${id}`,update);
     }
 
@@ -27,7 +27,7 @@ export class ChannelsHandler{
     }
 
     async getChannelMessages(id:string){
-        return await this.baseClient.get<IResolvedMessage[]>(`/channels/${id}/messages`,{});
+        return await this.baseClient.get<IMessage[]>(`/channels/${id}/messages`,{});
     }
 
     async postChannelMessage(id:string,message:IMessageCreate){

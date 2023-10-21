@@ -1,1 +1,2 @@
-export class CaslAbilityFactory {}
+export class CaslAbilityFactory {
+}

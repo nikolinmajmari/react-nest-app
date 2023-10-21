@@ -1,34 +1,30 @@
-import { IChannelMember, IChannelMemberCreate } from "./channel-member";
+import {IChannelMember, IChannelMemberCreate, IChannelMemberEntity} from "./channel-member";
 import { DeepResolve, DeepPartialResolve, PartialResolve, Resolve } from "./mdm-core";
-import { IMessage } from "./message";
+import {IMessage, IMessageEntity} from "./message";
 
 export enum ChannelType{
     private="private",
     group="group"
 }
 
-export interface IChannel{
+export interface IChannelEntity{
   id:string;
   alias:string|null;
   avatar:string|null;
   type:ChannelType;
   createdAt:Date;
-  messages:Promise<IMessage[]>;
-  members:Promise<IChannelMember[]>;
-  lastMessage:Promise<IMessage|null>;
+  messages:Promise<IMessageEntity[]>;
+  members:Promise<IChannelMemberEntity[]>;
+  lastMessage:Promise<IMessageEntity|null>;
 }
 
-export type IPartialChannel = Partial<IChannel>;
+export type IPartialChannelEntity = Partial<IChannelEntity>;
 
-export type IResolveChannel  = Resolve<IChannel>;
+export type IChannel = DeepResolve<IChannelEntity>;
 
-export type IDeepResolveChannel = DeepResolve<IChannel>;
+export type IPartialChannel = DeepPartialResolve<IChannelEntity>;
 
-export type IPartialResolveChannel = PartialResolve<IChannel>;
-
-export type IPartialDeepResolveChannel = DeepPartialResolve<IChannel>;
-
-export interface IChannelCreate extends Omit<IPartialResolveChannel,'members'>{
+export interface IChannelCreate extends Omit<IPartialChannel,'members'>{
   members:IChannelMemberCreate[]
 }
 

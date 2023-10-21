@@ -1,21 +1,21 @@
-import { IChannel } from "./channel";
+import {IChannel, IChannelEntity} from "./channel";
 import { DeepPartialResolve, DeepResolve, PartialResolve, Resolve } from "./mdm-core";
-import { IMedia } from "./media";
-import { IPublicUser } from "./user";
+import {IMedia, IMediaEntity} from "./media";
+import {IUser} from "./user";
 
-export interface IMessage{
+export interface IMessageEntity{
   id:string;
   content:string;
-  media:Promise<IMedia|null>;
+  media:Promise<IMediaEntity|null>;
   createdAt:Date;
-  sender:Promise<IPublicUser>;
-  channel:Promise<IChannel>;
+  sender:Promise<IUser>;
+  channel:Promise<IChannelEntity>;
 }
 
-export type IPartialMessage = Partial<IMessage>;
-export type IResolveMessage = Resolve<IMessage>;
-export type IPartialResolveMessage = PartialResolve<IMessage>;
-export type IDeepPartialResolveMessage = DeepPartialResolve<IMessage>;
+export type IMessage = DeepResolve<IMessageEntity>;
+
+export type IPartialMessage = DeepPartialResolve<IMessageEntity>;
+
 export interface IMessageCreate extends Pick<IMessage,'content'>{
   sender:string;
   media?:string;

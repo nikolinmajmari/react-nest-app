@@ -1,17 +1,16 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
-import User from "../entities/user.entity";
-import { IsBoolean, IsOptional, IsString } from "class-validator";
-import { PaginitionDTO } from "../../core/paginition.dto";
+import {ApiPropertyOptional} from "@nestjs/swagger";
+import {IsOptional, IsString} from "class-validator";
+import {PaginitionDTO} from "../../core/paginition.dto";
 
-export class FindUserDTO extends PaginitionDTO{
+export class FindUserDTO extends PaginitionDTO {
 
     @ApiPropertyOptional()
     @IsOptional()
-    privateChannelCandidate?:boolean;
+    privateChannelCandidate?: boolean;
 
 
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()
-    search?:string;
+    search?: string;
 }

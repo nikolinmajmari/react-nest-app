@@ -1,53 +1,54 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import {Injectable} from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
 import User from "../../users/entities/user.entity";
-import { UpdateChannelSettingsDTO, UpdateChannelmemberDTO } from "../dto/channel.member.dto";
+import {UpdateChannelmemberDTO, UpdateChannelSettingsDTO} from "../dto/channel.member.dto";
 import ChannelMember from "../entities/channel-member.entity";
 import Channel from "../entities/channel.entity";
 
 
 @Injectable()
-export class MembersService{
+export class MembersService {
 
     constructor(
         @InjectRepository(ChannelMember)
         private readonly repository: Repository<ChannelMember>
-    ){}
+    ) {
+    }
 
 
-    async findMember(id:string){
+    async findMember(id: string) {
         return await this.repository.findOneByOrFail({
             id: id
         });
     }
 
-    async findUserMemberById(id:string,user:Partial<User>){
+    async findUserMemberById(id: string, user: Partial<User>) {
         return await this.repository.findOneByOrFail({
-            id : id,
-            user:{ id:user.id }
+            id: id,
+            user: {id: user.id}
         });
     }
 
-    async findUserMemberByChannel(channel:Channel,user:Partial<User>){
+    async findUserMemberByChannel(channel: Channel, user: Partial<User>) {
         return await this.repository.findOneByOrFail({
-            channel:{id:channel.id},user:{id:user.id}
+            channel: {id: channel.id}, user: {id: user.id}
         })
     }
 
 
-    async findChannelMember(id:string){
-        return await this.repository.findOneByOrFail({id:id});
+    async findChannelMember(id: string) {
+        return await this.repository.findOneByOrFail({id: id});
     }
 
-    async updateChannelMemberSettings(member:ChannelMember,dto:UpdateChannelSettingsDTO){
+    async updateChannelMemberSettings(member: ChannelMember, dto: UpdateChannelSettingsDTO) {
         member.settings = {
-            ...member.settings,...dto
+            ...member.settings, ...dto
         };
         return await this.repository.save(member);
     }
 
-    async updateChannelMember(member:ChannelMember,dto:UpdateChannelmemberDTO){
+    async updateChannelMember(member: ChannelMember, dto: UpdateChannelmemberDTO) {
         return await this.repository.save({
             ...member,
             ...dto
@@ -55,7 +56,7 @@ export class MembersService{
     }
 
 
-    async removeMember(member:ChannelMember){
+    async removeMember(member: ChannelMember) {
         return await this.repository.remove(member);
     }
 

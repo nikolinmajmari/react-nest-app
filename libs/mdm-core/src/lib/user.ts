@@ -1,5 +1,5 @@
 
-export interface IUser{
+export interface IUserEntity{
   id:string;
   firstName:string;
   lastName:string;
@@ -9,8 +9,8 @@ export interface IUser{
 }
 
 
-export type IPartialUser = Partial<IUser>;
+export type IUser = Pick<IUserEntity, "id"|"firstName"|"lastName"|"email"|"avatar">
 
-export type ICreateUser = Omit<IUser,"id">;
+export type IPartialUser = Partial<IUserEntity>;
 
-export type IPublicUser = Omit<IUser,"password">;
+export type ICreateUser = Omit<IUserEntity,"id">;

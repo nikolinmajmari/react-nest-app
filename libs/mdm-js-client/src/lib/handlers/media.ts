@@ -1,4 +1,4 @@
-import { IExposedMedia, IMedia, IPartialMedia } from "@mdm/mdm-core";
+import { IMedia } from "@mdm/mdm-core";
 import { BaseClient } from "../base-client";
 import { AxiosProgressEvent } from "axios";
 
@@ -15,6 +15,6 @@ export class MediaHandler{
     }
 
     get(id:string){
-        return this.baseClient.get<IExposedMedia>(`/media/${id}`,{});
+        return this.baseClient.get<IMedia>(`/media/${id}`,{});
     }
 }

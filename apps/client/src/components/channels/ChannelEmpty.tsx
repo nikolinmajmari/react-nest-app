@@ -6,7 +6,7 @@ export default function ChannelEmpty(){
     to: { opacity: 1 },
   })
     return (
-       <animated.div style={{...springs}} className=" flex flex-col flex-1 bg-gray-700 ">
+       <animated.div style={{...springs}} className=" flex flex-col flex-1 bg-emerald-slate-100 dark:bg-gray-700 ">
         <div className="flex flex-col items-center justify-center py-12">
         <img src="https://cdn-icons-png.flaticon.com/128/907/907717.png" alt="Welcome Icon" className="w-24 h-24 mb-4 dark:text-white"/>
         <h2 className="text-3xl font-semibold mb-2 dark:text-white">Welcome to Our App!</h2>

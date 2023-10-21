@@ -1,16 +1,36 @@
-import React, {FormEventHandler, forwardRef, KeyboardEventHandler, MutableRefObject} from "react";
+import React, {FormEventHandler, ForwardedRef, forwardRef, KeyboardEventHandler, MutableRefObject} from "react";
 import {TfiCrown, TfiFile, TfiReceipt} from "react-icons/tfi";
 import {ChannelContext} from "../../channel-context";
 import {usePostMediaMessage, usePostMessageThunk} from "../../../../app/hooks/feed";
 import {GrAttachment} from "react-icons/gr";
 import {MediaType} from "@mdm/mdm-core";
 
+export function useKeyPress(){
+  const [alt,setAlt] = React.useState<boolean>(false);
+  const handleKeyUp:KeyboardEventHandler = function (e){
+    switch (e.key){
+      case "Alt":
+        setAlt(false);
+        break;
+    }
+  }
+  const handleKeyDown:KeyboardEventHandler = function (e){
+    switch (e.key){
+      case "Alt":
+        setAlt(true);
+        break;
+    }
+  }
+  return {
+    alt,onKeyUp:handleKeyUp,onKeyDown:handleKeyDown
+  }
+}
 
 const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   /// state
   const {channel} = React.useContext(ChannelContext);
   const [media, setMedia] = React.useState<string | null>(null);
-
+  const {alt,onKeyUp,onKeyDown} = useKeyPress();
   /// refs
   const formRef = React.useRef<HTMLFormElement>(null)
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -82,8 +102,12 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   if (!channel) {
     throw new Error('');
   }
-  return (<form onSubmit={handleFormSubmit} onKeyDown={handleFormOnClick} ref={formRef} encType="multipart/form-data">
-    <input onChange={handleFileChange} type="file" id="form-file-input-id" name="file" ref={mediaRef}
+  return (<form onSubmit={handleFormSubmit} onKeyDown={onKeyDown} onKeyUp={onKeyUp} ref={formRef} encType="multipart/form-data">
+    <input onChange={handleFileChange}
+           type="file"
+           id="form-file-input-id"
+           name="file"
+           ref={mediaRef}
            className="hidden"></input>
     <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start
                 dark:bg-slate-800

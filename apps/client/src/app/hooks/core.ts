@@ -1,31 +1,39 @@
-import React, { useCallback } from "react";
+import React, {useCallback} from "react";
 
-export interface IAsyncHook<T>{
-    status: "idle"|"loading"|"success"|"failed";
-    success?:T;
-    error?:any;
+export enum AsyncStatus{
+  idle,
+  loading,
+  success,
+  failed
+}
+export interface IAsyncHookResult<T,R>  extends IAsyncHookState<R>{
+  startAsyncHook:(data?: T|undefined) => Promise<void>
+}
+export interface IAsyncHookState<R>{
+  status: AsyncStatus;
+  success?: R;
+  error?: any;
 }
 
-export function useAsyncHook<T>(handler:()=>Promise<T>):[IAsyncHook<T> ,() => Promise<void>]{
-    const  [async,setAsync] = React.useState<IAsyncHook<T>>({
-        status: 'idle'
-    });
-    const startAsync = async function(){
-        try{
-            setAsync({
-                'status':"loading"
-            })
-            const success = await handler();
-            setAsync({
-                status: "success",
-                success
-            })
-        }catch(e){
-            setAsync({
-                status: "failed",
-                error: e
-            })
-        }
+export function useAsyncHook<T, R>(handler: (data?: T|undefined) => Promise<R>): IAsyncHookResult<T,R> {
+  const [async, setAsync] = React.useState<IAsyncHookState<R>>({
+    status: AsyncStatus.idle,
+  });
+  const startAsync = async function (data: T) {
+    try {
+      setAsync({
+        status: AsyncStatus.loading
+      })
+      const success = await handler(data);
+      setAsync({
+        status: AsyncStatus.success, success
+      })
+    } catch (e) {
+      setAsync({
+        status: AsyncStatus.failed, error: e
+      })
     }
-    return [async,useCallback(startAsync,[handler])];
+  }
+  const startAsyncHook = useCallback(startAsync,[handler]);
+  return {...async, startAsyncHook};
 }

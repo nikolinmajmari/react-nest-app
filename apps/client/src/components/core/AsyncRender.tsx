@@ -1,5 +1,8 @@
+import {AsyncStatus} from "../../app/hooks/core";
+import React from "react";
+
 export interface IAsyncRenderProps{
-    status:"idle"|"success"|"failed"|"loading";
+    status:AsyncStatus
     failed:React.ReactNode;
     loading: React.ReactNode;
     success:React.ReactNode;
@@ -8,11 +11,11 @@ export interface IAsyncRenderProps{
 
 export default function AsyncRender(props:IAsyncRenderProps){
     switch(props.status){
-        case "failed":
+        case AsyncStatus.failed:
             return props.failed;
-        case "loading":
+        case AsyncStatus.loading:
             return props.loading;
-        case "success":
+        case AsyncStatus.success:
             return props.success;
     }
     return (props.children);

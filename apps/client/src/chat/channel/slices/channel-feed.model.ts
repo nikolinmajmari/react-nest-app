@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {IMessage, IPartialMedia, IPartialMessage} from "@mdm/mdm-core";
+import {IMessage, IPartialMedia, IPartialMessage, IUser} from "@mdm/mdm-core";
 import {IAsyncState} from "../../../core/async.state";
 
 /** Global State */
@@ -16,9 +16,11 @@ export enum MessageStatus {
   failed
 }
 
-export interface IFeedMessage extends Omit<IPartialMessage, 'media'> {
+export interface IFeedMessage extends Omit<IPartialMessage, 'media'|"content"|"sender"> {
   status?: MessageStatus;
   slug?: string;
+  sender:IUser;
+  content:string;
   media?: IFeedMessageMedia;
 }
 

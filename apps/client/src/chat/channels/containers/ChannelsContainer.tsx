@@ -87,7 +87,7 @@ export function ChannelTileContainer(props: IChannelTileContainerProps) {
       .catch((e) => notification?.error('An error occured'));
   };
   const {channel, active, navigate} = props;
-  const ref = React.useRef();
+  const ref = React.useRef(null);
   const label =
     channel.lastMessage?.content ?
       channel.lastMessage.content.slice(0, 40) + (channel.lastMessage.content.length > 40 ? '...' : '')

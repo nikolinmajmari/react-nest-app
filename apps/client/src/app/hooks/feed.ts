@@ -1,4 +1,4 @@
-import { IChannel, IDeepPartialResolveMessage, IMedia, IMessageCreateContent, IPartialMessage, IPartialResolveMessage, MediaType } from "@mdm/mdm-core";
+import { IChannel, IMedia, IMessageCreateContent, IPartialMessage, MediaType } from "@mdm/mdm-core";
 import { useAppDispatch, useAppSelector } from ".";
 import { useCurrentUser } from "./auth";
 import { useCurrentChannel } from "./channel";
@@ -33,8 +33,13 @@ export function useDispatchLoadFeed(){
 export function useDispatchAddMessage(){
     const dispatch = useAppDispatch();
     const user = useCurrentUser();
-    return (message:Partial<IFeedMessage>)=>{
-        dispatch( addMessage({...message,sender: user}));
+    return (message:Pick<IFeedMessage, "content"|"media"|"slug">)=>{
+        dispatch( addMessage({
+            media:message.media,
+            content: message.content,
+            sender: user,
+            slug: message.slug,
+        }));
     }
 }
 
@@ -47,8 +52,8 @@ export interface IPostMediaMessageArgs {
 }
 
 /**
- * 
- * @returns 
+ *
+ * @returns
  */
 export function usePostMediaMessage(){
     const dispatch = useDispatch();
@@ -60,9 +65,8 @@ export function usePostMediaMessage(){
         const {slug,content,media,formData,onAfterAdd} = args;
         addMessage({
             media: { ...media, status: MediaStatus.pending },
-            slug: slug, 
-            content: content, 
-            sender: user,
+            slug: slug,
+            content: content,
         });
         if(onAfterAdd){
             onAfterAdd();
@@ -73,14 +77,14 @@ export function usePostMediaMessage(){
                 dispatch(updateMediaProgress({slug,progress:e.progress??0}))
             });
             const media = await mediaClient.get(res.id);
-            completeMediaProgress({slug}); 
-            postMessage(slug,{ 
+            completeMediaProgress({slug});
+            postMessage(slug,{
                 content: content,
                 media: media,
-            });    
+            });
         }catch(e){
             failMediaProgress({slug});
-        }   
+        }
     },[user,postMessage,dispatch,addMessage]);
 }
 

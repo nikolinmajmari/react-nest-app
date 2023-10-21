@@ -1,4 +1,4 @@
-import React, {FormEventHandler, forwardRef, MutableRefObject} from "react";
+import React, {FormEventHandler, forwardRef, KeyboardEventHandler, MutableRefObject} from "react";
 import {TfiCrown, TfiFile, TfiReceipt} from "react-icons/tfi";
 import {ChannelContext} from "../../channel-context";
 import {usePostMediaMessage, usePostMessageThunk} from "../../../../app/hooks/feed";
@@ -12,9 +12,9 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   const [media, setMedia] = React.useState<string | null>(null);
 
   /// refs
-  const formRef = React.createRef<HTMLFormElement>()
-  const contentRef = React.createRef<HTMLDivElement>();
-  const mediaRef = React.createRef<HTMLInputElement>();
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const mediaRef = React.useRef<HTMLInputElement>(null);
   const forwardedRef = ref as MutableRefObject<HTMLDivElement>;
 
   /// post thunks
@@ -65,7 +65,7 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
         }, formData, slug, onAfterAdd: handleScrollToBottom
       });
     } else {
-      postMessage(slug, {content: contentRef.current?.innerText})
+      postMessage(slug, {content: contentRef.current?.innerText??""})
       handleScrollToBottom();
     }
     if (contentRef.current) {
@@ -73,10 +73,16 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
       contentRef.current.focus();
     }
   }
+  const handleFormOnClick: KeyboardEventHandler<HTMLFormElement> = (e)=>{
+    if(e.key==="Enter"){
+      handleFormSubmit(e);
+    }
+  }
+
   if (!channel) {
     throw new Error('');
   }
-  return (<form onSubmit={handleFormSubmit} ref={formRef} encType="multipart/form-data">
+  return (<form onSubmit={handleFormSubmit} onKeyDown={handleFormOnClick} ref={formRef} encType="multipart/form-data">
     <input onChange={handleFileChange} type="file" id="form-file-input-id" name="file" ref={mediaRef}
            className="hidden"></input>
     <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start

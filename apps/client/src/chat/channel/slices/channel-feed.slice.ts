@@ -45,12 +45,12 @@ const channelFeedSlice = createSlice({
       state.messages[index].media!.status = MediaStatus.succeded;
       state.messages[index].media!.progress = 1;
     },
-    addMessage(state, action: PayloadAction<Partial<IFeedMessage>>) {
+    addMessage(state, action: PayloadAction<IFeedMessage>) {
       state.messages.push(
         {
           ...action.payload,
           status: MessageStatus.pending,
-          content: action.payload.content,
+          content: action.payload.content??"",
         }
       );
     },
@@ -94,7 +94,7 @@ const channelFeedSlice = createSlice({
               ...message,
               sender: user,
               sentStatus: MediaStatus.pending,
-            } as IFeedMessage
+            } as unknown as IFeedMessage
           ];
         } else {
           state.messages[index].status = MessageStatus.pending;

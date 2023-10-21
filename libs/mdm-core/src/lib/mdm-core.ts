@@ -7,7 +7,7 @@ export type Resolve<T> =  {
 export type PartialResolve<T> = {
    [P in keyof T]?: Awaited<T[P]>;
 }
-
+export type  t = Omit<any, any>
 
 export type DeepResolve<T> = {
   [P in keyof T]: DeepResolve<Awaited<T[P]>>;
@@ -15,13 +15,13 @@ export type DeepResolve<T> = {
 
 
 export type DeepPartialResolve<T> = {
-  [P in keyof T]:
+  [P in keyof T]?:
     T extends null | undefined ? T :(
         T extends object ? (
             Awaited<T[P]> extends ArrayLike<any> ?
                 DeepPartialArrayResolve<Awaited<T[P]>>|undefined
                 :
-                Awaited<T[P]> extends Function ?
+                Awaited<T[P]> extends Function|Object ?
                     T[P]
                     :
                     DeepPartialResolve<Awaited<T[P]>>|undefined
@@ -30,6 +30,7 @@ export type DeepPartialResolve<T> = {
             T
     );
 }
+
 
 
 export type DeepPartialArrayResolve<T> = {

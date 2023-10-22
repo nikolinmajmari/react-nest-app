@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import fsPromises from "node:fs/promises";
 import sharp from "sharp";
 import * as path from "path";
+import {MediaThumbnailService} from "./media-thumbail.service";
 
 @Injectable()
 export class MediaService {
@@ -16,7 +17,8 @@ export class MediaService {
     constructor(
         private config: ConfigService<IEnvironment>,
         @InjectRepository(Media)
-        private readonly repository: Repository<Media>
+        private readonly repository: Repository<Media>,
+        private  thumbnailService:MediaThumbnailService
     ) {
     }
 
@@ -24,25 +26,9 @@ export class MediaService {
     async saveMedia(file: Express.Multer.File) {
         const media = new Media();
         media.fsPath = file.path;
-        const thumbailDir = this.config.get("APP_MEDIA_PATH")
-          + path.sep
-          + 'thumbail';
-        if(!await fs.existsSync(thumbailDir)){
-          fs.mkdirSync(thumbailDir);
-        }
-        const thumbailPath =
-          thumbailDir
-          + path.sep
-          + file.path.split(path.sep).pop();
-
-
-        const write = fs.createWriteStream(thumbailPath);
-        sharp(file.path)
-          .resize(450,300)
-          .pipe(write);
-        media.thumbail = thumbailPath;
         media.type = MediaType.image;
         media.uri = '';
+        this.thumbnailService.createThumbnail(media);
         const saved = await this.repository.save(media);
         saved.uri = `/api/media/${media.id}/download`;
         return await this.repository.save(media);
@@ -54,17 +40,12 @@ export class MediaService {
     }
 
     async getMediaStream(id: string) {
-      try{
-        const media = await this.getMedia(id);
-        if(media.thumbail && fs.existsSync(media.thumbail)){
-          console.log(fs.existsSync(media.thumbail),media.thumbail);
-          return fs.createReadStream(media.thumbail);
-        }
-
-        return fs.createReadStream(media.thumbail??media.fsPath);
-      }catch (e){
-        console.log(e);
+      const media = await this.getMedia(id);
+      const thumbnailStream  = this.thumbnailService.getThumbnailStream(media);
+      if(!thumbnailStream){
+        return fs.createReadStream(media.fsPath);
       }
+      return thumbnailStream;
     }
 
 }

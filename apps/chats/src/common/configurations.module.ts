@@ -34,5 +34,6 @@ export interface IEnvironment {
     DB_PASSWORD: string,
     DB_DATABASE: string,
     APP_NAME: string,
-    APP_MEDIA_PATH: string
+    APP_MEDIA_PATH: string;
+    APP_MEDIA_THUMBNAIL_PATH:string;
 }

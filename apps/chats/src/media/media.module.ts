@@ -6,6 +6,7 @@ import {IEnvironment} from '../common/configurations.module';
 import {MediaService} from './media.service';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import Media from './media.entity';
+import {MediaThumbnailService} from "./media-thumbail.service";
 
 @Module({
     controllers: [MediaController],
@@ -21,7 +22,7 @@ import Media from './media.entity';
             Media
         ]),
     ],
-    providers: [MediaService]
+    providers: [MediaService,MediaThumbnailService]
 })
 export class MediaModule {
 }

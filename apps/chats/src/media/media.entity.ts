@@ -22,4 +22,7 @@ export default class Media implements IMediaEntity {
     @Column({type: "varchar", length: 256})
     fsPath: string;
 
+    @Exclude()
+    @Column({type:"varchar",length:256,nullable:true})
+    thumbail:string|null;
 }

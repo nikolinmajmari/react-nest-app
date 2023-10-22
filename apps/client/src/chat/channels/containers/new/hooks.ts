@@ -52,7 +52,7 @@ export function useCustomEffectOnSuccessOrFailure(status: AsyncStatus, error: st
         notification?.success('Channel created succesfully');
       }
       if (status === AsyncStatus.failed) {
-        notification?.error(error);
+        notification?.error(error?.message);
       }
     }, 0) : null;
     return () => {
@@ -68,6 +68,17 @@ export function useNewChannelForm(type: ChannelType) {
   const [selected, setSelected] = React.useState<IUser[]>([]);
   const [channelName, setChannelName] = React.useState('');
 
+  const toggleSelected = (user: IUser) => {
+    setSelected((users) => {
+      if (users.findIndex(u => u.id === user.id) === -1) {
+        if (type===ChannelType.private) {
+          return [user];
+        }
+        return [...users, user];
+      }
+      return [...users.filter(u => u.id !== user.id)];
+    });
+  }
   /// validation
   const [validation, setValidation] = React.useState<ICreateChannelValidation>({});
   const validate = () => {
@@ -82,13 +93,15 @@ export function useNewChannelForm(type: ChannelType) {
       }
     }
     return {
-      alias: channelName ?? '', avatar: 'https://google.com.png/https.png', members: selected.map((u) => ({
-        user: u.id, role: ChannelType.private === type ? MemberRole.admin : MemberRole.member
+      alias: channelName ?? '', avatar: 'https://google.com.png/https.png',
+      members: selected.map((u) => ({
+        user: u.id,
+        role: ChannelType.private === type ? MemberRole.admin : MemberRole.member
       }))
     } as IChannelCreate;
   }
   return {
-    selected, setSelected, channelName, setChannelName, validation, validate,
+    selected, toggleSelected, channelName, setChannelName, validation, validate,
   }
 }
 

@@ -26,6 +26,20 @@ export function useKeyPress(){
   }
 }
 
+function setEndOfContenteditable(contentEditableElement:HTMLElement)
+{
+  var range,selection;
+  if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+  {
+    range = document.createRange();//Create a range (a range is a like the selection but invisible)
+    range.selectNodeContents(contentEditableElement);//Select the entire contents of the element with the range
+    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+    selection = window.getSelection();//get the selection object (allows you to change selection)
+    selection?.removeAllRanges();//remove any selections already made
+    selection?.addRange(range);//make the range you have just created the visible selection
+  }
+}
+
 const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   /// state
   const {channel} = React.useContext(ChannelContext);
@@ -93,16 +107,22 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
       contentRef.current.focus();
     }
   }
-  const handleFormOnClick: KeyboardEventHandler<HTMLFormElement> = (e)=>{
+  const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> = (e)=>{
+    onKeyDown(e);
     if(e.key==="Enter"){
-      handleFormSubmit(e);
+      if(!alt){
+        handleFormSubmit(e);
+      }else if(contentRef.current){
+        contentRef.current.innerHTML += '<div><br/></div>';
+        setTimeout(()=>setEndOfContenteditable(contentRef.current!));
+      }
     }
   }
 
   if (!channel) {
     throw new Error('');
   }
-  return (<form onSubmit={handleFormSubmit} onKeyDown={onKeyDown} onKeyUp={onKeyUp} ref={formRef} encType="multipart/form-data">
+  return (<form onSubmit={handleFormSubmit} onKeyDown={handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef} encType="multipart/form-data">
     <input onChange={handleFileChange}
            type="file"
            id="form-file-input-id"

@@ -19,7 +19,7 @@ import Media from './media.entity';
         }),
         TypeOrmModule.forFeature([
             Media
-        ])
+        ]),
     ],
     providers: [MediaService]
 })

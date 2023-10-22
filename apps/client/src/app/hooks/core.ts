@@ -19,7 +19,7 @@ export function useAsyncHook<T, R>(handler: (data?: T|undefined) => Promise<R>):
   const [async, setAsync] = React.useState<IAsyncHookState<R>>({
     status: AsyncStatus.idle,
   });
-  const startAsync = async function (data: T) {
+  const startAsync = async function (data?: T) {
     try {
       setAsync({
         status: AsyncStatus.loading

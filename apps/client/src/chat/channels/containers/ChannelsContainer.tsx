@@ -1,6 +1,6 @@
 import {IChannel} from "@mdm/mdm-core";
 import {deleteChannelThunk} from "../slices/channels.slice";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import ChatTile from "../../../components/channels/Tile";
 import ChannelGroupContainer from "../../../components/GroupContainer";
 import React from "react";
@@ -13,10 +13,13 @@ import {TfiArchive, TfiArrowCircleRight, TfiBell, TfiDownload, TfiTrash} from "r
 import {useAppDispatch} from "../../../app/hooks";
 import {NotificationContext} from "../../../components/notifications/Toastify";
 import {useChannels} from "../../../app/hooks/channels";
+import ChannelsEmpty from "./ChannelsEmpty";
+import {useCurrentChannel} from "../../../app/hooks/channel";
 
 
 export default function ChannelsContainer() {
-  const {channels, activeChannel, status, loadChannels, setActiveChannel} = useChannels()
+  const {channels, status, loadChannels, setActiveChannel} = useChannels();
+  const {channel} = useParams();
   const navigate = useNavigate();
   React.useEffect(() => {
     if (status === "idle") {
@@ -26,7 +29,6 @@ export default function ChannelsContainer() {
 
   const createNavigateHandler = (channel: IChannel) => {
     return () => {
-      setActiveChannel(channel);
       navigate(`${channel.id}`)
     }
   }
@@ -40,13 +42,16 @@ export default function ChannelsContainer() {
       }
       {
         (status === "succeeded" || status === "mutating") && (
-          <ChannelGroupContainer label="Channels">
+          <ChannelGroupContainer label="Channels" className={'flex-1 flex flex-col'}>
+            {
+              channels.length===0 && (<ChannelsEmpty/>)
+            }
             {channels.map(
               (ch: IChannel) =>
                 <ChannelTileContainer
                   key={ch.id}
                   channel={ch}
-                  active={ch.id === activeChannel}
+                  active={ch.id === channel}
                   navigate={createNavigateHandler(ch)}
                 />
             )

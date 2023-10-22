@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import {BrowserRouter, RouterProvider} from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import App from './routing/app';
 import store from './app/store';
@@ -11,9 +11,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
    <Provider store={store}>
-     <BrowserRouter>
       <App />
-    </BrowserRouter>
    </Provider>
   </StrictMode>
 );

@@ -43,23 +43,7 @@ export class ChannelsController {
         @Req() request,
         @Param("id") id: string
     ) {
-        const channel = await this.service.findOneChannel(id);
-        console.log(channel.members);
-        if (channel.type === ChannelType.group || !request.user) {
-            return channel;
-        }
-        let other: User | undefined;
-        (await channel.members).forEach(async function (m: ChannelMember) {
-            if (((await m).user as User).id !== request.user.id) {
-                other = (await m.user) as User;
-            }
-        })
-        if (!other) {
-            return channel;
-        }
-        channel.alias = `${other.firstName} ${other.lastName}`;
-
-        return channel as unknown as IChannel;
+      return this.service.findUserChannel(id,request.user);
     }
 
     @HttpCode(HttpStatus.OK)
@@ -69,8 +53,7 @@ export class ChannelsController {
         @Body() dto: ChannelUpdateDTO,
         @Req() request
     ) {
-        const channel = await this.service.findOneChannel(id);
-        console.log(channel, request.user)
+      const channel = await this.service.findOneOrFail(id);
         return await this.service.updateChannel(channel, request.user, dto);
     }
 
@@ -87,7 +70,7 @@ export class ChannelsController {
         @Param("id") id: string,
         @Req() req
     ) {
-        const channel = await this.service.findOneChannel(id);
+      const channel = await this.service.findOneOrFail(id);
         const messages = await this.messagingService.getMessages(
             channel, {}
         );
@@ -101,7 +84,7 @@ export class ChannelsController {
         @Body() dto: CreateMessageDTO,
         @Req() req
     ) {
-        const channel = await this.service.findOneChannel(id);
+        const channel = await this.service.findOneOrFail(id);
         const message = await this.messagingService.createMessage({
             channel, user: req.user, dto
         });

@@ -15,26 +15,24 @@ import {
   useNewChannelForm,
   useSearchUser
 } from "./hooks";
+import {Form, useLocation} from "react-router-dom";
 
 
 export default function NewChannelModal({title, type}: ICreateChannelModalProps) {
+  const location = useLocation();
   /// usefully hooks and callbacks
   const {goBack} = useGoBack();
   const createChannel = useDispatchCreateChannel(type);
-  //// user search
-  const {
-    search, setSearch, results,
-  } = useSearchUser();
   /// form and validation
   const {
-    selected, setSelected,
+    selected, toggleSelected,
     channelName, setChannelName,
     validation, validate
   } = useNewChannelForm(type);
   /// async operation
   const {
     status, error, startAsyncHook
-  } = useAsyncHook<IChannelCreate, IChannel>((data) => createChannel(data!).unwrap());
+  } = useAsyncHook<IChannelCreate, IChannel>(async (data) => createChannel(data!).unwrap());
   //// back effect
   useCustomEffectOnSuccessOrFailure(status, error);
   //// form submission
@@ -61,17 +59,15 @@ export default function NewChannelModal({title, type}: ICreateChannelModalProps)
     >
       <form onSubmit={handleSubmit} className="mt-2 text-sm flex flex-col">
         <UserSearchPicker
-          results={results}
           selected={selected}
-          setSelected={setSelected}
-          search={search}
-          setSearch={setSearch}
+          toggleSelected={toggleSelected}
           multiple={type === ChannelType.group}
           error={validation.selected}
         />
         {type === ChannelType.group && (<InputGroup
           label="Room Name"
           controlId="room_name"
+          name={'alias'}
           value={channelName}
           onChange={(e) => setChannelName(e.target.value)}
           placeholder="Type Name Here"
@@ -89,60 +85,50 @@ export default function NewChannelModal({title, type}: ICreateChannelModalProps)
 }
 
 
-export interface IUserSearchPcikerProps {
+export interface IUserSearchPickerProps {
   selected: IUser[],
-  setSelected: React.Dispatch<React.SetStateAction<IUser[]>>;
-  results: IUser[],
+  toggleSelected: (_:IUser)=>void;
   multiple: boolean;
-  search: string,
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
   error?: string | undefined;
 }
 
-export function UserSearchPicker({
-                                   selected, setSelected, results, search, setSearch, error, multiple
-                                 }: IUserSearchPcikerProps) {
-  const toggleSelectUser = (user: IUser) => {
-    setSelected((users) => {
-      if (users.findIndex(u => u.id === user.id) === -1) {
-        if (!multiple) {
-          return [user];
+export function UserSearchPicker({selected, toggleSelected, error, multiple}: IUserSearchPickerProps) {
+  const {
+    search, setSearch, results,
+  } = useSearchUser();
+  return (
+    <div className="flex flex-col items-stretch justify-start">
+      <SearchComponent value={search}
+                       onChange={(e) => setSearch(e.target.value)}
+                       type="search"
+                       id="default-search"
+                       placeholder="Search Users"/>
+      <div className="flex flex-row gap-2 py-2 px-2 flex-wrap">
+        {
+          selected.map((user,index) =>
+            <Chip remove={() => toggleSelected(user)}
+                  user={user}
+                  index={index}
+                  label={`${user.firstName} ${user.lastName}`}/>
+          )
         }
-        return [...users, user];
-      }
-      return [...users.filter(u => u.id !== user.id)];
-    });
-  }
-
-  return (<div className="flex flex-col items-stretch justify-start">
-    <SearchComponent value={search} onChange={(e) => setSearch(e.target.value)} type="search"
-                     id="default-search"
-                     placeholder="Search Users"/>
-    <SelectedUsers toggleUser={toggleSelectUser} users={selected}/>
-    <div className="results flex flex-col overflow-y-auto mb-4 h-64">
-      {results.map(user => <SearchedUserItem key={user.id}
-                                             user={user}
-                                             selected={selected.findIndex(u => u.id === user.id) !== -1}
-                                             onPress={() => toggleSelectUser(user)}
-      />)}
-      <p className="text-red-500 text-xs italic">{error}</p>
-    </div>
+      </div>
+      <div className="results flex flex-col overflow-y-auto mb-4 h-64">
+        {
+          results.map(user =>
+            <SearchedUserItem  key={user.id}
+                             user={user}
+                             selected={selected.findIndex(u => u.id === user.id) !== -1}
+                             onPress={() => toggleSelected(user)}/>
+          )
+        }
+        <p className="text-red-500 text-xs italic">{error}</p>
+      </div>
   </div>)
 }
 
 
-export interface ISelectedUsersProps {
-  users: IUser[],
-  toggleUser: (u: IUser) => void
-}
-
-export function SelectedUsers({users, toggleUser}: ISelectedUsersProps) {
-  return (<div className="flex flex-row gap-2 py-2 px-2 flex-wrap">
-    {users.map(user => <Chip remove={() => toggleUser(user)} label={`${user.firstName} ${user.lastName}`}/>)}
-  </div>)
-}
-
-export function Chip({label, remove}: { label: string, remove: () => void }) {
+export function Chip({user,label,index, remove}: {index:number, label: string, remove: () => void,user:IUser }) {
   return (<div
     className="center relative flex flex-row items-center bg-slate-300 select-none whitespace-nowrap rounded-lg bg-gradient-to-tr  py-1 px-2.5 align-baseline font-sans  leading-none text-slate-600"
   >
@@ -151,6 +137,7 @@ export function Chip({label, remove}: { label: string, remove: () => void }) {
       onClick={() => remove()}
       className="absolute top-1 right-1 mx-px mt-[0.5px] w-max rounded-md bg-slate-860 transition-colors hover:bg-slate-500"
     >
+      <input type={'hidden'} name={`members[]`} value={user.id}/>
       <div className="w-3 h-3 cursor-pointer">
         <svg
           xmlns="http://www.w3.org/2000/svg"

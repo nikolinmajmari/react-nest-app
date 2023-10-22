@@ -1,11 +1,13 @@
 import {BadRequestException, ForbiddenException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Brackets, FindOptionsWhere, Repository} from "typeorm";
+import {Brackets, FindOptionsWhere, Repository, SelectQueryBuilder} from "typeorm";
 import {ChannelCreateDTO, ChannelUpdateDTO} from "../dto/channel.dto.ts";
 import Channel from "../entities/channel.entity";
 import ChannelMember from "../entities/channel-member.entity";
 import User from "../../users/entities/user.entity";
-import {ChannelType, IChannel, IChannelEntity, MemberRole} from "@mdm/mdm-core";
+import {ChannelType, IChannel, IChannelEntity, IUser, MemberRole} from "@mdm/mdm-core";
+import {Simulate} from "react-dom/test-utils";
+import select = Simulate.select;
 
 
 @Injectable()
@@ -41,30 +43,31 @@ export class ChannelsService {
         });
     }
 
+    addSelectDynamicChannelAlias(builder:SelectQueryBuilder<Channel>,alias:string='ch'){
+      const sqb = this.repository.manager.createQueryBuilder();
+      sqb.select(`CONCAT("_u"."firstName",' ',"_u"."lastName")`)
+        .from("user", '_u')
+        .innerJoin('_u.members', '_chm')
+        .innerJoin('_chm.channel', '_ch')
+        .where(`_chm.channelId = ${alias}.id`)
+        .andWhere('_u.id <> :userId')
+        .limit(1);
+      builder.addSelect(`
+        case when "${alias}"."type" = 'group'
+        then "${alias}"."alias"
+        else (${sqb.getQuery()}) end`,
+        `${alias}_alias`)
+      return sqb;
+    }
+
     async findUserChannels(user: Partial<User>) {
         const query = this.repository.createQueryBuilder('ch')
-        const sqb = this.repository.manager.createQueryBuilder();
-        sqb.select(`
-                case when "_ch"."type" = 'private' then
-                CONCAT("_u"."firstName",' ',"_u"."lastName")
-                else "_ch"."alias" end
-            `)
-            .from("user", '_u')
-            .innerJoin('_u.members', '_chm')
-            .innerJoin('_chm.channel', '_ch')
-            .where('_chm.channelId = ch.id')
-            .andWhere('_u.id <> :userId')
-            .limit(1);
 
         query.select(["ch", "m", "lm", "u.id", "u.firstName", "u.lastName", "u.email", "u.avatar"])
-            .addSelect(`
-        case when "ch"."type" = 'group'
-        then "ch"."alias"
-        else (${sqb.getQuery()}) end`,
-                'ch_alias')
             .leftJoin('ch.members', 'm')
             .leftJoin('ch.lastMessage', 'lm')
             .leftJoin('m.user', 'u');
+        this.addSelectDynamicChannelAlias(query);
         query.andWhere(
             'ch.id in' + query.subQuery()
                 .select('ch.id')
@@ -75,7 +78,6 @@ export class ChannelsService {
                 .getQuery()
         ).setParameter('userId', user.id)
             .cache(false);
-        console.log(query.getSql());
         return await query.getMany();
     }
 
@@ -128,30 +130,21 @@ export class ChannelsService {
         return await this.repository.save(entity)
     }
 
-    async findOneChannel(id: string) {
-        return this.repository.findOneOrFail({
-            where: {id},
-            select: {
-                members: {
-                    user: {
-                        avatar: true,
-                        id: true,
-                        email: true,
-                        firstName: true,
-                        lastName: true,
-                    }
-                }
-            },
-            relations: {
-                members: {
-                    user: true,
-                }
-            },
-            cache: {
-                id: 'channel_' + id,
-                milliseconds: 5000
-            }
-        });
+    async findUserChannel(id: string,user:IUser) {
+        const query =
+          this.repository.createQueryBuilder('ch')
+            .select(['ch','ch.alias','m','u.id','u.firstName','u.lastName','u.email','u.avatar']);
+          this.addSelectDynamicChannelAlias(query);
+          query.innerJoin('ch.members','m')
+            .innerJoin('m.user','u')
+            .where('ch.id = :id')
+            .setParameter('id',id)
+            .setParameter('userId',user.id);
+        return query.getOne();
+    }
+
+    async findOneOrFail(id:string){
+      return await this.repository.findOneOrFail({where:{id}});
     }
 
 
@@ -174,8 +167,8 @@ export class ChannelsService {
     }
 
     async deleteChannel(id: string) {
-        const channel = await this.findOneChannel(id);
-        this.repository.remove(channel)
+        const channel = await this.findOneOrFail(id);
+        await this.repository.remove(channel);
     }
 
     async findUserChannelMember(channelId: string, userId: string) {

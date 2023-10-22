@@ -8,14 +8,14 @@ export default function Chat() {
     storage.clear();
     window.location.reload();
   }
-  const {id} = useParams();
+  const {channel} = useParams();
   return (
     <>
       <div
-        className={`${id === undefined ? 'flex' : 'hidden'} flex flex-1 md:flex-none md:flex md:w-96 bg-white overflow-hidden `}>
+        className={`${channel === undefined ? 'flex' : 'hidden'} flex flex-1 md:flex-none md:flex md:w-96 bg-white overflow-hidden `}>
         <Channels/>
       </div>
-      <div className={`${id === undefined ? 'hidden' : 'flex'} relative md:flex flex-1 flex overflow-hidden`}>
+      <div className={`${channel === undefined ? 'hidden' : 'flex'} relative md:flex flex-1 flex overflow-hidden`}>
         <Outlet/>
       </div>
     </>

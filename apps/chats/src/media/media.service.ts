@@ -6,7 +6,9 @@ import Media from "./media.entity";
 import {Repository} from "typeorm";
 import {MediaType} from "@mdm/mdm-core";
 import fs from 'node:fs';
-
+import fsPromises from "node:fs/promises";
+import sharp from "sharp";
+import * as path from "path";
 
 @Injectable()
 export class MediaService {
@@ -22,6 +24,23 @@ export class MediaService {
     async saveMedia(file: Express.Multer.File) {
         const media = new Media();
         media.fsPath = file.path;
+        const thumbailDir = this.config.get("APP_MEDIA_PATH")
+          + path.sep
+          + 'thumbail';
+        if(!await fs.existsSync(thumbailDir)){
+          fs.mkdirSync(thumbailDir);
+        }
+        const thumbailPath =
+          thumbailDir
+          + path.sep
+          + file.path.split(path.sep).pop();
+
+
+        const write = fs.createWriteStream(thumbailPath);
+        sharp(file.path)
+          .resize(450,300)
+          .pipe(write);
+        media.thumbail = thumbailPath;
         media.type = MediaType.image;
         media.uri = '';
         const saved = await this.repository.save(media);
@@ -35,8 +54,17 @@ export class MediaService {
     }
 
     async getMediaStream(id: string) {
+      try{
         const media = await this.getMedia(id);
-        return fs.createReadStream(media.fsPath);
+        if(media.thumbail && fs.existsSync(media.thumbail)){
+          console.log(fs.existsSync(media.thumbail),media.thumbail);
+          return fs.createReadStream(media.thumbail);
+        }
+
+        return fs.createReadStream(media.thumbail??media.fsPath);
+      }catch (e){
+        console.log(e);
+      }
     }
 
 }

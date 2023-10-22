@@ -9,13 +9,14 @@ import {useChannel} from "../../../app/hooks/channel";
 
 export default function ChannelContainer() {
   const {status, channel, loadChannel} = useChannel();
-  const {id} = useParams();
+  const params:{channel?:string} = useParams();
   React.useEffect(function () {
-    const timeout = id && setTimeout(() => loadChannel(id));
+    const timeout =
+      params.channel && setTimeout(() => loadChannel(params.channel!));
     return () => {
-      timeout && clearTimeout(timeout)
+      timeout && clearTimeout(timeout);
     };
-  }, [id, loadChannel]);
+  }, [params.channel, loadChannel]);
   return (<>
     {(status === "idle" || status === "loading") && <ChannelSkeleton/>}
     {(status === "succeeded" && channel !== null || channel !== null) && (<ChannelProvider channel={channel}>

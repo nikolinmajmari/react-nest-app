@@ -9,8 +9,9 @@ export interface IMediaEntity{
   uri:string;
   type: MediaType;
   fsPath:string;
+  thumbail:string;
 }
 
-export type IMedia = Omit<IMediaEntity,"fsPath">;
+export type IMedia = Pick<IMediaEntity,"id"|"uri"|"type">;
 
 export type IPartialMedia = Partial<IMedia>;

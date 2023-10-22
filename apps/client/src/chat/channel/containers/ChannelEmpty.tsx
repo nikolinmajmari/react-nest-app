@@ -1,10 +1,12 @@
 import { animated, useSpring } from "@react-spring/web";
+import {Link, useLocation} from "react-router-dom";
 
 export default function ChannelEmpty(){
      const springs = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },
   })
+  const location = useLocation();
     return (
        <animated.div style={{...springs}} className=" flex flex-col flex-1 bg-emerald-slate-100 dark:bg-gray-700 ">
         <div className="flex flex-col items-center justify-center py-12">
@@ -18,8 +20,10 @@ export default function ChannelEmpty(){
             <li className="mb-2"><span className="text-green-500">✔</span> Discover inspiring stories and ideas.</li>
             <li className="mb-2"><span className="text-green-500">✔</span> Customize your profile and settings.</li>
         </ul>
-        <button className="mt-6 px-6 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600">Get
-            Started</button>
+        <Link state={{previousLocation: location}}
+              to="/chat/channels/new"
+              className="mt-6 px-6 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600"
+        >Get Started</Link>
         </div>
        </animated.div>
     );

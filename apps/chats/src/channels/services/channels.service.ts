@@ -130,7 +130,7 @@ export class ChannelsService {
         return await this.repository.save(entity)
     }
 
-    async findUserChannel(id: string,user:IUser) {
+    async findUserChannel(id: string,user?:IUser) {
         const query =
           this.repository.createQueryBuilder('ch')
             .select(['ch','ch.alias','m','u.id','u.firstName','u.lastName','u.email','u.avatar']);
@@ -166,8 +166,7 @@ export class ChannelsService {
         });
     }
 
-    async deleteChannel(id: string) {
-        const channel = await this.findOneOrFail(id);
+    async deleteChannel(channel:Channel) {
         await this.repository.remove(channel);
     }
 

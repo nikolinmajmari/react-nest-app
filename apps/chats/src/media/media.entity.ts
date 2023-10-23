@@ -13,7 +13,8 @@ export default class Media implements IMediaEntity {
 
     @Column({
         type: "enum", enum: [
-            MediaType.file, MediaType.image, MediaType.recording, MediaType.video
+            MediaType.file, MediaType.image, MediaType.recording, MediaType.video,
+            MediaType.pdf
         ]
     })
     type: MediaType;
@@ -24,5 +25,11 @@ export default class Media implements IMediaEntity {
 
     @Exclude()
     @Column({type:"varchar",length:256,nullable:true})
-    thumbail:string|null;
+    thumbnail:string|null;
+
+
+    @Exclude()
+    hasThumbnail():boolean{
+      return this.thumbnail !== null;
+    }
 }

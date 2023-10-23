@@ -1,6 +1,7 @@
-
 import {IFeedMessageMedia} from "../../../slices/channel-feed.model";
-import {IUser} from "@mdm/mdm-core";
+import {IUser, MediaType} from "@mdm/mdm-core";
+import Iframe from 'react-iframe'
+import {TfiFile} from "react-icons/tfi";
 
 export interface IChatMessageProps {
   content: string;
@@ -76,14 +77,7 @@ export default function RawMessage(props: IChatMessageProps) {
         <MessageContent>
           {
             props.media && (
-              <div className={`${props.media.progress && props.media.progress !== 1 ? 'blur-sm' : ''} m-2`}>
-                {
-                  !props.media.id ?
-                    <MessageContentImage src={props.media.uri}/>
-                    :
-                    <MessageContentImage src={`http://127.0.0.1:3000/api/media/${props.media.id}/download`}/>
-                }
-              </div>
+              <MessageMedia media={props.media}/>
             )
           }
           <MessageLabel>{props.content}</MessageLabel>
@@ -91,6 +85,42 @@ export default function RawMessage(props: IChatMessageProps) {
       </MessageBodyWrapper>
     </MessageWrapper>
   );
+}
+
+export interface IMessageMediaProps{
+  media:IFeedMessageMedia;
+}
+export function MessageMedia(props:IMessageMediaProps){
+  const {media} = props;
+  let url = media.id ?
+    `http://127.0.0.1:3000/api/media/${props.media.id}/content`
+    :
+    media.uri;
+  if(media.type===MediaType.image || media.type===MediaType.pdf) {
+    url = media.id ?
+      `http://127.0.0.1:3000/api/media/${props.media.id}/thumbnail`
+      :
+      media.uri;
+  }
+  if(media.type===MediaType.image || media.type===MediaType.pdf){
+    return (
+      <div className={media.uploadType && media.progress!==1 ? 'blur-sm':''}>
+            <MessageContentImage src={url}/>
+      </div>);
+  }else if(media.uploadType && media.progress!==1){
+    return(
+      <div>
+        <TfiFile/>
+        media
+      </div>
+    );
+  }else{
+    return <Iframe
+      url={url!}
+      height={'100px'}
+      className={'w-full'}
+    ></Iframe>
+  }
 }
 
 export function RawReducedMessage(props: IChatMessageProps) {
@@ -162,7 +192,7 @@ function MessageLabel(props: React.HTMLProps<HTMLDivElement>) {
 
 function MessageContentImage(props: React.HTMLProps<HTMLImageElement>) {
   // eslint-disable-next-line jsx-a11y/alt-text
-  return <img loading={'lazy'} {...props} className="w-56 z-0 object-cover h-32 rounded-lg"/>;
+  return <img  loading={'lazy'} {...props} className="w-36 md:w-48 lg:w-60 z-0 object-cover h-32 rounded-lg"/>;
 }
 
 function MessageHeader(props: IAlignProp & React.HTMLProps<HTMLDivElement>) {

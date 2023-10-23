@@ -2,14 +2,16 @@ export enum MediaType{
   image="media/image",
   video="media/video",
   recording="media/voice",
-  file="media/file"
+  audio="media/audio",
+  file="media/file",
+  pdf="media/pdf",
 }
 export interface IMediaEntity{
   id:string;
   uri:string;
   type: MediaType;
   fsPath:string;
-  thumbail:string;
+  thumbnail:string;
 }
 
 export type IMedia = Pick<IMediaEntity,"id"|"uri"|"type">;

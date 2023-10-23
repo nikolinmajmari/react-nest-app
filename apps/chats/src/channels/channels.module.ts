@@ -10,13 +10,15 @@ import {ChannelValidationPipe} from './validation/channel.validation.pipe';
 import {MembersService} from './services/members.service';
 import {MembersController} from './controllers/members.controller';
 import {MessagingService} from './services/messaging.service';
+import {AuthorizationModule} from "../authorization/authorization.module";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             Channel, ChannelMemberEntity, MessageEntity
         ]),
-        AuthModule
+        AuthModule,
+        AuthorizationModule,
     ],
     controllers: [ChannelsController, MembersController],
     providers: [

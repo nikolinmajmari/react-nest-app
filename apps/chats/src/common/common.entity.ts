@@ -2,7 +2,6 @@ import {instanceToPlain} from 'class-transformer';
 
 export class CommonEntity {
     // ...
-
     /**
      * You need to override this function to customize the json output of class-transformer library
      * @returns

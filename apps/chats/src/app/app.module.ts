@@ -8,9 +8,10 @@ import {AuthModule} from '../auth/auth.module';
 import {UsersModule} from '../users/users.module';
 import {ChannelsModule} from '../channels/channels.module';
 import {MediaModule} from '../media/media.module';
+import {AuthorizationModule} from "../authorization/authorization.module";
 
 @Module({
-    imports: [CommonModule, TypeOrmCustomModule, MediaModule, AuthModule, UsersModule, ChannelsModule,],
+    imports: [CommonModule, TypeOrmCustomModule, MediaModule, AuthModule,AuthorizationModule, UsersModule, ChannelsModule,],
     controllers: [AppController],
     providers: [AppService],
 })

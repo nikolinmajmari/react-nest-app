@@ -6,7 +6,7 @@ import {MediaType} from "@mdm/mdm-core";
 import fs from 'node:fs';
 import {MediaThumbnailService} from "./media-thumbail.service";
 import config from "./config/media.type.config";
-import {ThumbnailDto} from "./thumbnail.dto";
+import {MediaContext, MediaContextDTO, sizeConfig} from "./media.config";
 
 @Injectable()
 export class MediaService {
@@ -22,21 +22,24 @@ export class MediaService {
       return config[file.mimetype]??MediaType.file;
     }
 
-    async saveMedia(file: Express.Multer.File,dto?:ThumbnailDto) {
+    getThumbnailSize(context?:MediaContext){
+      const config =  {height:280,width: 420};
+      if(!context){
+        return config;
+      }
+      return sizeConfig[context] ?? config;
+    }
+
+    async saveMedia(file: Express.Multer.File,dto?:MediaContextDTO) {
         const media = new Media();
         media.fsPath = file.path;
+        media.fileName = file.originalname;
         media.type = this.getMediaType(file);
-        console.log(media.type,file.mimetype);
         media.uri = '';
+
         const saved = await this.repository.save(media);
         saved.uri = `/api/media/${media.id}/content`;
-        if(media.type===MediaType.image || media.type === MediaType.pdf){
-          await this.thumbnailService.createThumbnail(media,{
-            width:420,
-            height:280
-          });
-        }
-        console.log(media);
+        await this.thumbnailService.createThumbnail(media,this.getThumbnailSize(dto.context));
         return await this.repository.save(media);
     }
 

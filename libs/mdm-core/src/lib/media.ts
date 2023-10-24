@@ -10,10 +10,11 @@ export interface IMediaEntity{
   id:string;
   uri:string;
   type: MediaType;
+  fileName:string;
   fsPath:string;
   thumbnail:string;
 }
 
-export type IMedia = Pick<IMediaEntity,"id"|"uri"|"type">;
+export type IMedia = Pick<IMediaEntity,"id"|"uri"|"type"|"fileName">;
 
 export type IPartialMedia = Partial<IMedia>;

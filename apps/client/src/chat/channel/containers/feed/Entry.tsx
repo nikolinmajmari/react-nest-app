@@ -40,6 +40,24 @@ function setEndOfContenteditable(contentEditableElement:HTMLElement)
   }
 }
 
+const config :{[key:string]:MediaType}=  {
+  "audio/mpeg":MediaType.audio,
+  "audio/vorbis":MediaType.audio,
+
+  /// images
+  "image/jpeg":MediaType.image,
+  "image/png":MediaType.image,
+  "image/svg+xml":MediaType.image,
+
+  /// video
+  "video/mp4":MediaType.video,
+
+  /// files
+  "application/octet-stream":MediaType.file,
+  "application/pdf":MediaType.pdf,
+
+}
+
 const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   /// state
   const {channel} = React.useContext(ChannelContext);
@@ -95,7 +113,7 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
       clearMedia();
       await postMediaMessage({
         content: contentRef.current?.innerText ?? '', media: {
-          type: MediaType.image, uri: fileUri
+          type: config[file.type]??MediaType.file, uri: fileUri
         }, formData, slug, onAfterAdd: handleScrollToBottom
       });
     } else {

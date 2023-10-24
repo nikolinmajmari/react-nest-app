@@ -33,17 +33,20 @@ const channelFeedSlice = createSlice({
     updateMediaProgress(state, action: PayloadAction<IMessageUploadMediaProgressPayload>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
       state.messages[index].media!.status = MediaStatus.pending;
+      state.messages[index].media!.uploadType = true;
       state.messages[index].media!.progress = action.payload.progress;
     },
     startMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
       state.messages[index].media!.status = MediaStatus.pending;
       state.messages[index].media!.progress = 0;
+      state.messages[index].media!.uploadType = true;
     },
     completeMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
       state.messages[index].media!.status = MediaStatus.succeded;
       state.messages[index].media!.progress = 1;
+      state.messages[index].media!.uploadType = true;
     },
     addMessage(state, action: PayloadAction<IFeedMessage>) {
       state.messages.push(

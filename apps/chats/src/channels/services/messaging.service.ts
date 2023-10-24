@@ -32,7 +32,7 @@ export class MessagingService {
                 .select('m')
                 .addSelect([
                     "user.id", "user.firstName", 'user.lastName', 'user.email', 'user.avatar',
-                    'media.id', 'media.uri', 'media.type'
+                    'media.id', 'media.uri', 'media.type','media.fileName'
                 ])
                 .leftJoin('m.sender', 'user')
                 .leftJoin('m.media', 'media')

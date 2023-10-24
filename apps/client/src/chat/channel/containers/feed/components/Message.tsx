@@ -1,7 +1,6 @@
 import {IFeedMessageMedia} from "../../../slices/channel-feed.model";
 import {IUser, MediaType} from "@mdm/mdm-core";
-import Iframe from 'react-iframe'
-import {TfiFile} from "react-icons/tfi";
+import {TfiDownload, TfiFile} from "react-icons/tfi";
 
 export interface IChatMessageProps {
   content: string;
@@ -92,6 +91,7 @@ export interface IMessageMediaProps{
 }
 export function MessageMedia(props:IMessageMediaProps){
   const {media} = props;
+  console.log(media,media.progress);
   let url = media.id ?
     `http://127.0.0.1:3000/api/media/${props.media.id}/content`
     :
@@ -109,18 +109,45 @@ export function MessageMedia(props:IMessageMediaProps){
       </div>);
   }else if(media.uploadType && media.progress!==1){
     return(
-      <div>
-        <TfiFile/>
-        media
+      <div className={'w-56 py-1 px-2 justify-between md:w-64 lg:w-72 flex flex-row items-center'}>
+        <div className={'flex flex-row'}>
+          <TfiFile size={22}/>
+          <span className={'px-2'}>{media.fileName}</span>
+        </div>
+        <div  className={'self-center p-1 cursor-pointer' +
+          ' p-2 rounded-full dark:hover:bg-gray-700'}>
+          {media.progress}
+        </div>
       </div>
     );
-  }else{
-    return <Iframe
-      url={url!}
-      height={'100px'}
-      className={'w-full'}
-    ></Iframe>
   }
+    return (
+     <FileTileMessage type={MediaType.file}
+                      uri={url!}
+                      fileName={media.fileName!}
+                      />
+  );
+}
+
+interface IFileTileProps{
+  type:MediaType,
+  uri:string,
+  fileName:string
+}
+export function FileTileMessage({fileName,uri,type}:IFileTileProps){
+  //// download a
+  return (
+    <div className={'w-56 py-1 px-2 justify-between md:w-64 lg:w-72 flex flex-row items-center'}>
+      <div className={'flex flex-row'}>
+        <TfiFile size={22}/>
+        <span className={'px-2'}>{fileName}</span>
+      </div>
+      <a target={'_blank'} href={uri} className={'self-center p-1 cursor-pointer' +
+        ' p-2 rounded-full dark:hover:bg-gray-700'}>
+          <TfiDownload size={16}/>
+        </a>
+    </div>
+  );
 }
 
 export function RawReducedMessage(props: IChatMessageProps) {

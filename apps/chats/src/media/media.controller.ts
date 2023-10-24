@@ -18,7 +18,7 @@ import {Public} from '../auth/decorator';
 import {Response} from 'express';
 import {MediaService} from './media.service';
 import multer from "multer";
-import {ThumbnailDto} from "./thumbnail.dto";
+import {MediaContextDTO} from "./media.config";
 import {MediaThumbnailService} from "./media-thumbail.service";
 import mediaTypeConfig from "./config/media.type.config";
 
@@ -55,11 +55,13 @@ export class MediaController {
                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
                })
            ) file: Express.Multer.File,
-           @Body() dto:ThumbnailDto
+           @Body() dto:MediaContextDTO
     ) {
       return  this.service.saveMedia(file,dto);
-
     }
+
+
+
 
     @Get(':id')
     @HttpCode(HttpStatus.OK)

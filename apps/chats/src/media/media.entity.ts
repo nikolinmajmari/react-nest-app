@@ -19,6 +19,9 @@ export default class Media implements IMediaEntity {
     })
     type: MediaType;
 
+    @Column({type:'varchar',length:256})
+    fileName:string;
+
     @Exclude()
     @Column({type: "varchar", length: 256})
     fsPath: string;

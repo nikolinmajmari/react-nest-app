@@ -78,10 +78,12 @@ export class MediaController {
       @Res() res: Response,
       @Query('thumbnail') thumbnail:string,
     ) {
-        const readable = await this.service.getMediaStream(id);
+        const media = await this.service.getMedia(id);
+        const readable = await this.service.getMediaStream(media);
         if(!readable){
           throw new NotFoundException();
         }
+        res.setHeader('Content-Disposition',`attachment; filename="${media.fileName}"`)
         readable
           .on('error',(error)=>res.status(500).json(error) )
           .pipe(res);

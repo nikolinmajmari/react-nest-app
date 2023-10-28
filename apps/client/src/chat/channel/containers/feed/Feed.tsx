@@ -1,6 +1,6 @@
 import React, {forwardRef} from "react";
 import {IChatMessageProgress, Message, MessageFlowType} from "./components/Message";
-import {useChannelFeedMessages} from "../../../../app/hooks/feed";
+import {useAbortMediaProgress, useChannelFeedMessages, useRetryPostMessage} from "../../../../app/hooks/feed";
 import {useCurrentUser} from "../../../../app/hooks/auth";
 import {IFeedMessage} from "../../slices/channel-feed.model";
 
@@ -36,6 +36,12 @@ export interface IChannelMessageContainerProps {
 
 export function ChannelMessageContainer({message}: IChannelMessageContainerProps) {
   const user = useCurrentUser();
+  const retryPostMessage = useRetryPostMessage(message);
+  const cancelMediaProgress = useAbortMediaProgress();
+  const {slug} = message;
+  const handleCancelMediaProgress = ()=>{
+    cancelMediaProgress(slug!,message.media?.operation?.requestKey!);
+  }
   return (<Message
     content={message.content ?? ""}
     media={message.media}
@@ -43,8 +49,8 @@ export function ChannelMessageContainer({message}: IChannelMessageContainerProps
     sender={message.sender ?? " "}
     status={IChatMessageProgress.failed}
     mediaStatus={IChatMessageProgress.failed}
-    onMediaProgressRestart={() => 1}
-    onMediaProgressCancel={() => 1}
+    onMediaProgressRestart={retryPostMessage}
+    onMediaProgressCancel={handleCancelMediaProgress}
     type={message.sender?.id !== user.id ? MessageFlowType.received : MessageFlowType.sent}
     reduced={false}/>);
 }

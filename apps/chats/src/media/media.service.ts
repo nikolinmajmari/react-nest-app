@@ -36,7 +36,6 @@ export class MediaService {
         media.fileName = file.originalname;
         media.type = this.getMediaType(file);
         media.uri = '';
-
         const saved = await this.repository.save(media);
         saved.uri = `/api/media/${media.id}/content`;
         await this.thumbnailService.createThumbnail(media,this.getThumbnailSize(dto.context));
@@ -47,8 +46,7 @@ export class MediaService {
         return this.repository.findOneByOrFail({id: id})
     }
 
-    async getMediaStream(id: string,thumbnail?:boolean) {
-      const media = await this.getMedia(id);
+    async getMediaStream(media:Media) {
       if(media.fsPath){
         return fs.createReadStream(media.fsPath);
       }
@@ -60,6 +58,14 @@ export class MediaService {
         return fs.createReadStream(media.thumbnail);
       }
       return null;
+    }
+
+    async deleteMedia(media:Media){
+      return await Promise.all([
+        this.repository.remove([media]),
+        fs.promises.unlink(media.fsPath),
+        media.hasThumbnail()?fs.promises.unlink(media.thumbnail):null
+      ]);
     }
 
 }

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {
-  IChannelMessagesState,
-  IFeedMessage,
-  IFeedMessageSlug,
+  IChannelMessagesState, IFeedMediaMessageSlug,
+  IFeedMessage, IFeedMessageMedia, IFeedMessageMediaSlug,
+  IFeedMessageSlug, IMessageStartMediaProgressPayload,
   IMessageUploadMediaProgressPayload,
   MediaStatus,
   MessageStatus
@@ -26,27 +26,38 @@ const channelFeedSlice = createSlice({
       state.messages[index].createdAt = new Date();
       state.messages[index].status = MessageStatus.sent;
     },
-    failMediaProgress(state, action) {
-      const index = state.messages.findIndex(m => m.slug === action.payload.slug);
-      state.messages[index].status = MessageStatus.failed;
+    abortMediaProgress(state, action:PayloadAction<IFeedMessageSlug>) {
+      const index = state.messages.findIndex(
+        (m) => m.slug===action.payload.slug
+      );
+      state.messages[index].media!.operation!.progress = 0;
     },
     updateMediaProgress(state, action: PayloadAction<IMessageUploadMediaProgressPayload>) {
-      const index = state.messages.findIndex(m => m.slug === action.payload.slug);
-      state.messages[index].media!.status = MediaStatus.pending;
-      state.messages[index].media!.uploadType = true;
-      state.messages[index].media!.progress = action.payload.progress;
+      const index =
+        state.messages.findIndex(
+          m =>m?.media?.operation && m.slug === action.payload.slug
+        );
+        state.messages[index].media!.operation!.progress = action.payload.progress;
     },
-    startMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
+    startMediaProgress(state, action: PayloadAction<IMessageStartMediaProgressPayload>) {
+      const index = state.messages.findIndex(
+        m => m.slug === action.payload.slug
+      );
+      state.messages[index].media!.operation = {
+        requestKey:action.payload.requestKey,
+        progress: 0.1
+      };
+      state.messages[index].media!.uploadType = true;
+    },
+    restartMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
-      state.messages[index].media!.status = MediaStatus.pending;
-      state.messages[index].media!.progress = 0;
+      state.messages[index].media!.operation!.progress=0.1;
       state.messages[index].media!.uploadType = true;
     },
     completeMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
       state.messages[index].media!.status = MediaStatus.succeded;
-      state.messages[index].media!.progress = 1;
-      state.messages[index].media!.uploadType = true;
+      state.messages[index].media!.operation = undefined;
     },
     addMessage(state, action: PayloadAction<IFeedMessage>) {
       state.messages.push(
@@ -119,8 +130,9 @@ const channelFeedSlice = createSlice({
 export const {
   addMessage,
   completeMediaProgress,
-  failMediaProgress,
+  abortMediaProgress,
   markMessageSent,
+  restartMediaProgress,
   startMediaProgress,
   updateMediaProgress,
 } = channelFeedSlice.actions;

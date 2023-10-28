@@ -8,6 +8,9 @@ import User from "../../users/entities/user.entity";
 import {ChannelType, IChannel, IChannelEntity, IUser, MemberRole} from "@mdm/mdm-core";
 import {Simulate} from "react-dom/test-utils";
 import select = Simulate.select;
+import Media from "../../media/media.entity";
+import Message from "../entities/message.entity";
+import {MediaService} from "../../media/media.service";
 
 
 @Injectable()
@@ -16,7 +19,10 @@ export class ChannelsService {
         @InjectRepository(Channel)
         private readonly repository: Repository<Channel>,
         @InjectRepository(ChannelMember)
-        private readonly memberRepository: Repository<ChannelMember>
+        private readonly memberRepository: Repository<ChannelMember>,
+        @InjectRepository(Media)
+        private readonly mediaRepository:Repository<Media>,
+        private mediaService:MediaService
     ) {
     }
 
@@ -167,7 +173,16 @@ export class ChannelsService {
     }
 
     async deleteChannel(channel:Channel) {
+        const medias = await this.mediaRepository.createQueryBuilder('m')
+          .innerJoin(Message,'msg','msg.mediaId = m.id')
+          .innerJoin('msg.channel','ch')
+          .where('ch.id = :channel',{channel:channel.id})
+          .getMany();
+        console.log(medias);
         await this.repository.remove(channel);
+        await Promise.all(medias.map(
+          m=>this.mediaService.deleteMedia(m)
+        ));
     }
 
     async findUserChannelMember(channelId: string, userId: string) {

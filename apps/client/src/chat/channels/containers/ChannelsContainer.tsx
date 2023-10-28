@@ -86,9 +86,13 @@ export interface IChannelTileContainerProps {
 export function ChannelTileContainer(props: IChannelTileContainerProps) {
   const notification = React.useContext(NotificationContext);
   const dispatch = useAppDispatch();
+  const routerNavigate = useNavigate();
   const handleDeleteChannel = () => {
     dispatch(deleteChannelThunk(channel)).unwrap()
-      .then(() => notification?.success('Channel deleted successfully'))
+      .then(() => {
+        notification?.success('Channel deleted successfully');
+        routerNavigate('/chat/channels')
+      })
       .catch((e) => notification?.error('An error occured'));
   };
   const {channel, active, navigate} = props;

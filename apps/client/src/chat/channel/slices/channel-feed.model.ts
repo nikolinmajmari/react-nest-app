@@ -33,9 +33,13 @@ export enum MediaStatus {
 export interface IFeedMessageMedia extends IPartialMedia {
   status?: MediaStatus;
   uploadType?: boolean;
-  progress?: number;
+  operation?:IOperation;
 }
 
+export interface IOperation{
+  requestKey:string;
+  progress:number;
+}
 /** Action Argument types  */
 
 
@@ -43,7 +47,23 @@ export interface IFeedMessageSlug {
   slug: string;
 }
 
+export interface IFeedMediaMessageSlug{
+  slug:string;
+  operationSlug:string;
+}
+
+export interface IFeedMessageMediaSlug{
+  slug:string;
+  operation?:string;
+  status:"pending"|"failed";
+}
+
 export interface IMessageUploadMediaProgressPayload {
   slug: string;
   progress: number;
+}
+
+export interface IMessageStartMediaProgressPayload{
+  slug:string;
+  requestKey:string;
 }

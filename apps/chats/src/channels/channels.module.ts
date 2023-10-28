@@ -11,14 +11,17 @@ import {MembersService} from './services/members.service';
 import {MembersController} from './controllers/members.controller';
 import {MessagingService} from './services/messaging.service';
 import {AuthorizationModule} from "../authorization/authorization.module";
+import Media from "../media/media.entity";
+import {MediaModule} from "../media/media.module";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
-            Channel, ChannelMemberEntity, MessageEntity
+            Channel, ChannelMemberEntity, MessageEntity,Media
         ]),
         AuthModule,
         AuthorizationModule,
+        MediaModule
     ],
     controllers: [ChannelsController, MembersController],
     providers: [

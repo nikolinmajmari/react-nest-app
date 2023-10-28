@@ -1,6 +1,9 @@
-import {IFeedMessageMedia} from "../../../slices/channel-feed.model";
+import {IFeedMessage, IFeedMessageMedia} from "../../../slices/channel-feed.model";
 import {IUser, MediaType} from "@mdm/mdm-core";
 import {TfiDownload, TfiFile} from "react-icons/tfi";
+import React from "react";
+import {CgFileRemove} from "react-icons/cg";
+import {IoReload} from "react-icons/io5";
 
 export interface IChatMessageProps {
   content: string;
@@ -76,7 +79,7 @@ export default function RawMessage(props: IChatMessageProps) {
         <MessageContent>
           {
             props.media && (
-              <MessageMedia media={props.media}/>
+              <MessageMedia restartProgress={props.onMediaProgressRestart} cancelProgress={props.onMediaProgressCancel} media={props.media}/>
             )
           }
           <MessageLabel>{props.content}</MessageLabel>
@@ -88,10 +91,12 @@ export default function RawMessage(props: IChatMessageProps) {
 
 export interface IMessageMediaProps{
   media:IFeedMessageMedia;
+  cancelProgress:()=>void;
+  restartProgress:()=>void;
 }
 export function MessageMedia(props:IMessageMediaProps){
   const {media} = props;
-  console.log(media,media.progress);
+  console.log(media,media.operation?.progress);
   let url = media.id ?
     `http://127.0.0.1:3000/api/media/${props.media.id}/content`
     :
@@ -104,10 +109,10 @@ export function MessageMedia(props:IMessageMediaProps){
   }
   if(media.type===MediaType.image || media.type===MediaType.pdf){
     return (
-      <div className={media.uploadType && media.progress!==1 ? 'blur-sm':''}>
+      <div className={media.uploadType && media.operation ? 'blur-sm':''}>
             <MessageContentImage src={url}/>
       </div>);
-  }else if(media.uploadType && media.progress!==1){
+  }else if(media.uploadType && media.operation){
     return(
       <div className={'w-56 py-1 px-2 justify-between md:w-64 lg:w-72 flex flex-row items-center'}>
         <div className={'flex flex-row'}>
@@ -116,8 +121,22 @@ export function MessageMedia(props:IMessageMediaProps){
         </div>
         <div  className={'self-center p-1 cursor-pointer' +
           ' p-2 rounded-full dark:hover:bg-gray-700'}>
-          {media.progress}
+          {media.operation.progress?.toFixed(2)}
         </div>
+        {
+          props.media.operation?.progress != 0 && (
+            <span onClick={()=>props.cancelProgress()}>
+              <CgFileRemove/>
+            </span>
+          )
+        }
+        {
+          props.media.operation?.progress == 0 && (
+            <span onClick={()=>props.restartProgress()}>
+              <IoReload/>
+            </span>
+          )
+        }
       </div>
     );
   }

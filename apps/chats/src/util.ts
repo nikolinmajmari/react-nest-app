@@ -2,6 +2,7 @@ export default class Util {
 
     static token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5tYWptYXJpQGdtYWlsLmNvbSIsInN1YiI6ImI5YjcyYTZjLWUyZjMtNDEzNS1hM2UzLTJlODQ4ZDM0MWEwMCIsImlhdCI6MTY5NDIzMzc2MiwiZXhwIjoxNjk0MjMzODIyfQ.ombDBdQqA8ObcO8JFa5z5BroXnamMhFWkfWTc5yk4Ek";
 
+
     static async asyncMap<S, T>(list: S[], mapper: (a: S) => T) {
         return new Promise((resolve) => {
             let currentIndex = 0;

@@ -22,7 +22,8 @@ import {MediaThumbnailService} from "./media-thumbail.service";
             Media
         ]),
     ],
-    providers: [MediaService,MediaThumbnailService]
+    providers: [MediaService,MediaThumbnailService],
+  exports: [MediaService]
 })
 export class MediaModule {
 }

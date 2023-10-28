@@ -1,35 +1,14 @@
-import React, {FormEventHandler, ForwardedRef, forwardRef, KeyboardEventHandler, MutableRefObject} from "react";
+import React, {FormEventHandler, forwardRef, KeyboardEventHandler, MutableRefObject} from "react";
 import {TfiCrown, TfiFile, TfiReceipt} from "react-icons/tfi";
 import {ChannelContext} from "../../channel-context";
-import {usePostMediaMessage, usePostMessageThunk} from "../../../../app/hooks/feed";
+import {IPostMediaArgs, usePostMessage} from "../../../../app/hooks/feed";
 import {GrAttachment} from "react-icons/gr";
 import {MediaType} from "@mdm/mdm-core";
+import {useKeyPress} from "./hooks";
 
-export function useKeyPress(){
-  const [alt,setAlt] = React.useState<boolean>(false);
-  const handleKeyUp:KeyboardEventHandler = function (e){
-    switch (e.key){
-      case "Alt":
-        setAlt(false);
-        break;
-    }
-  }
-  const handleKeyDown:KeyboardEventHandler = function (e){
-    switch (e.key){
-      case "Alt":
-        setAlt(true);
-        break;
-    }
-  }
-  return {
-    alt,onKeyUp:handleKeyUp,onKeyDown:handleKeyDown
-  }
-}
-
-function setEndOfContenteditable(contentEditableElement:HTMLElement)
-{
-  var range,selection;
-  if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+function setEndOfContenteditable(contentEditableElement: HTMLElement) {
+  var range, selection;
+  if (document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
   {
     range = document.createRange();//Create a range (a range is a like the selection but invisible)
     range.selectNodeContents(contentEditableElement);//Select the entire contents of the element with the range
@@ -40,21 +19,17 @@ function setEndOfContenteditable(contentEditableElement:HTMLElement)
   }
 }
 
-const config :{[key:string]:MediaType}=  {
-  "audio/mpeg":MediaType.audio,
-  "audio/vorbis":MediaType.audio,
+const config: { [key: string]: MediaType } = {
+  "audio/mpeg": MediaType.audio, "audio/vorbis": MediaType.audio,
 
   /// images
-  "image/jpeg":MediaType.image,
-  "image/png":MediaType.image,
-  "image/svg+xml":MediaType.image,
+  "image/jpeg": MediaType.image, "image/png": MediaType.image, "image/svg+xml": MediaType.image,
 
   /// video
-  "video/mp4":MediaType.video,
+  "video/mp4": MediaType.video,
 
   /// files
-  "application/octet-stream":MediaType.file,
-  "application/pdf":MediaType.pdf,
+  "application/octet-stream": MediaType.file, "application/pdf": MediaType.pdf,
 
 }
 
@@ -62,7 +37,7 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   /// state
   const {channel} = React.useContext(ChannelContext);
   const [media, setMedia] = React.useState<string | null>(null);
-  const {alt,onKeyUp,onKeyDown} = useKeyPress();
+  const {alt, onKeyUp, onKeyDown} = useKeyPress();
   /// refs
   const formRef = React.useRef<HTMLFormElement>(null)
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -70,9 +45,7 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   const forwardedRef = ref as MutableRefObject<HTMLDivElement>;
 
   /// post thunks
-  const postMessage = usePostMessageThunk();
-  const postMediaMessage = usePostMediaMessage();
-
+  const postMessage = usePostMessage();
 
   /// ui
   const handleScrollToBottom = function () {
@@ -107,32 +80,31 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
     e.preventDefault();
     const slug = (Math.random() + 1).toString(36).substring(7);
     const file = mediaRef.current?.files?.item(0);
+    let mediaPayload: IPostMediaArgs | undefined = undefined;
     if (mediaRef.current && mediaRef.current.value && file) {
       const formData = new FormData(formRef.current!);
       const fileUri = URL.createObjectURL(file);
       clearMedia();
-      await postMediaMessage({
-        content: contentRef.current?.innerText ?? '', media: {
-          type: config[file.type]??MediaType.file, uri: fileUri
-        }, formData, slug, onAfterAdd: handleScrollToBottom
-      });
-    } else {
-      postMessage(slug, {content: contentRef.current?.innerText??""})
-      handleScrollToBottom();
+      mediaPayload = {
+        type: config[file.type] ?? MediaType.file, uri: fileUri, formData
+      };
     }
+    await postMessage({
+      content: contentRef.current?.innerText ?? "", media: mediaPayload, slug, onAfterAdd: handleScrollToBottom
+    });
     if (contentRef.current) {
       contentRef.current.innerHTML = "";
       contentRef.current.focus();
     }
   }
-  const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> = (e)=>{
+  const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> = (e) => {
     onKeyDown(e);
-    if(e.key==="Enter"){
-      if(!alt){
+    if (e.key === "Enter") {
+      if (!alt) {
         handleFormSubmit(e);
-      }else if(contentRef.current){
+      } else if (contentRef.current) {
         contentRef.current.innerHTML += '<div><br/></div>';
-        setTimeout(()=>setEndOfContenteditable(contentRef.current!));
+        setTimeout(() => setEndOfContenteditable(contentRef.current!));
       }
     }
   }
@@ -140,7 +112,8 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   if (!channel) {
     throw new Error('');
   }
-  return (<form onSubmit={handleFormSubmit} onKeyDown={handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef} encType="multipart/form-data">
+  return (<form onSubmit={handleFormSubmit} onKeyDown={handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef}
+                encType="multipart/form-data">
     <input onChange={handleFileChange}
            type="file"
            id="form-file-input-id"

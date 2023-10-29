@@ -17,7 +17,7 @@ export function DownloadableFileTile(props:IDownloadableFileProps){
   return (
     <FileTile type={props.type} fileName={props.fileName} action={
       <DownloadAction
-        uri={props.url}
+        uri={props.url+'?attachment=1'}
       />
     }/>
   );

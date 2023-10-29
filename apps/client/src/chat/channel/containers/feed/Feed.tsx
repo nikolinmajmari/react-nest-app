@@ -1,5 +1,5 @@
 import React, {forwardRef} from "react";
-import {IChatMessageProgress, Message, MessageFlowType} from "./components/Message";
+import Message, {IChatMessageProgress, MessageFlowType} from "./components/Message";
 import {useAbortMediaProgress, useChannelFeedMessages, useRetryPostMessage} from "../../../../app/hooks/feed";
 import {useCurrentUser} from "../../../../app/hooks/auth";
 import {IFeedMessage} from "../../slices/channel-feed.model";
@@ -46,7 +46,7 @@ export function ChannelMessageContainer({message}: IChannelMessageContainerProps
     content={message.content ?? ""}
     media={message.media}
     timestamp={message?.createdAt?.toString().slice(0, 10) ?? ""}
-    sender={message.sender ?? " "}
+    sender={message.sender ?? {firstName:'',lastName:''}}
     status={IChatMessageProgress.failed}
     mediaStatus={IChatMessageProgress.failed}
     onMediaProgressRestart={retryPostMessage}

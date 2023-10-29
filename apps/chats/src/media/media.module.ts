@@ -3,10 +3,10 @@ import {MediaController} from './media.controller';
 import {MulterModule} from '@nestjs/platform-express';
 import {ConfigModule, ConfigService} from '@nestjs/config';
 import {IEnvironment} from '../common/configurations.module';
-import {MediaService} from './media.service';
+import {MediaService} from './services/media.service';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import Media from './media.entity';
-import {MediaThumbnailService} from "./media-thumbail.service";
+import {MediaThumbnailService} from "./services/media-thumbail.service";
 
 @Module({
     controllers: [MediaController],

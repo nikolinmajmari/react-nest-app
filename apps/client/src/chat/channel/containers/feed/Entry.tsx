@@ -86,7 +86,10 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
       const fileUri = URL.createObjectURL(file);
       clearMedia();
       mediaPayload = {
-        type: config[file.type] ?? MediaType.file, uri: fileUri, formData
+        type: config[file.type] ?? MediaType.file,
+        uri: fileUri,
+        formData,
+        fileName: file.name,
       };
     }
     await postMessage({

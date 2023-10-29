@@ -16,10 +16,10 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiBody, ApiConsumes, ApiTags} from '@nestjs/swagger';
 import {Public} from '../auth/decorator';
 import {Response} from 'express';
-import {MediaService} from './media.service';
+import {MediaService} from './services/media.service';
 import multer from "multer";
-import {MediaContextDTO} from "./media.config";
-import {MediaThumbnailService} from "./media-thumbail.service";
+import {MediaContextDTO} from "./config/media.config";
+import {MediaThumbnailService} from "./services/media-thumbail.service";
 import mediaTypeConfig from "./config/media.type.config";
 
 

@@ -1,12 +1,12 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import Media from "./media.entity";
+import Media from "../media.entity";
 import {Repository} from "typeorm";
 import {MediaType} from "@mdm/mdm-core";
 import fs from 'node:fs';
 import {MediaThumbnailService} from "./media-thumbail.service";
-import config from "./config/media.type.config";
-import {MediaContext, MediaContextDTO, sizeConfig} from "./media.config";
+import config from "../config/media.type.config";
+import {MediaContext, MediaContextDTO, sizeConfig} from "../config/media.config";
 
 @Injectable()
 export class MediaService {

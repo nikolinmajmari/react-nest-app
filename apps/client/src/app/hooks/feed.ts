@@ -55,7 +55,7 @@ export interface IPostMessageArgs {
   onAfterAdd?: () => void,
   formData?: FormData
 }
-export interface IPostMediaArgs extends  Pick<IMedia, 'type'|'uri'>{
+export interface IPostMediaArgs extends  Pick<IMedia, 'type'|'uri'|'fileName'>{
   formData:FormData
 }
 
@@ -77,6 +77,7 @@ export function usePostMessage() {
       media: {
         uri:media?.uri,
         type: media?.type,
+        fileName: media?.fileName,
         status: MediaStatus.pending
       },
       slug: slug,

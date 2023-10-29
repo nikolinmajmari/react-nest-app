@@ -10,7 +10,7 @@ import {Simulate} from "react-dom/test-utils";
 import select = Simulate.select;
 import Media from "../../media/media.entity";
 import Message from "../entities/message.entity";
-import {MediaService} from "../../media/media.service";
+import {MediaService} from "../../media/services/media.service";
 
 
 @Injectable()

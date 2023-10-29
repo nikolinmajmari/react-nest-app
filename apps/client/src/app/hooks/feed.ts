@@ -71,7 +71,11 @@ export function usePostMessage() {
   return useCallback(async function (args: IPostMessageArgs) {
     const {slug, content, media, onAfterAdd} = args;
     if(!args.media){
-      return postMessageThunk(slug,{ content })
+      postMessageThunk(slug, {content});
+      if (onAfterAdd) {
+        onAfterAdd();
+      }
+      return;
     }
     addMessage({
       media: {

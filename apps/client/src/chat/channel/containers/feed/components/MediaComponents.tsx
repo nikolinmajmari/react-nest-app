@@ -14,12 +14,13 @@ export interface IMessageMediaProps {
 export function MessageMediaContent(props: IMessageMediaProps) {
   const {media} = props;
   let url = media.id ? `http://127.0.0.1:3000/api/media/${props.media.id}/content` : media.uri;
+  let thumbnail = undefined;
   if (media.type === MediaType.image || media.type === MediaType.pdf) {
-    url = media.id ? `http://127.0.0.1:3000/api/media/${props.media.id}/thumbnail` : media.uri;
+    thumbnail = media.id ? `http://127.0.0.1:3000/api/media/${props.media.id}/thumbnail` : media.uri;
   }
   if (media.type === MediaType.image || media.type === MediaType.pdf) {
     return (<div className={media.uploadType && media.operation ? 'blur-sm' : ''}>
-      <MessageContentImage src={url}/>
+      <MessageContentImage thumbnail={thumbnail??url!} url={url!}/>
     </div>);
   } else if (media.uploadType && media.operation) {
 

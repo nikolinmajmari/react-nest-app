@@ -7,7 +7,6 @@ import {IFeedMessage} from "../../slices/channel-feed.model";
 
 const ChannelFeed = forwardRef(function (props, ref) {
   const forwardedRef = ref as React.MutableRefObject<HTMLDivElement>;
-  const user = useCurrentUser();
   const messages = useChannelFeedMessages();
   const handleAutoScroll = React.useCallback(() => {
     forwardedRef.current?.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
@@ -17,7 +16,8 @@ const ChannelFeed = forwardRef(function (props, ref) {
   React.useEffect(() => {
     setTimeout(handleAutoScroll);
   }, []);
-  return React.useMemo(() => (<div className="content flex-1">
+  return React.useMemo(() => (
+    <div className="content flex-1">
     {
       messages.map(
         (message, index) =>

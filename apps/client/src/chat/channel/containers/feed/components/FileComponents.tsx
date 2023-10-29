@@ -4,6 +4,7 @@ import {PiFileFill} from "react-icons/pi";
 import {TfiDownload} from "react-icons/tfi";
 import {AiOutlineReload} from "react-icons/ai";
 import {CircularProgressbar} from "react-circular-progressbar";
+import {BackdropBlurDownloadButton} from "./Buttons";
 
 
 interface IDownloadableFileProps{
@@ -32,7 +33,7 @@ export function FileTile(props:IFileTileProps){
   const {fileName,action}= props;
   //// download a
   return (
-    <div className={'\'py-1 bg-emerald-700 rounded-md bg-opacity-25 px-2 justify-between flex flex-row items-center\' +\n' +
+    <div className={'\'py-1 bg-emerald-700 rounded-md bg-opacity-25 pl-2 justify-between flex flex-row items-center\' +\n' +
       '        \' dark:bg-emerald-900 dark:bg-opacity-20 dark:text-cyan-100 ' +
       ' w-64 md:w-72 lg:80'}>
       <div className={'flex flex-row justify-start items-center overflow-hidden flex-1'}>
@@ -51,10 +52,22 @@ export function FileTile(props:IFileTileProps){
 
 export function DownloadAction({uri}:{uri:string}){
   return (
-    <a target={'_blank'} href={uri} className={'self-center p-1 cursor-pointer' +
-      ' p-2 rounded-full dark:hover:bg-gray-700 hover:bg-emerald-800 hover:bg-opacity-30'}>
-      <TfiDownload size={16}/>
-    </a>
+    <BackdropBlurDownloadButton
+      href={uri}
+    />
+  );
+}
+
+export function ActionButton(props:React.HTMLProps<HTMLDivElement>){
+  const {className,children,...rest} = props;
+  return (
+    <div className={ className + ' ' +
+      'self-center p-1 cursor-pointer' +
+      ' p-2 rounded-full dark:hover:bg-gray-700 hover:bg-emerald-800 hover:bg-opacity-30'}
+         {...rest}
+    >
+      {children}
+    </div>
   );
 }
 

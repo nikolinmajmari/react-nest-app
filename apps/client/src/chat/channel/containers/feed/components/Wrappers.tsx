@@ -27,7 +27,7 @@ export function MessageWrapper(props: IAlignProp & React.HTMLProps<HTMLDivElemen
 
 export function MessageContentWrapper(props: React.HTMLProps<HTMLDivElement>) {
   return (
-    <div className="bubble bg-white p-1 rounded-lg break-all dark:bg-slate-800 dark:text-white">
+    <div className="bubble bg-neutral-100 p-1 rounded-lg break-all dark:bg-slate-800 dark:text-white">
       {props.children}
     </div>
   );

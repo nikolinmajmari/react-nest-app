@@ -1,10 +1,14 @@
 import React, {FormEventHandler, forwardRef, KeyboardEventHandler, MutableRefObject} from "react";
-import {TfiCrown, TfiFile, TfiReceipt} from "react-icons/tfi";
+import {TfiReceipt} from "react-icons/tfi";
 import {ChannelContext} from "../../channel-context";
 import {IPostMediaArgs, usePostMessage} from "../../../../app/hooks/feed";
 import {GrAttachment} from "react-icons/gr";
 import {MediaType} from "@mdm/mdm-core";
 import {useKeyPress} from "./hooks";
+import {ActionButton, FileTile} from "./components/FileComponents";
+import {CgFileRemove} from "react-icons/cg";
+import {BiCross} from "react-icons/bi";
+import {AiOutlineClose, AiOutlineSend} from "react-icons/ai";
 
 function setEndOfContenteditable(contentEditableElement: HTMLElement) {
   var range, selection;
@@ -92,13 +96,14 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
         fileName: file.name,
       };
     }
-    await postMessage({
+    const postArgs = {
       content: contentRef.current?.innerText ?? "", media: mediaPayload, slug, onAfterAdd: handleScrollToBottom
-    });
+    };
     if (contentRef.current) {
       contentRef.current.innerHTML = "";
       contentRef.current.focus();
     }
+    await postMessage(postArgs);
   }
   const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> = (e) => {
     onKeyDown(e);
@@ -124,14 +129,19 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
            ref={mediaRef}
            className="hidden"></input>
     <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start
-                dark:bg-slate-800
+                dark:bg-gray-800
             ">
-      {media && <div className="media-container flex flex-row flex-wrap">
-        <div
-          className="mx-2 my-2 flex relative flex-row items-center bg-gray-600 px-3 py-1 rounded-md text-white text-xs">
-          <TfiFile className="text-gray-100 font-bold"/>&nbsp;{media}
-          <span onClick={() => clearMedia()} className="absolute right-0 top-0"><TfiCrown/></span>
-        </div>
+      {media &&
+        <div className="media-container flex flex-row flex-wrap px-4 pb-2">
+          <FileTile
+            type={MediaType.file}
+            fileName={media}
+            action={
+              <ActionButton onClick={() => clearMedia()}>
+                <AiOutlineClose size={18}/>
+              </ActionButton>
+            }
+          />
       </div>}
       <div className="flex flex-row items-center justify-between w-full px-2">
         <EntryOptionButton onClick={handleMediaClick}>
@@ -150,8 +160,8 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
         </div>
         <button
           type="submit"
-          className="mx-2 bg-teal-900 text-white p-4 rounded-full ">
-          <TfiReceipt/>
+          className="mx-2 bg-teal-800 hover:bg-teal-900 text-white p-4 rounded-full ">
+          <AiOutlineSend/>
         </button>
       </div>
     </div>

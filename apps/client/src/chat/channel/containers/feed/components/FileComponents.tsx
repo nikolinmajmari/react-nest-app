@@ -35,7 +35,7 @@ export function FileTile(props:IFileTileProps){
   return (
     <div className={'\'py-1 bg-emerald-700 rounded-md bg-opacity-25 pl-2 justify-between flex flex-row items-center\' +\n' +
       '        \' dark:bg-emerald-900 dark:bg-opacity-20 dark:text-cyan-100 ' +
-      ' w-64 md:w-72 lg:80'}>
+      '  max-w-64 md:max-w-72 lg:max-w-80'}>
       <div className={'flex flex-row justify-start items-center overflow-hidden flex-1'}>
         <PiFileFill size={18} className={'text-emerald-800'}/>
         <span className={'px-2 inline overflow-ellipsis whitespace-nowrap line overflow-hidden flex-1'}>

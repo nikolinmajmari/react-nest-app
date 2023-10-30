@@ -21,7 +21,7 @@ export function MessageTextContent(props: React.HTMLProps<HTMLDivElement>) {
     return <></>;
   }
   return (
-    <div className="px-2 py-1">
+    <div className="px-2 py-1 break-words break-all w-full">
       {props.children}
     </div>
   );

@@ -24,7 +24,7 @@ export function MessageContentImage(props:IImageMessageProps) {
       />
       <a href={props.url} target={'_blank'}>
         <img loading={'lazy'} src={props.thumbnail??props.url} className="cursor-pointer
-          h-48 w-64 md:w-72 lg:w-80 object-cover rounded-lg rounded-t-lg rounded-b-none
+          h-48  w-64 md:w-72 lg:80 object-cover rounded-lg rounded-t-lg rounded-b-none
         "/>
       </a>
     </div>

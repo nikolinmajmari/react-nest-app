@@ -4,7 +4,7 @@ import {ChannelsService} from '../services/channels.service';
 import {ChannelCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto.ts';
 import {ChannelValidationPipe} from '../validation/channel.validation.pipe';
 import {MessagingService} from '../services/messaging.service';
-import {CreateMessageDTO} from '../dto/channel.message.dto';
+import {BulkDeleteMessagesDTO, CreateMessageDTO} from '../dto/channel.message.dto';
 import {Request} from "express";
 import ChannelAuthorizer from "../../authorization/ChannelAuthorizer";
 import {Action} from "../../authorization/authorizer.base.";
@@ -58,8 +58,7 @@ export class ChannelsController {
   @HttpCode(HttpStatus.OK) @Get(":id/messages")
   async getMessages(@Param("id") id: string, @Req() req) {
     const channel = await this.service.findOneOrFail(id);
-    const messages = await this.messagingService.getMessages(channel, {});
-    return messages;
+    return await this.messagingService.getMessages(channel, {});
   }
 
   @HttpCode(HttpStatus.CREATED) @Post(":id/messages")
@@ -71,4 +70,24 @@ export class ChannelsController {
     return message?.id;
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id/messages')
+  async deleteMessages(
+    @Param('id') id:string,
+    @Body() body:BulkDeleteMessagesDTO,
+  ){
+    const channel = await this.service.findOneOrFail(id);
+    return await this.messagingService.deleteMessages(body.messagesId,channel);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':channel/messages/:message')
+  async deleteMessage(
+    @Param("channel") channelId:string,
+    @Param('message') messageId:string,
+  ){
+    const channel = await this.service.findOneOrFail(channelId);
+    const message = await this.messagingService.findOrFail(messageId,channel);
+    await this.messagingService.deleteMessage(message);
+  }
 }

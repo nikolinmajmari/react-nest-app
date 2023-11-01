@@ -22,6 +22,7 @@ export interface IFeedMessage extends Omit<IPartialMessage, 'media'|"content"|"s
   sender:IUser;
   content:string;
   media?: IFeedMessageMedia;
+  deleting?:boolean;
 }
 
 export enum MediaStatus {

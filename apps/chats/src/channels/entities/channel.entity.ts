@@ -43,8 +43,9 @@ export default class Channel extends CommonEntity implements IChannelEntity {
     })
     members: Promise<ChannelMember[]>;
     @OneToOne(
-        () => Message,
-    )
+        () => Message, {
+          onDelete:'SET NULL'
+        })
     @JoinColumn()
     lastMessage: Promise<Message | null>;
 

@@ -11,7 +11,15 @@ import {MediaModule} from '../media/media.module';
 import {AuthorizationModule} from "../authorization/authorization.module";
 
 @Module({
-    imports: [CommonModule, TypeOrmCustomModule, MediaModule, AuthModule,AuthorizationModule, UsersModule, ChannelsModule,],
+    imports: [
+      CommonModule,
+      TypeOrmCustomModule,
+      MediaModule,
+      AuthModule,
+      AuthorizationModule,
+      UsersModule,
+      ChannelsModule,
+    ],
     controllers: [AppController],
     providers: [AppService],
 })

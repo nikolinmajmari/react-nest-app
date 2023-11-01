@@ -3,8 +3,9 @@ import {IUser, MediaType} from "@mdm/mdm-core";
 import React from "react";
 import 'react-circular-progressbar/dist/styles.css';
 import { MessageMediaContent} from "./MediaComponents";
-import {Align, IAlignProp, MessageBodyWrapper, MessageContentWrapper, MessageWrapper} from "./Wrappers";
+import {Align, MessageBodyWrapper, MessageContentWrapper, MessageWrapper} from "./Wrappers";
 import {MessageAvatar, MessageHeader, MessageTextContent} from "./MessageWidgets";
+import {useLongPress} from "use-long-press";
 
 
 export interface IChatMessageProps {
@@ -17,6 +18,9 @@ export interface IChatMessageProps {
   onMediaProgressRestart: () => void,
   onMediaProgressCancel: () => void,
   type: MessageFlowType;
+  selected:boolean;
+  selectionMode:boolean;
+  toggleSelect:()=>void;
 }
 
 export enum IChatMessageProgress {
@@ -41,11 +45,19 @@ export function SentMessage(props: IChatMessageProps & IBubbleReduced) {
   return (<Message {...props}></Message>)
 }
 
-export default function Message(props: IChatMessageProps& IBubbleReduced) {
+export default function Message(props: IChatMessageProps& IBubbleReduced & ISelectionProps) {
   const align = props.type === MessageFlowType.sent ? Align.right : Align.left;
   const {reduced}  = props;
+  const bind = useLongPress(props.toggleSelect);
   return (
-    <MessageWrapper align={align}>
+    <MessageWrapper align={align}
+                    className={'relative'}
+                    {...bind()}
+    >
+      <SelectedOverlay selected={props.selected}
+                       selectionMode={props.selectionMode}
+                       toggleSelect={props.toggleSelect}
+                       />
       <MessageAvatar className={reduced ? 'bg-transparent':''}/>
       <MessageBodyWrapper align={align}>
         {
@@ -68,19 +80,28 @@ export default function Message(props: IChatMessageProps& IBubbleReduced) {
 }
 
 
-
-export function RawReducedMessage(props: IChatMessageProps) {
-  const align = props.type !== MessageFlowType.sent ? Align.right : Align.left;
-  return (<MessageWrapper align={align}>
-    <MessageAvatar className="bg-transparent"></MessageAvatar>
-    <MessageBodyWrapper align={Align.right}>
-      <MessageTextContent>
-        {props.content}
-      </MessageTextContent>
-    </MessageBodyWrapper>
-  </MessageWrapper>)
+export interface ISelectionProps{
+  selected:boolean;
+  selectionMode:boolean;
+  toggleSelect:()=>void;
 }
-
+export function SelectedOverlay(props:ISelectionProps){
+  return (
+    <>
+      {
+        props.selectionMode && (
+          <div onClick={props.toggleSelect}
+               className={'absolute rounded-lg cursor-pointer z-10 w-full h-full' +
+                 ' cursor-pointer ' +
+                 (props.selected ? 'bg-opacity-50 bg-gray-800':'')
+               }
+          >
+          </div>
+        )
+      }
+    </>
+  );
+}
 
 
 

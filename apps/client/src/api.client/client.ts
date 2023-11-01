@@ -2,14 +2,15 @@ import { AuthHandler, BaseClient, ChannelsHandler, MediaHandler, UsersHandler } 
 import axios from "axios";
 import storage from "../core/storage";
 
+export const ServerEndpoint = 'http://localhost:3000';
 
 const instance = axios.create({
-    baseURL: "http://127.0.0.1:3000/api",
+    baseURL: ServerEndpoint+"/api",
 });
 
 instance.interceptors.request.use((config)=>{
     if(storage.getAuthData()){
-     config.headers['Authorization'] = `Bearer ${storage.getAuthData().accessToken}`;   
+     config.headers['Authorization'] = `Bearer ${storage.getAuthData().accessToken}`;
      config.headers = config.headers??new Headers();
     }
     return config;

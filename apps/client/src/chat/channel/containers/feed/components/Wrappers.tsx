@@ -1,4 +1,5 @@
 import React from "react";
+import {useLongPress} from "use-long-press";
 
 export enum Align {
   left = "left", right = "right"
@@ -17,10 +18,15 @@ export function MessageBodyWrapper(props: IAlignProp & React.HTMLProps<HTMLDivEl
     </div>
   </div>);
 }
-export function MessageWrapper(props: IAlignProp & React.HTMLProps<HTMLDivElement>) {
+export function MessageWrapper(props: IAlignProp & React.HTMLProps<HTMLDivElement> ) {
   const {align, className, ...rest} = props;
-  return (<div {...rest} className={`flex items-start pt-6 gap-2
-            ${align === Align.left ? "flex-row" : "flex-row-reverse"}`}>
+  return (
+    <div
+      {...rest} className={`flex items-start pt-3 pb-1 m-1 gap-2
+            ${align === Align.left ? "flex-row" : "flex-row-reverse"}
+            ${className}
+            `}>
+
     {props.children}
   </div>);
 }

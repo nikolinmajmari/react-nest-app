@@ -6,6 +6,7 @@ import * as Joi from 'joi';
     imports: [
         ConfigModule.forRoot({
             validationSchema: Joi.object({
+              APP_ENV:Joi.string(),
                 PORT: Joi.number(),
                 DB_HOST: Joi.string(),
                 DB_PORT: Joi.string(),
@@ -27,6 +28,7 @@ export class ConfigurationModule {
 }
 
 export interface IEnvironment {
+    APP_ENV:string;
     PORT: number,
     DB_HOST: string,
     DB_PORT: string,

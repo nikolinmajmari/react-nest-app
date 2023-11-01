@@ -9,6 +9,7 @@ import {ActionButton, FileTile} from "./components/FileComponents";
 import {CgFileRemove} from "react-icons/cg";
 import {BiCross} from "react-icons/bi";
 import {AiOutlineClose, AiOutlineSend} from "react-icons/ai";
+import {SelectedContext} from "../../context/SelectedContext";
 
 function setEndOfContenteditable(contentEditableElement: HTMLElement) {
   var range, selection;
@@ -50,6 +51,9 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
 
   /// post thunks
   const postMessage = usePostMessage();
+
+  /// feed selection context
+  const {clear} = React.useContext(SelectedContext);
 
   /// ui
   const handleScrollToBottom = function () {
@@ -120,7 +124,10 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   if (!channel) {
     throw new Error('');
   }
-  return (<form onSubmit={handleFormSubmit} onKeyDown={handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef}
+  return (<form onSubmit={handleFormSubmit}
+                onFocus={clear}
+                className={'z-20'}
+                onKeyDown={handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef}
                 encType="multipart/form-data">
     <input onChange={handleFileChange}
            type="file"

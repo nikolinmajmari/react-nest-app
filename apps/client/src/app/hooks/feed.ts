@@ -16,6 +16,8 @@ import {IFeedMessage, IFeedMessageMedia, MediaStatus} from "../../chat/channel/s
 import {useDispatch} from "react-redux";
 
 import {media, media as mediaClient} from "../../api.client/client";
+import DeleteMessagesThunk from "../../chat/channel/slices/thunks/deleteMessagesThunk";
+import deleteMessagesThunk from "../../chat/channel/slices/thunks/deleteMessagesThunk";
 
 
 export function useChannelFeedMessages() {
@@ -149,9 +151,20 @@ export function usePostMessageThunk() {
 
 
 export function useAbortMediaProgress() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   return useCallback(function (slug:string,requestKey:string) {
     mediaClient.storage.get<IMedia>(requestKey)!.controller!.abort();
     dispatch(abortMediaProgress({slug}));
   }, [dispatch])
+}
+
+
+export function useDeleteMessages(channel:IChannel){
+  const dispatch = useAppDispatch();
+  return useCallback(function (messagesId:string[]){
+    return dispatch(deleteMessagesThunk({
+      messagesId: messagesId,
+      channel: channel
+    }))
+  },[channel.id,dispatch]);
 }

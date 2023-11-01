@@ -3,8 +3,8 @@ import {Outlet, useParams} from "react-router-dom";
 import {ChannelProvider} from "../channel-context";
 import {ChannelSkeleton} from "../../../components/channels/ChannelSkeleton";
 import ChannelFeedContainer from "./feed/FeedContainer";
-import ChannelNavigation from "./ChannelNavigation";
 import {useChannel} from "../../../app/hooks/channel";
+import { SelectedContextProvider} from "../context/SelectedContext";
 
 
 export default function ChannelContainer() {
@@ -19,10 +19,14 @@ export default function ChannelContainer() {
   }, [params.channel, loadChannel]);
   return (<>
     {(status === "idle" || status === "loading") && <ChannelSkeleton/>}
-    {(status === "succeeded" && channel !== null || channel !== null) && (<ChannelProvider channel={channel}>
-      <ChannelFeedContainer navigation={<ChannelNavigation/>}/>
-      <Outlet/>
-    </ChannelProvider>)}
+    {(status === "succeeded" && channel !== null || channel !== null) && (
+      <ChannelProvider channel={channel}>
+        <SelectedContextProvider>
+          <ChannelFeedContainer/>
+        </SelectedContextProvider>
+        <Outlet/>
+      </ChannelProvider>)
+    }
     {status === "failed" && (<div>
       "error"
     </div>)}

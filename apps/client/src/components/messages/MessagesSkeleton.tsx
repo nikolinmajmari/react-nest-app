@@ -3,12 +3,33 @@
 
 export default function ChannelMessagesSkeleton(){
     return (
-    <div role="status" className="flex flex-col justify-start flex-1 overflow-hidden">
+    <div role="status" className="absolute z-10 flex h-full w-full flex-col justify-start flex-1 overflow-hidden">
         <SkeletonGroup/>
         <SkeletonGroup/>
         <SkeletonGroup/>
         <SkeletonGroup/>
         <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>  <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>  <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>  <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>  <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
+      <SkeletonGroup/>
     </div>
     );
 }
@@ -22,7 +43,7 @@ function SkeletonGroup(){
             <li className="w-full h-4 bg-slate-300 rounded-md "></li>
             <li className="w-full h-4 bg-slate-300 rounded-md "></li>
             <li className="w-full h-4 bg-slate-300 rounded-md "></li>
-            </ul>         
+            </ul>
         </div>
     )
 }

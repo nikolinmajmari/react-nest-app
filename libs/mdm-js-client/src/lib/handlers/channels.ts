@@ -34,6 +34,18 @@ export class ChannelsHandler{
         return await this.baseClient.post<string>(`/channels/${id}/messages`,message);
     }
 
+    async deleteChannelMessage(channelId:string,messageId:string):Promise<void>{
+      return await this.baseClient.delete(`/channels/${channelId}/messages/${messageId}`);
+    }
+
+    async deleteChannelMessages(channelId:string,messagesId:string[]):Promise<void>{
+      return await this.baseClient.delete(`/channels/${channelId}/messages`,{
+        data:{ messagesId }
+      });
+    }
+
+
+
     async deleteMember(id:string){
         return await this.baseClient.delete(`/members/${id}`);
     }

@@ -10,6 +10,8 @@ import {
 } from "./channel-feed.model";
 import loadFeedThunk from "./thunks/loadFeedThunk";
 import postMessageThunk from "./thunks/postMessageThunk";
+import deleteMessagesThunk from "./thunks/deleteMessagesThunk";
+
 
 const initialState: IChannelMessagesState = {
   error: null,
@@ -122,6 +124,30 @@ const channelFeedSlice = createSlice({
           state.messages[index].status = MessageStatus.failed;
         }
       })
+
+      /// delete messages thunk
+      .addCase(deleteMessagesThunk.fulfilled,(state,action)=>{
+        state.status = "succeeded";
+      })
+      .addCase(deleteMessagesThunk.pending,(state,action)=>{
+        action.meta.arg.messagesId.forEach(function (messageId){
+          const index = state.messages.findIndex(m=>m.id===messageId);
+          if(index!==-1){
+            state.messages[index].deleting = true;
+          }
+        });
+        state.status = "mutating";
+      })
+      .addCase(deleteMessagesThunk.rejected,(state,action)=>{
+        action.meta.arg.messagesId.forEach(function (messageId){
+          const index = state.messages.findIndex(m=>m.id===messageId);
+          if(index!==-1){
+            delete state.messages[index].deleting;
+          }
+        });
+        state.status = "succeeded";
+      })
+
     ;
     return builder;
   },
@@ -136,5 +162,5 @@ export const {
   startMediaProgress,
   updateMediaProgress,
 } = channelFeedSlice.actions;
-export {loadFeedThunk, postMessageThunk};
+export {loadFeedThunk, postMessageThunk,deleteMessagesThunk};
 export default channelFeedSlice.reducer;

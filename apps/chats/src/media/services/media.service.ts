@@ -17,7 +17,6 @@ export class MediaService {
         private  thumbnailService:MediaThumbnailService
     ) {}
 
-
     getMediaType(file:Express.Multer.File){
       return config[file.mimetype]??MediaType.file;
     }
@@ -66,6 +65,17 @@ export class MediaService {
         fs.promises.unlink(media.fsPath),
         media.hasThumbnail()?fs.promises.unlink(media.thumbnail):null
       ]);
+    }
+
+    async deleteMediaFileStorage(media:Media,suppressErrors:boolean){
+      const promise = Promise.all([
+        fs.promises.unlink(media.fsPath),
+        media.hasThumbnail()?fs.promises.unlink(media.thumbnail):null
+      ]);
+      if(suppressErrors){
+        promise.catch(console.log);
+      }
+      return promise;
     }
 
 }

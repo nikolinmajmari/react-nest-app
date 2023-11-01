@@ -1,11 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {InjectEntityManager, InjectRepository} from "@nestjs/typeorm";
 import Message from "../entities/message.entity";
-import {EntityManager, Repository} from "typeorm";
+import {Brackets, EntityManager, FindOptionsWhere, Repository} from "typeorm";
 import Channel from "../entities/channel.entity";
 import User from "../../users/entities/user.entity";
 import {CreateMessageDTO} from "../dto/channel.message.dto";
 import {IMessage} from "@mdm/mdm-core";
+import Media from "../../media/media.entity";
+import {MediaService} from "../../media/services/media.service";
 
 
 export interface IUserChannelDTO<T> {
@@ -22,7 +24,10 @@ export class MessagingService {
         @InjectRepository(Message)
         private readonly repository: Repository<Message>,
         @InjectEntityManager()
-        private readonly em: EntityManager
+        private readonly em: EntityManager,
+        @InjectRepository(Media)
+        private readonly mediaRepository:Repository<Media>,
+        private readonly mediaService:MediaService,
     ) {
     }
 
@@ -51,5 +56,58 @@ export class MessagingService {
         channel.lastMessage = Promise.resolve(saved);
         await this.em.save(channel);
         return saved;
+    }
+
+    async findOrFail(messageId:string,channel?:Channel){
+      const more = {};
+      if(channel){
+        more['channel'] = {id:channel.id};
+      }
+      return await this.repository.findOneOrFail({
+        where:{
+          id:messageId,
+          ...more
+        }
+      })
+    }
+
+    async deleteMessage(message:Message){
+      return await this.repository.remove(message);
+    }
+
+    async deleteMessages(messagesId:string[],channel?:Channel){
+      const runner = this.em.connection.createQueryRunner('master');
+      await runner.connect();
+      const medias = await runner.manager.createQueryBuilder(Media,'m')
+        .select('m')
+        .innerJoin(Message,'msg','msg.mediaId = m.id')
+        .innerJoin('msg.channel','ch')
+        .where('ch.id = :channel',{channel:channel.id})
+        .andWhere('msg.id IN (:...messagesId)',{messagesId:messagesId})
+        .getMany();
+      await  runner.startTransaction();
+      try{
+
+        const query =
+          runner
+            .connection
+            .createQueryBuilder()
+            .delete()
+            .from(Message)
+            .where('id in (:...messagesId)')
+            .setParameter('messagesId',messagesId);
+        console.log(query.getSql());
+        const deleteResult = await query.execute();
+        await runner.manager.remove(medias);
+        medias.forEach((media)=>this.mediaService.deleteMediaFileStorage(media,true));
+        await runner.commitTransaction();
+        return deleteResult;
+      }catch (e){
+        await runner.rollbackTransaction();
+        console.log(e);
+        throw e;
+      }finally {
+        await runner.release();
+      }
     }
 }

@@ -23,9 +23,11 @@ const ChannelFeed = forwardRef(function (props, ref) {
       {
         messages.map(
           (message, index) =>{
+            const previous = index>0?messages[index-1]:undefined;
             return(
               <ChannelMessageContainer key={index}
                                        message={message}
+                                       previous={previous}
               />
             );
           }
@@ -38,9 +40,10 @@ const ChannelFeed = forwardRef(function (props, ref) {
 
 export interface IChannelMessageContainerProps {
   message: IFeedMessage,
+  previous:IFeedMessage|undefined,
 }
 
-export function ChannelMessageContainer({message}: IChannelMessageContainerProps) {
+export function ChannelMessageContainer({message,previous}: IChannelMessageContainerProps) {
   const user = useCurrentUser();
   const retryPostMessage = useRetryPostMessage(message);
   const cancelMediaProgress = useAbortMediaProgress();
@@ -71,7 +74,9 @@ export function ChannelMessageContainer({message}: IChannelMessageContainerProps
               toggleSelect={()=>selection?.toggle(message.id!)}
               onMediaProgressCancel={handleCancelMediaProgress}
               type={message.sender?.id !== user.id ? MessageFlowType.received : MessageFlowType.sent}
-              reduced={false}/>
+              reduced={
+                message.sender.id===previous?.sender?.id
+              }/>
           </motion.div>
         )
       }

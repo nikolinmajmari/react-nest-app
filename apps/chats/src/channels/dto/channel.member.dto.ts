@@ -9,6 +9,7 @@ export class UpdateChannelSettingsDTO implements ChannelUserSettings {
     muteNotifications?: boolean;
 }
 
+
 export class UpdateChannelmemberDTO {
     role: MemberRole;
 }

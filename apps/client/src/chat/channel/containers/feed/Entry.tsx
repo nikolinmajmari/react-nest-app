@@ -126,7 +126,7 @@ const ChannelEntry = forwardRef<HTMLDivElement>(function (props, ref) {
   }
   return (<form onSubmit={handleFormSubmit}
                 onFocus={clear}
-                className={'z-20'}
+                className={'z-10'}
                 onKeyDown={handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef}
                 encType="multipart/form-data">
     <input onChange={handleFileChange}

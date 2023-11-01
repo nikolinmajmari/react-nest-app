@@ -1,7 +1,7 @@
 import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UsePipes} from '@nestjs/common';
 import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 import {ChannelsService} from '../services/channels.service';
-import {ChannelCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto.ts';
+import {ChannelCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto';
 import {ChannelValidationPipe} from '../validation/channel.validation.pipe';
 import {MessagingService} from '../services/messaging.service';
 import {BulkDeleteMessagesDTO, CreateMessageDTO} from '../dto/channel.message.dto';

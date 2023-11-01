@@ -1,7 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {ArrayMinSize, IsArray, IsOptional, IsString, ValidateNested} from "class-validator";
-import {Type} from "class-transformer";
-import {ChannelMemberCreateDTO} from "./channel.dto.ts";
 
 
 export class CreateMessageDTO {

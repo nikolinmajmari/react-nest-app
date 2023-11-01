@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, PipeTransform} from "@nestjs/common";
-import {ChannelCreateDTO} from "../dto/channel.dto.ts";
+import {ChannelCreateDTO} from "../dto/channel.dto";
 import {ChannelType} from "@mdm/mdm-core";
 
 

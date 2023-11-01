@@ -1,6 +1,6 @@
 import {TfiArrowLeft} from "react-icons/tfi";
 import {NavigationHeader} from "../../../../components/channels/NavigationHeader";
-import {LinkNavigationButton} from "../../../../components/channels/default";
+import {LinkButton, LinkNavigationButton} from "../../../../components/channels/default";
 import {ChannelType} from "@mdm/mdm-core";
 import {ChannelContext} from "../../channel-context";
 import React from "react";
@@ -11,9 +11,9 @@ export default function ChannelSettings() {
   return (
     <>
       <NavigationHeader leading={
-        <LinkNavigationButton to={"/chat/channels/" + channel?.id}>
+        <LinkButton to={"/chat/channels/" + channel?.id}>
           <TfiArrowLeft/>
-        </LinkNavigationButton>
+        </LinkButton>
       }>
       </NavigationHeader>
       <SettingsBody>

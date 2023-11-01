@@ -1,13 +1,12 @@
 import {BadRequestException, ForbiddenException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Brackets, FindOptionsWhere, Repository, SelectQueryBuilder} from "typeorm";
-import {ChannelCreateDTO, ChannelUpdateDTO} from "../dto/channel.dto.ts";
+import {ChannelCreateDTO, ChannelUpdateDTO} from "../dto/channel.dto";
 import Channel from "../entities/channel.entity";
 import ChannelMember from "../entities/channel-member.entity";
 import User from "../../users/entities/user.entity";
 import {ChannelType, IChannel, IChannelEntity, IUser, MemberRole} from "@mdm/mdm-core";
 import {Simulate} from "react-dom/test-utils";
-import select = Simulate.select;
 import Media from "../../media/media.entity";
 import Message from "../entities/message.entity";
 import {MediaService} from "../../media/services/media.service";

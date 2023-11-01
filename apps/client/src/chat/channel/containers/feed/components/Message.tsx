@@ -52,13 +52,18 @@ export default function Message(props: IChatMessageProps& IBubbleReduced & ISele
   return (
     <MessageWrapper align={align}
                     className={'relative'}
+                    reduced={reduced}
                     {...bind()}
     >
       <SelectedOverlay selected={props.selected}
                        selectionMode={props.selectionMode}
                        toggleSelect={props.toggleSelect}
                        />
-      <MessageAvatar className={reduced ? 'bg-transparent':''}/>
+      <MessageAvatar className={reduced ? 'bg-transparent h-0':''}>
+        {
+          reduced ? '':`${props.sender.firstName[0]}${props.sender.lastName[0]}`
+        }
+      </MessageAvatar>
       <MessageBodyWrapper align={align}>
         {
           !reduced && (
@@ -93,7 +98,7 @@ export function SelectedOverlay(props:ISelectionProps){
           <div onClick={props.toggleSelect}
                className={'absolute rounded-lg cursor-pointer z-10 w-full h-full' +
                  ' cursor-pointer ' +
-                 (props.selected ? 'bg-opacity-50 bg-gray-800':'')
+                 (props.selected ? 'bg-opacity-30 bg-slate-800':'')
                }
           >
           </div>

@@ -1,7 +1,7 @@
 import {TfiArrowLeft, TfiTrash} from "react-icons/tfi";
 import {NavigationHeader} from "../../../../components/channels/NavigationHeader";
-import {LinkNavigationButton} from "../../../../components/channels/default";
-import {DeepPartialResolve, IChannelMember, IPartialResolveChannelMember} from "@mdm/mdm-core";
+import {LinkButton} from "../../../../components/channels/default";
+import {DeepPartialResolve, IChannelMember} from "@mdm/mdm-core";
 import React from "react";
 import {ChannelContext} from "../../channel-context";
 import {useAppDispatch} from "../../../../app/hooks";
@@ -16,9 +16,9 @@ export default function ChannelMembers() {
     <div
       className='lex z-50 w-full h-full bg-white absolute flex-col flex-1 overflow-y-auto transition-opacity opacity-100'>
       <NavigationHeader leading={
-        <LinkNavigationButton to={"/chat/channels/" + channel?.id + "/settings"}>
+        <LinkButton to={"/chat/channels/" + channel?.id + "/settings"}>
           <TfiArrowLeft/>
-        </LinkNavigationButton>
+        </LinkButton>
       }>
       </NavigationHeader>
       <div className="flex flex-col flex-1 items-center container bg-white py-2">

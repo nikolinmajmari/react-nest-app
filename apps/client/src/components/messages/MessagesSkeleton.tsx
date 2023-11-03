@@ -3,7 +3,7 @@
 
 export default function ChannelMessagesSkeleton(){
     return (
-    <div role="status" className="absolute z-10 flex h-full w-full flex-col justify-start flex-1 overflow-hidden">
+    <div role="status" className="z-10 flex h-full w-full flex-col justify-start flex-1 overflow-hidden">
         <SkeletonGroup/>
         <SkeletonGroup/>
         <SkeletonGroup/>

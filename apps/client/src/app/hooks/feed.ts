@@ -28,16 +28,34 @@ export function useChannelFeedStatus() {
   return useAppSelector(state => state.feed.status);
 }
 
+export function useChannelFeedHasMore():boolean{
+  return useAppSelector(state=>state.feed.hasMore);
+}
+
 export function useChannelFeedError() {
   return useAppSelector(state => state.feed.error);
 }
 
 export function useDispatchLoadFeed() {
   const dispatch = useAppDispatch();
+  const messages = useChannelFeedMessages();
+  console.log('hey from ',messages.length);
   return useCallback(function (channel: IChannel) {
-    dispatch(loadFeedThunk(channel.id));
+    dispatch(loadFeedThunk({
+      channelId:channel.id,skip:messages.length,take:10
+    }));
+  }, [dispatch,messages.length]);
+}
+
+export function useDispatchLoadInitialFeed() {
+  const dispatch = useAppDispatch();
+  return useCallback(function (channel: IChannel) {
+    dispatch(loadFeedThunk({
+      channelId:channel.id,skip:0,take:10
+    }));
   }, [dispatch]);
 }
+
 
 
 export function useDispatchAddMessage() {

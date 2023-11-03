@@ -1,4 +1,4 @@
-import {IChannel, IChannelCreate, IMessage, IMessageCreate} from "@mdm/mdm-core";
+import {IChannel, IChannelCreate, IMessage, IMessageCreate, PaginationResponse} from "@mdm/mdm-core";
 import { BaseClient } from "../base-client";
 
 export class ChannelsHandler{
@@ -28,6 +28,12 @@ export class ChannelsHandler{
 
     async getChannelMessages(id:string){
         return await this.baseClient.get<IMessage[]>(`/channels/${id}/messages`,{});
+    }
+
+    async getChannelMessagesPaginate(id:string,skip:number=0,take:number=10){
+      return  await this.baseClient.get<PaginationResponse<IMessage>>(`/channels/${id}/messages`,{
+          skip,take
+        });
     }
 
     async postChannelMessage(id:string,message:IMessageCreate){

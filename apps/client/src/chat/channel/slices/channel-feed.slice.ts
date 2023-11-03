@@ -16,6 +16,7 @@ import deleteMessagesThunk from "./thunks/deleteMessagesThunk";
 const initialState: IChannelMessagesState = {
   error: null,
   messages: [],
+  hasMore:true,
   status: "idle"
 }
 
@@ -51,6 +52,9 @@ const channelFeedSlice = createSlice({
       };
       state.messages[index].media!.uploadType = true;
     },
+    setHasNoMore(state,action){
+      state.hasMore = false;
+    },
     restartMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
       state.messages[index].media!.operation!.progress=0.1;
@@ -80,11 +84,17 @@ const channelFeedSlice = createSlice({
         }
       })
       .addCase(loadFeedThunk.pending, (state, action) => {
-        state.status = "loading";
+        if(state.status=="idle"){
+          state.status = "loading";
+        }
       })
       .addCase(loadFeedThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.messages = action.payload;
+        state.messages = [
+          ...action.payload.data,
+          ...state.messages.slice(0,action.payload.meta.skip),
+        ];
+        state.hasMore = action.payload.data.length == action.payload.meta.take;
       })
       .addCase(postMessageThunk.fulfilled, (state, action) => {
         const index = state.messages.findIndex(
@@ -161,6 +171,7 @@ export const {
   restartMediaProgress,
   startMediaProgress,
   updateMediaProgress,
+  setHasNoMore,
 } = channelFeedSlice.actions;
 export {loadFeedThunk, postMessageThunk,deleteMessagesThunk};
 export default channelFeedSlice.reducer;

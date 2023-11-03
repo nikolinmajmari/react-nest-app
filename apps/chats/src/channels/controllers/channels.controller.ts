@@ -1,4 +1,17 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UsePipes} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UsePipes
+} from '@nestjs/common';
 import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 import {ChannelsService} from '../services/channels.service';
 import {ChannelCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto';
@@ -56,9 +69,23 @@ export class ChannelsController {
 
 
   @HttpCode(HttpStatus.OK) @Get(":id/messages")
-  async getMessages(@Param("id") id: string, @Req() req) {
+  async getMessages(
+    @Param("id") id: string,
+    @Req() req,
+    @Query('skip') skip:number,
+    @Query('take') take:number
+    ) {
     const channel = await this.service.findOneOrFail(id);
-    return await this.messagingService.getMessages(channel, {});
+    const messages =  await this.messagingService.getMessages(channel, {
+      skip:skip??0,
+      take:take??10,
+    });
+    return {
+      data:messages,
+      meta:{
+        skip:skip??0,take:take??10
+      }
+    }
   }
 
   @HttpCode(HttpStatus.CREATED) @Post(":id/messages")

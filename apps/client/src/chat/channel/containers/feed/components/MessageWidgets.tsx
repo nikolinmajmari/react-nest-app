@@ -7,7 +7,7 @@ export function MessageAvatar(props: React.HTMLProps<HTMLDivElement>) {
   const {className, ...rest} = props;
   return (
     <div {...rest}
-         className={`avatar mt-2 flex items-center justify-center  bg-teal-400 text-white mx-2 rounded-full h-12 w-12 ${className} first-letter:
+         className={`avatar mt-2 flex items-center justify-center  bg-teal-400 text-white mx-2 rounded-full w-12 ${className} first-letter:
            dark:bg-gray-600
            `}>
       <span className={'text-lg'}>{

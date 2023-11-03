@@ -8,6 +8,7 @@ import {CreateMessageDTO} from "../dto/channel.message.dto";
 import {IMessage} from "@mdm/mdm-core";
 import Media from "../../media/media.entity";
 import {MediaService} from "../../media/services/media.service";
+import {skip} from "rxjs";
 
 
 export interface IUserChannelDTO<T> {
@@ -42,9 +43,16 @@ export class MessagingService {
                 .leftJoin('m.sender', 'user')
                 .leftJoin('m.media', 'media')
                 .andWhere('m.channelId = :channelId')
-                .addOrderBy('m.createdAt', 'ASC')
-                .setParameter('channelId', channel.id)
-        return await builder.getMany();
+                .addOrderBy('m.createdAt', 'DESC')
+                .setParameter('channelId', channel.id);
+        if(query.skip){
+          builder.skip(query.skip);
+        }
+        if(query.take){
+          builder.take(query.take);
+        }
+        const result = await builder.getMany();
+        return result.reverse();
     }
 
 

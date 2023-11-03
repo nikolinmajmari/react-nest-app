@@ -6,6 +6,7 @@ import {IAsyncState} from "../../../core/async.state";
 
 export interface IChannelMessagesState extends IAsyncState {
   messages: (IFeedMessage)[];
+  hasMore:boolean,
 }
 
 /** Model state  */
@@ -21,7 +22,7 @@ export interface IFeedMessage extends Omit<IPartialMessage, 'media'|"content"|"s
   slug?: string;
   sender:IUser;
   content:string;
-  media?: IFeedMessageMedia;
+  media?: IFeedMessageMedia|null;
   deleting?:boolean;
 }
 

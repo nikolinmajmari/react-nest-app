@@ -3,48 +3,56 @@ import ChannelMessagesSkeleton from "../../../../components/messages/MessagesSke
 import AnimatedOpacity from "../../../../components/AnimatedOpacity";
 import ChannelEntry from "./Entry";
 import {ChannelContext} from "../../channel-context";
-import ChannelFeed from "./Feed";
-import {useChannelFeedStatus, useDispatchLoadFeed} from "../../../../app/hooks/feed";
+import ChannelFeed from "./InfiniteFeed";
+import {useChannelFeedStatus, useDispatchLoadFeed, useDispatchLoadInitialFeed} from "../../../../app/hooks/feed";
 import {SelectedContext} from "../../context/SelectedContext";
 import {ChannelFeedNavigation, DeleteMessagesNavigation} from "../ChannelNavigation";
 import CircleLoader from "../../../../components/CircleLoader";
+import {useInView} from "react-intersection-observer";
+import {useAppSelector} from "../../../../app/hooks";
+import InfiniteFeed from "./InfiniteFeed";
 
 export default function ChannelFeedContainer() {
   const feedRef = React.useRef<HTMLDivElement>(null);
   const {channel} = React.useContext(ChannelContext)
   const {selected} = React.useContext(SelectedContext);
-  const loadMessages = useDispatchLoadFeed();
+  const loadInitialFeed = useDispatchLoadInitialFeed();
   const status = useChannelFeedStatus();
   React.useEffect(() => {
     if (channel && channel.id) {
-      loadMessages(channel);
+      loadInitialFeed(channel);
     }
-  }, [channel?.id, loadMessages]);
-  const FeedMemo =  React.useMemo(()=><ChannelFeed ref={feedRef}/>,[feedRef]);
+  }, [channel?.id]);
   return (
-    <div className="relative flex flex-1 flex-col bg-neutral-200 dark:bg-gray-700">
+    <div className="relative flex  flex-1 flex-col bg-neutral-200 dark:bg-gray-700">
       {
         status==="mutating" && (
           <div
-            className={'absolute w-full h-full bg-gray-700 bg-opacity-60 flex justify-center items-center z-20'}
+            className={'absolute w-full h-full bg-gray-700 bg-opacity-20 flex justify-center items-center z-20'}
           >
             <CircleLoader></CircleLoader>
           </div>
         )
       }
-      <AnimatedOpacity className='flex flex-col flex-1 overflow-y-scroll'>
-        {
-          selected.length===0?
-            <ChannelFeedNavigation/>
-            :
-            <DeleteMessagesNavigation/>
-        }
+      {
+        selected.length===0?
+          <ChannelFeedNavigation/>
+          :
+          <DeleteMessagesNavigation/>
+      }
+      <AnimatedOpacity
+                       className='flex flex-col-reverse flex-1 overflow-y-scroll'
+                       id={'chat_feed_scrollable'}
+                       ref={feedRef}
+      >
         {(status === "idle" || status === "loading") &&
           <ChannelMessagesSkeleton/>
         }
-        {(status === "succeeded" || status === "mutating") && FeedMemo }
+        {(status === "succeeded" || status === "mutating") && (
+          <InfiniteFeed ref={feedRef}/>
+        )}
       </AnimatedOpacity>
-      <ChannelEntry ref={feedRef}/>
+      <ChannelEntry disabled={status!=="succeeded"} ref={feedRef}/>
     </div>
   );
 }

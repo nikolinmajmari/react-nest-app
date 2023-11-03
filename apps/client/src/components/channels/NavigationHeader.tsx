@@ -7,7 +7,7 @@ export interface INavigationHeaderProps{
 
 export function NavigationHeader(props:any){
     return (
-          <div className=" bg-teal-700 shadow-lg bg-opacity-30 sticky top-0 backdrop-blur-xl flex flex-row items-center
+          <div className="bg-teal-700 shadow-lg bg-opacity-30 sticky top-0 backdrop-blur-xl flex flex-row items-center
             dark:bg-gray-900 dark:text-white z-10 font-bold dark:bg-opacity-60
           ">
                <motion.div

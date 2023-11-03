@@ -59,7 +59,7 @@ export default function Message(props: IChatMessageProps& IBubbleReduced & ISele
                        selectionMode={props.selectionMode}
                        toggleSelect={props.toggleSelect}
                        />
-      <MessageAvatar className={reduced ? 'bg-transparent h-0':''}>
+      <MessageAvatar className={reduced ? 'bg-transparent dark:bg-transparent h-0 ':'h-12'}>
         {
           reduced ? '':`${props.sender.firstName[0]}${props.sender.lastName[0]}`
         }

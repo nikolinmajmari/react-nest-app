@@ -1,24 +1,21 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {channels} from "../../../../api.client/client";
-import {IFeedMessage} from "../channel-feed.model";
+import {IMessage, PaginationResponse} from "@mdm/mdm-core";
 
-const loadFeedThunk = createAsyncThunk<IFeedMessage[], string>(
-  "/channels/messages/paginate", async function (channelId) {
-    return (await channels.getChannelMessages(channelId)).map(
-      (message) => {
-        const uri = message.media ? `http://127.0.0.1:3000${message.media.uri}` : null
-        const media = message.media ?
-          {
-            ...message.media,
-            uploadType: false,
-            uri
-          }
-          :
-          null;
-        return {...message, media};
-      }
-    ) as IFeedMessage[];
+const loadFeedThunk = createAsyncThunk<PaginationResponse<IMessage>, {channelId:string,skip:number,take:number}>(
+  "/channels/messages/paginate", async function ({channelId,skip,take}) {
+    return channels.getChannelMessagesPaginate(channelId,skip,take);
   }
 );
+
+function delayed<T>(promise:Promise<T>) {
+  return new Promise<T>((resolve, reject)=>{
+    setTimeout(
+      async ()=>resolve(await promise),
+      10000
+    )
+  })
+}
+
 
 export default loadFeedThunk;

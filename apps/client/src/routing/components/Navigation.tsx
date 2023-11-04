@@ -1,9 +1,9 @@
 import {Outlet, useLocation, useParams} from "react-router-dom";
 import storage from "../../core/storage";
-import {LinkNavigationButton} from "../../components/channels/default";
 import {TfiComments, TfiHeadphone} from "react-icons/tfi";
 import React from "react";
-import ThemeContext from "../../providers/theme/theme.context";
+import {ThemeContext} from "../../providers/ThemeProvider";
+import {RouterAwareLinkNavigationButton} from "../../components/controls/Links";
 
 export default function NavigationContainer() {
   const handleLogout = () => {
@@ -26,12 +26,12 @@ export default function NavigationContainer() {
                         justify-evenly md:w-20 md:flex md:flex-col md:justify-center md:items-center
                         bg-emerald-800 p-1 bg-opacity-40 z-10`}
         >
-          <LinkNavigationButton to={"/chat/channels"}>
+          <RouterAwareLinkNavigationButton to={"/chat/channels"}>
             <TfiComments/>
-          </LinkNavigationButton>
-          <LinkNavigationButton to={"/chat/calls"}>
+          </RouterAwareLinkNavigationButton>
+          <RouterAwareLinkNavigationButton to={"/chat/calls"}>
             <TfiHeadphone/>
-          </LinkNavigationButton>
+          </RouterAwareLinkNavigationButton>
         </div>
         <div
           className="relative flex flex-col-reverse items-stretch md:flex-row w-full flex-1 overflow-hidden bg-cyan-50">

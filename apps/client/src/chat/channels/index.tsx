@@ -1,4 +1,4 @@
-import ChannelsContainer from "./containers/ChannelsContainer";
+import ChannelsContainer from "./ChannelsContainer";
 
 
 export default ChannelsContainer;

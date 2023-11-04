@@ -1,7 +1,8 @@
 import Channels from "./channels";
 import {Outlet, useParams} from "react-router-dom";
 import storage from "../core/storage";
-import ChannelContainer from "./channel/containers/ChannelContainer";
+import ChannelContainer from "./channel/ChannelContainer";
+import {useChannels, useChannelsError} from "../app/hooks/channels";
 
 export default function Chat() {
   const handleLogout = () => {
@@ -9,15 +10,22 @@ export default function Chat() {
     window.location.reload();
   }
   const {channel} = useParams();
+  const { status} = useChannels();
   return (
     <>
       <div
-        className={`${channel === undefined ? 'flex' : 'hidden'} flex flex-1 md:flex-none md:flex md:w-96 bg-white overflow-hidden `}>
+        className={`${(channel === undefined) ? 'flex' : 'hidden'} flex flex-1 ${
+          status==="failed" ? '':'md:flex-none md:w-96'
+        } md:flex bg-white overflow-hidden `}>
         <Channels/>
       </div>
-      <div className={`${channel === undefined ? 'hidden' : 'flex'} relative md:flex flex-1 flex overflow-hidden`}>
-        <Outlet/>
-      </div>
+      {
+        status!=="failed" && (
+          <div className={`${channel === undefined ? 'hidden' : 'flex'} relative md:flex flex-1 flex overflow-hidden`}>
+            <Outlet/>
+          </div>
+        )
+      }
     </>
   );
 }

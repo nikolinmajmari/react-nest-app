@@ -7,17 +7,18 @@ import {useAppDispatch} from "../app/hooks";
 import {attemptSilentSignIn} from "../auth/auth.slice";
 import React from "react";
 import {useCurrentUser} from "../app/hooks/auth";
-import ChannelEmpty from "../chat/channel/containers/ChannelEmpty";
+import ChannelEmpty from "../chat/channel/ChannelEmpty";
 import {ContextMenuProvider} from "../components/menu/ContextMenu";
-import NewChannelModal from "../chat/channels/containers/new/NewChannelModal";
-import NewChannelTypeModal from "../chat/channels/containers/new/NewChannelTypeSelectModal";
-import SettingsNavigator from "../chat/channel/containers/settings";
-import NotificationProvider from "../components/notifications/Toastify";
+import NewChannelModal from "../chat/channels/new/NewChannelModal";
+import NewChannelTypeModal from "../chat/channels/new/NewChannelTypeSelectModal";
+import SettingsNavigator from "../chat/channel/settings";
+import ToastNotificationProvider from "../providers/ToastNotificationProvider";
 import NavigationContainer from "./components/Navigation";
-import ChannelMembers from "../chat/channel/containers/settings/ChannelMembers";
-import ChannelSettings from "../chat/channel/containers/settings/ChannelSettings";
+import ChannelMembers from "../chat/channel/settings/ChannelMembers";
+import ChannelSettings from "../chat/channel/settings/ChannelSettings";
 import {ChannelType} from "@mdm/mdm-core";
-import {createChannelAction} from "../chat/channels/containers/new/actions";
+import {createChannelAction} from "../chat/channels/new/actions";
+import NotFound from "./pages/NotFound";
 
 function Root(){
   const location = useLocation();
@@ -25,30 +26,28 @@ function Root(){
   return (
     <>
       <Routes location={previousLocation || location}>
-
         <Route path="/auth/*">
           <Route path="login" element={<Login/>}/>
           <Route path="signup" element={<SignUp/>}/>
         </Route>
 
-        <Route path="/chat/*" element={<NavigationContainer/>}>
-
+        <Route path="/chat" element={<NavigationContainer/>}>
           <Route path='channels' element={<Chat/>}>
             <Route path=":channel" element={<ChannelContainer/>}>
               <Route path="settings" element={<SettingsNavigator/>}>
                 <Route path="members" element={<ChannelMembers/>}/>
-                <Route path="*" element={<ChannelSettings/>}/>
+                <Route path="" element={<ChannelSettings/>}/>
+                <Route path={"*"} element={<NotFound label={"Settings"}/>}/>
               </Route>
             </Route>
-            <Route path="*" element={<ChannelEmpty/>}/>
+            <Route path="" element={<ChannelEmpty/>}/>
           </Route>
-
           <Route path='calls' element={<div>Calls</div>}>
             <Route path="*" element={<div>Calls</div>}/>
           </Route>
+          <Route path={"*"} element={<NotFound label={'Channels'}/>}/>
         </Route>
-
-        <Route path="*" element={<Navigate to={'/auth/login'}></Navigate>}/>
+        <Route path={"*"} element={<NotFound label={'Log In'} location={'/auth/login'}/>}/>
       </Routes>
       {
         previousLocation &&
@@ -85,11 +84,11 @@ export function App() {
     }
   });
   return (
-    <NotificationProvider>
+    <ToastNotificationProvider>
       <ContextMenuProvider>
        <RouterProvider router={router}/>
     </ContextMenuProvider>
-    </NotificationProvider>
+    </ToastNotificationProvider>
   );
 }
 

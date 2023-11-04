@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useGetAuthStateStatus, useGetCurrentUser } from "../../hooks/auth.hooks";
+import { useGetAuthStateStatus, useGetCurrentUser } from "../../core/hooks/auth.hooks";
 
 export default function Authenticated(props:any){
     const user = useGetCurrentUser();

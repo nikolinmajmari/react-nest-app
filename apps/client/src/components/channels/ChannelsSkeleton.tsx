@@ -1,6 +1,5 @@
 export default function ChannelsSkeleton(){
     return (
-
 <div role="status" className="p-4 space-y-4 w-full divide-y divide-gray-200 rounded shadow animate-pulse dark:divide-gray-700 md:p-6 ">
     <div className="flex items-center justify-between">
         <div>

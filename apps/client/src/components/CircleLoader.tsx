@@ -1,8 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
+import {toast} from "react-toastify";
+import POSITION = toast.POSITION;
 
 const containerStyle = {
-  position: "relative",
+  position: 'relative',
   width: "3rem",
   height: "3rem",
   boxSizing: "border-box"
@@ -28,10 +30,27 @@ const spinTransition = {
 };
 
 export default function CircleLoader() {
+  // @ts-ignore
   return (
-    <div style={{...containerStyle}}>
+    <div style={{
+      position: 'absolute',
+      width: "3rem",
+      height: "3rem",
+      boxSizing: "border-box"
+    }}>
       <motion.span
-        style={circleStyle}
+        style={{
+          display: "block",
+          width: "3rem",
+          height: "3rem",
+          border: "0.5rem solid #e9e9e9",
+          borderTop: "0.5rem solid #3498db",
+          borderRadius: "50%",
+          position: "absolute",
+          boxSizing: "border-box",
+          top: 0,
+          left: 0
+        }}
         animate={{ rotate: 360 }}
         transition={spinTransition}
       />

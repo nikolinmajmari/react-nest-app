@@ -3,6 +3,7 @@ import {Exclude, Expose} from 'class-transformer';
 import {IUserEntity} from "@mdm/mdm-core";
 import Message from "../../channels/entities/message.entity";
 import ChannelMember from "../../channels/entities/channel-member.entity";
+import Notification from "../../notifications/notification.entity";
 
 @Entity({
     name: "user"
@@ -43,6 +44,10 @@ export default class User implements IUserEntity {
     messages: Message | Promise<Message>[];
     @OneToMany(() => ChannelMember, (m) => m.user, {lazy: true, onDelete: 'SET NULL'})
     members?: Promise<ChannelMember[]> | ChannelMember[];
+
+    // @OneToMany(()=>Notification,notification=>notification.user)
+    // notifications?:Promise<Notification[]>
+
 
     constructor(partial: Partial<User>) {
         Object.assign(this, partial);

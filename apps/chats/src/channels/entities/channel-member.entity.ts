@@ -27,6 +27,13 @@ export default class ChannelMember implements IChannelMemberEntity {
     })
     settings: ChannelUserSettings;
 
+    /// admin configurable permissions
+    @Column({
+      type:"boolean",
+      default:true,
+    })
+    allowSentMessages:boolean;
+
     @CreateDateColumn({type: "date"})
     createdAt: Date;
 

@@ -28,7 +28,7 @@ export default defineConfig({
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points.
-      entry: 'src/abstract.repository.ts',
+      entry: 'src/index.ts',
       name: 'mdm-core',
       fileName: 'index',
       // Change this to the formats you want to support.

@@ -49,6 +49,7 @@ export default function Message(props: IChatMessageProps& IBubbleReduced & ISele
   const align = props.type === MessageFlowType.sent ? Align.right : Align.left;
   const {reduced}  = props;
   const bind = useLongPress(props.toggleSelect);
+  const url = props.content?.match(/https?:\/\/[^\s]+/)?.at(0);
   return (
     <MessageWrapper align={align}
                     className={'relative'}

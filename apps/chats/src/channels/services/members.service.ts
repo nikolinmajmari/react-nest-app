@@ -23,6 +23,17 @@ export class MembersService {
         });
     }
 
+    async findChannelMembers(channel:Channel){
+      return this.repository.find({
+        where:{
+          channel:{id:channel.id}
+        },
+        relations:{
+          user:true,
+        }
+      })
+    }
+
     async findUserMemberById(id: string, user: Partial<User>) {
         return await this.repository.findOneByOrFail({
             id: id,

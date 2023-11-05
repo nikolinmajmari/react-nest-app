@@ -1,6 +1,7 @@
 import { Link, Navigate } from "react-router-dom";
 import React from "react";
 import { useAuthStatus, useCurrentUser, useDispatchSignIn } from "../app/hooks/auth";
+import {useAppSelector} from "../app/hooks";
 
 export function Login(){
     const user = useCurrentUser();
@@ -9,6 +10,7 @@ export function Login(){
     const [email,setEmail] = React.useState<string>("");
     const [password,setPassword] = React.useState<string>("");
 
+    const error = useAppSelector(root=>root.auth.error);
     const handleSignIn = ()=>{
         signIn({email,password});
     }

@@ -13,7 +13,7 @@ export function PCSvg(){
     <svg className="w-1/2 md:w-1/3 lg:w-1/4 text-blue-600" xmlns="http://www.w3.org/2000/svg"
          data-name="Layer 1"
          viewBox="0 0 1119.60911 699"
-         xmlns:xlink="http://www.w3.org/1999/xlink">
+         xmlnsXlink="http://www.w3.org/1999/xlink">
       <circle cx="292.60911" cy="213" r="213" fill="#f2f2f2"></circle>
       <path d="M31.39089,151.64237c0,77.49789,48.6181,140.20819,108.70073,140.20819"
             transform="translate(-31.39089 -100.5)" fill="#2f2e41">

@@ -7,7 +7,6 @@ class Storage{
     }
     getAuthData(){
         const data =  localStorage.getItem(Storage.AUTH);
-
         return data && JSON.parse(data);
     }
     clearAuthData(){

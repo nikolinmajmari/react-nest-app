@@ -7,46 +7,62 @@ import {useAppDispatch} from "../../../app/hooks";
 import {deleteMemberThunk} from "../slices/channel.slice";
 import {useCurrentChannelStatus} from "../../../app/hooks/channel";
 import {LinkButton} from "../../../components/controls/Links";
+import {useGetChannelMembersQuery, useRemoveChannelMemberMutation} from "../slices/channel-members-api";
 
 export default function ChannelMembers() {
   const status = useCurrentChannelStatus();
   const dispatch = useAppDispatch();
   const {channel, isAdmin} = React.useContext(ChannelContext);
+  const {
+    isError,
+    error,
+    isSuccess,
+    data,
+    isLoading
+  } = useGetChannelMembersQuery({channel:channel!.id});
+  const [removeMember,result]
+    = useRemoveChannelMemberMutation()
+  if(isLoading){
+    return (
+      <div>
+        Loading
+      </div>
+    );
+  }
+  if(isError){
+    return (
+      <div>
+        {(error as any).data.message}
+      </div>
+    );
+  }
+
   return (
-    <div
-      className='lex z-50 w-full h-full bg-white absolute flex-col flex-1 overflow-y-auto transition-opacity opacity-100'>
-      <NavigationHeader leading={
-        <LinkButton to={"/chat/channels/" + channel?.id + "/settings"}>
-          <TfiArrowLeft/>
-        </LinkButton>
-      }>
-      </NavigationHeader>
-      <div className="flex flex-col flex-1 items-center container bg-white py-2">
-        <div className="flex w-2/3 flex-col items-center pb-4">
-          <div className="bg-teal-800 w-40 h-40 rounded-full">
-            <span className="text-lg"></span>
-          </div>
-          <span className="text-center text-2xl font-bold py-2">
-                    {channel?.alias}
-                </span>
-        </div>
-        <span className="text-mb">Members</span>
-        <div className="flex flex-1 flex-col w-2/3 justify-start pt-6 relative">
-          {
-            status === "loading" && <div className="absolute z-10 bg-slate-800 bg-opacity-20 top-0 w-full h-full"></div>
-          }
-          {
-            channel?.members?.map((member) => (
+    <>
+      <span className="text-lg my-4">Members</span>
+      <div className="flex flex-1 flex-col relative">
+        {
+          (status === "loading" || result.isLoading) && <div className="absolute z-10 bg-slate-800 bg-opacity-20 top-0 w-full h-full"></div>
+        }
+        {
+          isSuccess && data && data.map(function (member) {
+            return (
               <MemberItemContainer
                 isAdmin={isAdmin ?? false}
                 member={member}
-                deleteMember={() => dispatch(deleteMemberThunk(member))}
-              />)
-            )
-          }
-        </div>
+                deleteMember={
+                  ()=>removeMember({
+                    channel:channel!.id,
+                    member:member.id
+                  })
+                }
+              />
+            );
+          })
+        }
       </div>
-    </div>);
+    </>
+     );
 }
 
 function MemberItemContainer({member, isAdmin, deleteMember}: {

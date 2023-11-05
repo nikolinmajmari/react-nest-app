@@ -9,8 +9,19 @@ export interface IModalProps{
 export default function Modal({close,children}:IModalProps) {
   const cancelButtonRef = useRef(null);
   return (
+    <BaseModal close={close}>
+      <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-opacity-100 bg-white p-6 text-left align-middle shadow-xl transition-all">
+        {children}
+      </Dialog.Panel>
+    </BaseModal>
+  )
+}
+
+export function BaseModal({close,children}:IModalProps) {
+  const cancelButtonRef = useRef(null);
+  return (
     <Transition.Root show={true} as={Fragment}>
-      <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={close}>
+      <Dialog as="div" className="relative z-50" initialFocus={cancelButtonRef} onClose={close}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -33,9 +44,7 @@ export default function Modal({close,children}:IModalProps) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-opacity-100 bg-white p-6 text-left align-middle shadow-xl transition-all">
-                {children}
-              </Dialog.Panel>
+              {children}
             </Transition.Child>
           </div>
         </div>
@@ -43,3 +52,14 @@ export default function Modal({close,children}:IModalProps) {
     </Transition.Root>
   )
 }
+
+export function ExtraLargeModal(props:IModalProps){
+  return (
+    <BaseModal close={props.close}>
+      <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-opacity-100 bg-white p-6 text-left align-middle shadow-xl transition-all">
+        {props.children}
+      </Dialog.Panel>
+    </BaseModal>
+  );
+}
+

@@ -1,7 +1,8 @@
 
 export interface INavigationButtonProps{
     children?:any,
-    onClick?:()=>void
+    onClick?:()=>void,
+    active?:boolean;
 }
 
 export function NavigationButton({children,onClick}:INavigationButtonProps){

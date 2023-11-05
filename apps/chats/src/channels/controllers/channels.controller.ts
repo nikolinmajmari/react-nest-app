@@ -21,7 +21,10 @@ import {BulkDeleteMessagesDTO, CreateMessageDTO} from '../dto/channel.message.dt
 import {Request} from "express";
 import ChannelAuthorizer from "../../authorization/ChannelAuthorizer";
 import {Action} from "../../authorization/authorizer.base.";
-import {IUser} from "@mdm/mdm-core";
+import {IUser, MediaType} from "@mdm/mdm-core";
+import {MembersService} from "../services/members.service";
+import {EntityNotFoundError} from "typeorm";
+import ChannelMember from "../entities/channel-member.entity";
 
 @Controller('channels') @ApiTags("channels") @ApiBearerAuth()
 export class ChannelsController {
@@ -29,7 +32,8 @@ export class ChannelsController {
   constructor(
     private readonly service: ChannelsService,
     private readonly authorization: ChannelAuthorizer,
-    private readonly messagingService: MessagingService
+    private readonly messagingService: MessagingService,
+    private readonly membersService:MembersService,
   ) {
   }
 
@@ -116,5 +120,43 @@ export class ChannelsController {
     const channel = await this.service.findOneOrFail(channelId);
     const message = await this.messagingService.findOrFail(messageId,channel);
     await this.messagingService.deleteMessage(message);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get(':id/media')
+  async getChannelMedia(
+      @Param('id') channelId:string,
+      @Query('category') category:string,
+  ){
+    const channel = await this.service.findOneOrFail(channelId);
+    return await this.service.findChannelMedia(channel,
+        category=='docs'?
+            [MediaType.file,MediaType.pdf]
+            :
+            [MediaType.image,MediaType.video]
+        );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get(':id/members')
+  async getChannelMembers(
+    @Param('id') channelId:string,
+  ){
+    const channel = await this.service.findOneOrFail(channelId);
+    return this.membersService.findChannelMembers(channel);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete(':channel/members/:id')
+  async removeChannelMember(
+    @Param('channel') channelId:string,
+    @Param('id') memberId:string,
+  ){
+    const channel = await this.service.findOneOrFail(channelId);
+    const member = await this.membersService.findChannelMember(memberId);
+    if((await member.channel).id!==channel.id){
+      throw new Error('could not find');
+    }
+    await this.membersService.removeMember(member);
   }
 }

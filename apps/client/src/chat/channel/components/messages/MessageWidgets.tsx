@@ -22,9 +22,19 @@ export function MessageTextContent(props: React.HTMLProps<HTMLDivElement>) {
   if (!props.children) {
     return <></>;
   }
+  let html = props.children as string;
+  html = html.split('\n').map(part=>`<div>${part===""?'<br/>':part}</div>`).join('');
+  const links = html.match(/https?:\/\/[^\s]+/);
+  //// replace all links with a tags
+  links?.forEach(function (link){
+    html = html.replace(link,`<a class="underline text-blue-500 visited:text-indigo-600" href="${link}" target="_blank">${link}</a>`)
+  });
   return (
-    <div className="px-2 py-1 break-words break-all w-full">
-      {props.children}
+    <div className="px-2 py-1 break-words break-all w-full"
+      dangerouslySetInnerHTML={
+        {__html:html}
+      }
+    >
     </div>
   );
 }

@@ -22,12 +22,12 @@ export const MenuContext = React.createContext<IMenuContext>({
 export function ContextMenuProvider(props:any){
     const [show,setShow] = React.useState<boolean>(false);
     const [node,setNode] = React.useState<React.ReactNode|null>(null);
-    const ref = React.useRef();
+    const ref = React.useRef<HTMLDivElement>(null);
     const handleShowMenu  = (node:React.ReactNode)=>{
         setShow(true);
         setNode(node);
     }
-    
+
     const handleHideMenu = ()=>{
         setShow(false);
     };
@@ -63,7 +63,7 @@ export function ContextMenuProvider(props:any){
     );
 }
 
-const RefWrapper = React.forwardRef((props:any,ref)=>{
+const RefWrapper = React.forwardRef<HTMLDivElement,any>((props:any,ref)=>{
     return (
         <div ref={ref} className=''>
             {props.children}
@@ -76,15 +76,15 @@ export interface IContextMenuProps{
     trigger:React.ReactNode;
 }
 
-export const  ContextMenu = React.forwardRef((props:IContextMenuProps,ref)=>{
+export const  ContextMenu = React.forwardRef<HTMLDivElement,IContextMenuProps>((props:IContextMenuProps,ref)=>{
     useContextMenu(
-        ref,
+        ref as React.MutableRefObject<HTMLDivElement>,
         function(pos){
             return (<Menu anchorPoint={pos}>{props.children}</Menu>);
         }
     );
     return (
-        <div ref={ref}>
+        <div ref={ref as React.MutableRefObject<HTMLDivElement>}>
             {props.trigger}
         </div>
     );

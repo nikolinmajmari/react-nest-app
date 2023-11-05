@@ -5,8 +5,7 @@ import {ChannelCreateDTO, ChannelUpdateDTO} from "../dto/channel.dto";
 import Channel from "../entities/channel.entity";
 import ChannelMember from "../entities/channel-member.entity";
 import User from "../../users/entities/user.entity";
-import {ChannelType, IChannel, IChannelEntity, IUser, MemberRole} from "@mdm/mdm-core";
-import {Simulate} from "react-dom/test-utils";
+import {ChannelType, IChannel, IChannelEntity, IMedia, IUser, MediaType, MemberRole} from "@mdm/mdm-core";
 import Media from "../../media/media.entity";
 import Message from "../entities/message.entity";
 import {MediaService} from "../../media/services/media.service";
@@ -172,12 +171,7 @@ export class ChannelsService {
     }
 
     async deleteChannel(channel:Channel) {
-        const medias = await this.mediaRepository.createQueryBuilder('m')
-          .innerJoin(Message,'msg','msg.mediaId = m.id')
-          .innerJoin('msg.channel','ch')
-          .where('ch.id = :channel',{channel:channel.id})
-          .getMany();
-        console.log(medias);
+        const medias = await this.findChannelMedia(channel);
         await this.repository.remove(channel);
         await Promise.all(medias.map(
           m=>this.mediaService.deleteMedia(m)
@@ -189,5 +183,17 @@ export class ChannelsService {
             channel: {id: channelId},
             user: {id: userId}
         })
+    }
+
+
+    async findChannelMedia(channel:Channel,types?:MediaType[]){
+        const query = this.mediaRepository.createQueryBuilder('m')
+            .innerJoin(Message, 'msg', 'msg.mediaId = m.id')
+            .innerJoin('msg.channel', 'ch')
+            .where('ch.id = :channel', {channel: channel.id});
+        if(types){
+            query.andWhere('m.type in (:...types)',{types})
+        }
+        return query.getMany();
     }
 }

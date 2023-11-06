@@ -1,15 +1,10 @@
 import {useGetMediaGalleryQuery} from "../slices/channel-media.api";
-import {useCurrentChannel} from "../../../app/hooks/channel";
 import React from "react";
 import {ChannelContext} from "../providers/ChannelProvider";
 import {toast} from "react-toastify";
-import loading = toast.loading;
 import {IMedia} from "@mdm/mdm-core";
 import {ServerEndpoint} from "../../../api.client/client";
 import {BackdropBlurDownloadButton} from "../components/Buttons";
-import {NavigationHeader} from "../../../components/channels/NavigationHeader";
-import {LinkButton} from "../../../components/controls/Links";
-import {TfiArrowLeft} from "react-icons/tfi";
 import Modal, {ExtraLargeModal} from "../../../components/modals/Modal";
 
 export default function MediaGallery(){
@@ -40,8 +35,8 @@ export default function MediaGallery(){
             <div className={'flex flex-wrap justify-center px-4 py-2 gap-3 bg-emerald-50 flex-1 overflow-y-auto'}>
                 {
                     data?.map((media:IMedia)=>{
-                        const thumbnail = ServerEndpoint+'/api/media/'+media.id+'/thumbnail';
-                        const url = ServerEndpoint+'/api/media/'+media.id+'/content';
+                        const thumbnail = ServerEndpoint+'/channelsApi/media/'+media.id+'/thumbnail';
+                        const url = ServerEndpoint+'/channelsApi/media/'+media.id+'/content';
                         return (
                             <div className={'h-48 w-48 md:w-56 md:h-56 lg:w-64 lg:h-64'}>
                                 <GaleryImage url={url} thumbnail={thumbnail}/>

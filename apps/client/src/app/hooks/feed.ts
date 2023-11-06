@@ -1,7 +1,6 @@
 import {IChannel, IMedia} from "@mdm/mdm-core";
 import {useAppDispatch, useAppSelector} from ".";
 import {useCurrentUser} from "./auth";
-import {useCurrentChannel} from "./channel";
 import {useCallback} from "react";
 import {
   abortMediaProgress,
@@ -16,7 +15,6 @@ import {IFeedMessage, IFeedMessageMedia, MediaStatus} from "../../chat/channel/s
 import {useDispatch} from "react-redux";
 
 import {media, media as mediaClient} from "../../api.client/client";
-import DeleteMessagesThunk from "../../chat/channel/slices/thunks/deleteMessagesThunk";
 import deleteMessagesThunk from "../../chat/channel/slices/thunks/deleteMessagesThunk";
 
 
@@ -30,10 +28,6 @@ export function useChannelFeedStatus() {
 
 export function useChannelFeedHasMore():boolean{
   return useAppSelector(state=>state.feed.hasMore);
-}
-
-export function useChannelFeedError() {
-  return useAppSelector(state => state.feed.error);
 }
 
 export function useDispatchLoadFeed() {
@@ -83,11 +77,11 @@ export interface IPostMediaArgs extends  Pick<IMedia, 'type'|'uri'|'fileName'>{
  *
  * @returns
  */
-export function usePostMessage() {
+export function usePostMessage(channel:string) {
   const dispatch = useDispatch();
   const addMessage = useDispatchAddMessage();
   const user = useCurrentUser();
-  const postMessageThunk = usePostMessageThunk();
+  const postMessageThunk = usePostMessageThunk(channel);
   return useCallback(async function (args: IPostMessageArgs) {
     const {slug, content, media, onAfterAdd} = args;
     if(!args.media){
@@ -124,12 +118,12 @@ export function usePostMessage() {
     } catch (e) {
       dispatch(abortMediaProgress({slug}));
     }
-  }, [user, postMessage, dispatch, addMessage]);
+  }, [user, postMessage, dispatch, addMessage,channel]);
 }
 
-export function useRetryPostMessage(message:IFeedMessage){
+export function useRetryPostMessage(channel:string,message:IFeedMessage){
   const slug= message.slug!;
-  const postMessage = usePostMessageThunk();
+  const postMessage = usePostMessageThunk(channel);
   const dispatch = useAppDispatch();
   return useCallback(async function (){
     if(message.media &&  message.media.operation){
@@ -150,19 +144,18 @@ export function useRetryPostMessage(message:IFeedMessage){
         content: message.content,
       })
     }
-  },[message])
+  },[message,channel])
 }
 
-export function usePostMessageThunk() {
+export function usePostMessageThunk(channel:string) {
   const dispatch = useAppDispatch();
   const user = useCurrentUser();
-  const channel = useCurrentChannel();
   if (!channel || !user) {
     throw new Error('currentUser and channel must be defined in store');
   }
   return useCallback(function (slug: string, message: Pick<IFeedMessage, 'content' | 'media'>) {
     dispatch(postMessageThunk({
-      channelId: channel?.id, message: message, user, slug
+      channelId: channel, message: message, user, slug
     }))
   }, [dispatch, user, channel])
 }

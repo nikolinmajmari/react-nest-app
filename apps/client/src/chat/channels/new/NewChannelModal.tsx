@@ -1,46 +1,65 @@
 import {Dialog} from "@headlessui/react";
 import Modal from "../../../components/modals/Modal";
-import React, {FormEvent, useCallback} from "react";
-import {ChannelType, IChannel, IChannelCreate, IUser} from "@mdm/mdm-core";
+import React, {FormEvent} from "react";
+import {ChannelType, IUser} from "@mdm/mdm-core";
 import {SearchComponent, SearchedUserItem} from "../../../components/inputs/Search";
-import ErrorComponent from "../../../components/ErrorComponent";
 import {InputGroup} from "../../../components/inputs/InputGroup";
-import AsyncRender from "../../../components/core/AsyncRender";
-import {useDispatchCreateChannel} from "../../../app/hooks/channels";
-import { useAsyncHook} from "../../../app/hooks/core";
 import {
   ICreateChannelModalProps,
-  useCustomEffectOnSuccessOrFailure,
   useGoBack,
   useNewChannelForm,
   useSearchUser
 } from "./hooks";
 import {Form, useLocation} from "react-router-dom";
+import {useCreateChannelMutation} from "../channels.api";
+import {QueryStatus} from "@reduxjs/toolkit/query";
+import {ToastNotificationContext} from "../../../providers/ToastNotificationProvider";
 
 
 export default function NewChannelModal({title, type}: ICreateChannelModalProps) {
   const location = useLocation();
   /// usefully hooks and callbacks
   const {goBack} = useGoBack();
-  const createChannel = useDispatchCreateChannel(type);
+  const toast = React.useContext(ToastNotificationContext);
+  const [
+    createChannel,
+    {
+      status,
+      isUninitialized,
+      isLoading,
+      isSuccess,
+      isError,
+      error,
+      reset
+    }] = useCreateChannelMutation();
   /// form and validation
   const {
     selected, toggleSelected,
     channelName, setChannelName,
     validation, validate
   } = useNewChannelForm(type);
-  /// async operation
-  const {
-    status, error, startAsyncHook
-  } = useAsyncHook<IChannelCreate, IChannel>(async (data) => createChannel(data!).unwrap());
+
   //// back effect
-  useCustomEffectOnSuccessOrFailure(status, error);
+  React.useEffect(() => {
+    let timeout: string | number | NodeJS.Timeout | undefined;
+    if(isSuccess){
+      toast?.success(`Channel created sucessfully!`);
+      timeout = setTimeout(goBack)
+    }
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [goBack, status]);
   //// form submission
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = validate();
-    if (result !== false) {
-      startAsyncHook(result).then(() => 1);
+    const validated = validate();
+    if (validated !== false) {
+      createChannel({
+        ...validated, type
+      });
     }
   }
 
@@ -51,36 +70,44 @@ export default function NewChannelModal({title, type}: ICreateChannelModalProps)
     >
       {title}
     </Dialog.Title>
-    <AsyncRender
-      success={<div>Channel created successfully</div>}
-      failed={<ErrorComponent error={error?.message}/>}
-      status={status}
-      loading={<Loading/>}
-    >
-      <form onSubmit={handleSubmit} className="mt-2 text-sm flex flex-col">
-        <UserSearchPicker
-          selected={selected}
-          toggleSelected={toggleSelected}
-          multiple={type === ChannelType.group}
-          error={validation.selected}
-        />
-        {type === ChannelType.group && (<InputGroup
-          label="Room Name"
-          controlId="room_name"
-          name={'alias'}
-          value={channelName}
-          onChange={(e) => setChannelName(e.target.value)}
-          placeholder="Type Name Here"
-          error={validation.name}
-          required
-        />)}
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          type="submit">
-          Create
-        </button>
-      </form>
-    </AsyncRender>
+    <div className={'relative'}>
+      {
+        isLoading && <Loading/>
+      }
+      {
+        !isSuccess && (<form onSubmit={handleSubmit} className="mt-2 text-sm flex flex-col">
+          {
+            error && (
+              <div className={'bg-red-50 text-red-800 px-2 py-2 my-2 rounded-lg'}>
+                {(error as any).data.message}
+                {JSON.stringify(error)}
+              </div>
+            )
+          }
+          <UserSearchPicker
+            selected={selected}
+            toggleSelected={toggleSelected}
+            multiple={type === ChannelType.group}
+            error={validation.selected}
+          />
+          {type === ChannelType.group && (<InputGroup
+            label="Room Name"
+            controlId="room_name"
+            name={'alias'}
+            value={channelName}
+            onChange={(e) => setChannelName(e.target.value)}
+            placeholder="Type Name Here"
+            error={validation.name}
+            required
+          />)}
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="submit">
+            Create
+          </button>
+        </form>)
+      }
+    </div>
   </Modal>);
 }
 
@@ -158,12 +185,13 @@ export function Chip({user,label,index, remove}: {index:number, label: string, r
 }
 
 export function Loading() {
-  return (<div className="flex flex-row justify-center px-12 py-8">
+  return (
+    <div className=" absolute flex items-center justify-center px-12 py-8 w-full h-full z-50 bg-white bg-opacity-25">
     <div
       className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
       role="status">
         <span
-          className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+          className="text-emerald-900 fill-blue-900 !absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
     </div>
   </div>);
 }

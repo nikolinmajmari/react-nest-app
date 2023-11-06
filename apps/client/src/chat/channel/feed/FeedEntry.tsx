@@ -4,10 +4,9 @@ import {GrAttachment} from "react-icons/gr";
 import {MediaType} from "@mdm/mdm-core";
 import {useKeyPress} from "./hooks";
 import {ActionButton, FileTile} from "../components/messages/FileComponents";
-import {CgFileRemove} from "react-icons/cg";
-import {BiCross} from "react-icons/bi";
 import {AiOutlineClose, AiOutlineSend} from "react-icons/ai";
 import {SelectedContext} from "../../../providers/SelectedContextProvider";
+import {ChannelContext} from "../providers/ChannelProvider";
 
 
 function setEndOfContenteditable(contentEditableElement: HTMLElement) {
@@ -60,7 +59,8 @@ const ChannelEntry = forwardRef<HTMLDivElement,IChannelEntryProps>(function (pro
   const mediaRef = React.useRef<HTMLInputElement>(null);
   const forwardedRef = ref as MutableRefObject<HTMLDivElement>;
   /// post thunks
-  const postMessage = usePostMessage();
+  const {channel} = React.useContext(ChannelContext)!;
+  const postMessage = usePostMessage(channel!.id);
   /// feed selection context
   const handleResize = (target: HTMLDivElement) => {
     target.style.height = "1px";

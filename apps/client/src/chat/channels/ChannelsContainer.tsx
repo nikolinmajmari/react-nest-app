@@ -1,5 +1,4 @@
 import {IChannel} from "@mdm/mdm-core";
-import {deleteChannelThunk} from "./slices/channels.slice";
 import {useNavigate, useParams} from "react-router-dom";
 import ChatTile from "../../components/channels/ChannelTile";
 import ChannelGroupContainer from "../../components/GroupContainer";
@@ -10,23 +9,25 @@ import ErrorComponent from "../../components/ErrorComponent";
 import {ContextMenu} from "../../components/menu/ContextMenu";
 import {MenuHeader, MenuItem} from "../../components/menu/Menu";
 import {TfiArchive, TfiArrowCircleRight, TfiBell, TfiDownload, TfiTrash} from "react-icons/tfi";
-import {useAppDispatch} from "../../app/hooks";
-import {useChannels} from "../../app/hooks/channels";
+import {useAppDispatch} from "../../app/hooks"
 import ChannelsEmpty from "./ChannelsEmpty";
-import {useCurrentChannel} from "../../app/hooks/channel";
 import {ToastNotificationContext} from "../../providers/ToastNotificationProvider";
+import {AnimatePresence, motion} from "framer-motion";
+import {useDeleteChannelMutation, useGetChannelsQuery} from "./channels.api";
 
 
 export default function ChannelsContainer() {
-  const {channels, status, loadChannels, setActiveChannel} = useChannels();
+  const {
+    isLoading,
+    isError,
+    error,
+    isSuccess,
+    data,
+    isUninitialized,
+    refetch
+  } = useGetChannelsQuery();
   const {channel} = useParams();
   const navigate = useNavigate();
-  React.useEffect(() => {
-    if (status === "idle") {
-      loadChannels();
-    }
-  }, [status, loadChannels]);
-
   const createNavigateHandler = (channel: IChannel) => {
     return () => {
       navigate(`${channel.id}`)
@@ -34,37 +35,47 @@ export default function ChannelsContainer() {
   }
   return (
     <aside className='flex flex-col flex-1 bg-white overflow-y-auto relative dark:bg-gray-800'>
-      {
-        status!="failed" && <ChannelsHeader/>
-      }
-      {(status === "idle" || status === "loading") && <ChannelsSkeleton/>}
-      {
-        status === "mutating"
-        && (<div className="opacity-20 bg-gray-600 w-full h-full top-0 absolute flex-1 flex"></div>)
-      }
-      {
-        (status === "succeeded" || status === "mutating") && (
-          <ChannelGroupContainer label="Channels" className={'flex-1 flex flex-col'}>
-            {
-              channels.length===0 && (<ChannelsEmpty/>)
-            }
-            {channels.map(
-              (ch: IChannel) =>
-                <ChannelTileContainer
-                  key={ch.id}
-                  channel={ch}
-                  active={ch.id === channel}
-                  navigate={createNavigateHandler(ch)}
-                />
-            )
-            }
-          </ChannelGroupContainer>
+      {isLoading &&
+        (isUninitialized ?
+            <ChannelsSkeleton/>
+            :
+            <div className="opacity-20 bg-gray-600 w-full h-full top-0 absolute flex-1 flex"></div>
         )
       }
       {
-        status === "failed" &&
+        data && isSuccess && (
+         <>
+           <ChannelsHeader/>
+           <ChannelGroupContainer label="Channels" className={'flex-1 flex flex-col'}>
+             {
+               data.length===0 && (<ChannelsEmpty/>)
+             }
+             {data.map(
+               (ch: IChannel) =>
+                <AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <ChannelTileContainer
+                      key={ch.id}
+                      channel={ch}
+                      active={ch.id === channel}
+                      navigate={createNavigateHandler(ch)}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+             )
+             }
+           </ChannelGroupContainer>
+         </>
+        )
+      }
+      {
+        error &&
         <ErrorComponent
-          resolve={loadChannels}
+          resolve={refetch}
           error={'An error occured'}/>
       }
     </aside>
@@ -89,8 +100,10 @@ export function ChannelTileContainer(props: IChannelTileContainerProps) {
   const notification = React.useContext(ToastNotificationContext);
   const dispatch = useAppDispatch();
   const routerNavigate = useNavigate();
+  const [deleteChannel,result] = useDeleteChannelMutation();
   const handleDeleteChannel = () => {
-    dispatch(deleteChannelThunk(channel)).unwrap()
+    deleteChannel(props.channel.id)
+      .unwrap()
       .then(() => {
         notification?.success('Channel deleted successfully');
         routerNavigate('/chat/channels')

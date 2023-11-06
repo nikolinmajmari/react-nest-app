@@ -1,51 +1,22 @@
 import {TfiArrowLeft, TfiTrash} from "react-icons/tfi";
-import {NavigationHeader} from "../../../components/channels/NavigationHeader";
 import {DeepPartialResolve, IChannelMember} from "@mdm/mdm-core";
 import React from "react";
 import {ChannelContext} from "../providers/ChannelProvider";
-import {useAppDispatch} from "../../../app/hooks";
-import {deleteMemberThunk} from "../slices/channel.slice";
-import {useCurrentChannelStatus} from "../../../app/hooks/channel";
-import {LinkButton} from "../../../components/controls/Links";
-import {useGetChannelMembersQuery, useRemoveChannelMemberMutation} from "../slices/channel-members-api";
+import { useRemoveChannelMemberMutation} from "../slices/channel-api";
 
 export default function ChannelMembers() {
-  const status = useCurrentChannelStatus();
-  const dispatch = useAppDispatch();
   const {channel, isAdmin} = React.useContext(ChannelContext);
-  const {
-    isError,
-    error,
-    isSuccess,
-    data,
-    isLoading
-  } = useGetChannelMembersQuery({channel:channel!.id});
   const [removeMember,result]
     = useRemoveChannelMemberMutation()
-  if(isLoading){
-    return (
-      <div>
-        Loading
-      </div>
-    );
-  }
-  if(isError){
-    return (
-      <div>
-        {(error as any).data.message}
-      </div>
-    );
-  }
-
   return (
     <>
       <span className="text-lg my-4">Members</span>
       <div className="flex flex-1 flex-col relative">
         {
-          (status === "loading" || result.isLoading) && <div className="absolute z-10 bg-slate-800 bg-opacity-20 top-0 w-full h-full"></div>
+          (result.isLoading) && <div className="absolute z-10 bg-slate-800 bg-opacity-20 top-0 w-full h-full"></div>
         }
         {
-          isSuccess && data && data.map(function (member) {
+          channel?.members!.map(function (member) {
             return (
               <MemberItemContainer
                 isAdmin={isAdmin ?? false}

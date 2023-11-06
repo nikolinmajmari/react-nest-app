@@ -44,7 +44,8 @@ export class ChannelsController {
 
   @Post("") @HttpCode(HttpStatus.CREATED) @UsePipes(new ChannelValidationPipe())
   async create(@Body() dto: ChannelCreateDTO, @Req() request:Request) {
-    return this.service.createChannelForUser(dto, request.user);
+    const created = await this.service.createChannelForUser(dto, request.user);
+    return await this.service.findUserChannel(created.id,request.user);
   }
 
   @HttpCode(HttpStatus.OK) @Get(":id")

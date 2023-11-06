@@ -66,7 +66,8 @@ export interface IChannelMessageContainerProps {
 
 export function ChannelMessageContainer({message,previous}: IChannelMessageContainerProps) {
   const user = useCurrentUser();
-  const retryPostMessage = useRetryPostMessage(message);
+  const {channel} = React.useContext(ChannelContext)!;
+  const retryPostMessage = useRetryPostMessage(channel!.id,message);
   const cancelMediaProgress = useAbortMediaProgress();
   const {slug} = message;
   const selection = React.useContext(SelectedContext);
@@ -98,7 +99,7 @@ export function ChannelMessageContainer({message,previous}: IChannelMessageConta
                onMediaProgressCancel={handleCancelMediaProgress}
                type={message.sender?.id !== user.id ? MessageFlowType.received : MessageFlowType.sent}
                reduced={
-                 message.sender.id===previous?.sender?.id && !diffDay
+                 message.sender.id===previous?.sender?.id && (!diffDay||(message.createdAt==undefined))
                }/>
            </motion.div>
          )

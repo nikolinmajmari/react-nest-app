@@ -2,7 +2,7 @@ import Channels from "./channels";
 import {Outlet, useParams} from "react-router-dom";
 import storage from "../core/storage";
 import ChannelContainer from "./channel/ChannelContainer";
-import {useChannels, useChannelsError} from "../app/hooks/channels";
+import {useGetChannelsQuery} from "./channels/channels.api";
 
 export default function Chat() {
   const handleLogout = () => {
@@ -10,7 +10,7 @@ export default function Chat() {
     window.location.reload();
   }
   const {channel} = useParams();
-  const { status} = useChannels();
+  const { isError} = useGetChannelsQuery();
   return (
     <>
       <div
@@ -20,7 +20,7 @@ export default function Chat() {
         <Channels/>
       </div>
       {
-        status!=="failed" && (
+        !isError && (
           <div className={`${channel === undefined ? 'hidden' : 'flex'} relative md:flex flex-1 flex overflow-hidden`}>
             <Outlet/>
           </div>

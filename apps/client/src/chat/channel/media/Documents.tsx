@@ -35,7 +35,7 @@ export default function MediaDocuments(){
             <div className={'flex flex-wrap justify-center gap-3 px-4 py-3'}>
             {
                 data?.map((media)=>{
-                    const url = ServerEndpoint+'/api/media/'+media.id+'/content';
+                    const url = ServerEndpoint+'/channelsApi/media/'+media.id+'/content';
                     return (
                         <DownloadableFileTile
                             type={media.type}

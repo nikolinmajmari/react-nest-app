@@ -156,9 +156,7 @@ const channelFeedSlice = createSlice({
           }
         });
         state.status = "succeeded";
-      })
-
-    ;
+      });
     return builder;
   },
 });

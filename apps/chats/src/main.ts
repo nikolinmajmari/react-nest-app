@@ -19,7 +19,7 @@ async function bootstrap() {
     app.enableCors();
     const config = new DocumentBuilder()
         .setTitle("Chat API")
-        .setDescription("Handles api for chatting and media")
+        .setDescription("Handles channelsApi for chatting and media")
         .setVersion("1.0")
         .addBearerAuth()
         .build();

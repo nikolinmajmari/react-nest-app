@@ -10,7 +10,9 @@ export default function Modal({close,children}:IModalProps) {
   const cancelButtonRef = useRef(null);
   return (
     <BaseModal close={close}>
-      <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-opacity-100 bg-white p-6 text-left align-middle shadow-xl transition-all">
+      <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-opacity-100 bg-white p-6 text-left align-middle shadow-xl transition-all
+      dark:bg-slate-800
+      ">
         {children}
       </Dialog.Panel>
     </BaseModal>

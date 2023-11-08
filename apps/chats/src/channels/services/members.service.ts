@@ -1,10 +1,11 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import User from "../../users/entities/user.entity";
 import {UpdateChannelmemberDTO, UpdateChannelSettingsDTO} from "../dto/channel.member.dto";
 import ChannelMember from "../entities/channel-member.entity";
 import Channel from "../entities/channel.entity";
+import {ChannelMemberCreateDTO} from "../dto/channel.dto";
 
 
 @Injectable()
@@ -50,6 +51,18 @@ export class MembersService {
 
     async findChannelMember(id: string) {
         return await this.repository.findOneByOrFail({id: id});
+    }
+
+    async addChannelMember(channel:Channel,member:ChannelMemberCreateDTO){
+      if((await channel.members).findIndex(
+        m=>m.user.id===member.user
+      )!==-1){
+       throw new BadRequestException('user is already registered in this channel');
+      }
+      const entity =
+        this.repository.create(member as unknown as ChannelMember);
+      entity.channel = Promise.resolve(channel);
+      return await this.repository.save(entity);
     }
 
     async updateChannelMemberSettings(member: ChannelMember, dto: UpdateChannelSettingsDTO) {

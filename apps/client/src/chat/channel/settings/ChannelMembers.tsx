@@ -1,16 +1,31 @@
-import {TfiArrowLeft, TfiTrash} from "react-icons/tfi";
+import {TfiArrowLeft, TfiPlus, TfiTrash} from "react-icons/tfi";
 import {DeepPartialResolve, IChannelMember} from "@mdm/mdm-core";
 import React from "react";
 import {ChannelContext} from "../providers/ChannelProvider";
 import { useRemoveChannelMemberMutation} from "../slices/channel-api";
+import {FaPlusCircle} from "react-icons/fa";
+import {AiOutlineGooglePlus} from "react-icons/ai";
+import {BiPlus} from "react-icons/bi";
+import NewMemberModal from "./members/NewMember";
 
 export default function ChannelMembers() {
   const {channel, isAdmin} = React.useContext(ChannelContext);
+  const [showAddModal,setShowAddModal] = React.useState<boolean>(false);
   const [removeMember,result]
     = useRemoveChannelMemberMutation()
   return (
     <>
-      <span className="text-lg my-4">Members</span>
+      <div className={'flex flex-row justify-between items-center'}>
+        <span className="text-lg my-4">
+          Members
+        </span>
+        <span onClick={()=>setShowAddModal(true)} className={'bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-full cursor-pointer'}>
+          <TfiPlus/>
+        </span>
+        {
+          showAddModal && <NewMemberModal goBack={()=>setShowAddModal(false)}/>
+        }
+      </div>
       <div className="flex flex-1 flex-col relative">
         {
           (result.isLoading) && <div className="absolute z-10 bg-slate-800 bg-opacity-20 top-0 w-full h-full"></div>

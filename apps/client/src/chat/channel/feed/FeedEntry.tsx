@@ -115,15 +115,19 @@ const ChannelEntry = forwardRef<HTMLDivElement,IChannelEntryProps>(function (pro
     }
     await postMessage(postArgs);
   }
-  const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> = (e) => {
+  const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> =async (e) => {
     onKeyDown(e);
-    if (e.key === "Enter") {
+    if (e.altKey && e.key === "Enter") {
       if (!alt) {
         handleFormSubmit(e);
       } else if (contentRef.current) {
         contentRef.current.innerHTML += '<div><br/></div>';
         setTimeout(() => setEndOfContenteditable(contentRef.current!));
       }
+    }
+    if(e.ctrlKey && e.key === 'v'){
+      const data = await navigator.clipboard.read()
+      console.log(data.length);
     }
   }
 

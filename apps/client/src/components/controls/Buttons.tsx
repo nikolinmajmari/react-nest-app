@@ -1,3 +1,4 @@
+import React from "react";
 
 export interface INavigationButtonProps{
     children?:any,
@@ -13,4 +14,20 @@ export function NavigationButton({children,onClick}:INavigationButtonProps){
             {children}
         </span>
     )
+}
+
+export function SubmitButton(props:React.ButtonHTMLAttributes<HTMLButtonElement>){
+  const {className,...rest} = props;
+  return (
+    <button
+      className={`
+      bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
+      ${className}
+      `}
+      type={'submit'}
+      {...rest}
+    >
+      {props.children}
+    </button>
+  );
 }

@@ -2,18 +2,17 @@ import {Dialog} from "@headlessui/react";
 import Modal from "../../../components/modals/Modal";
 import React, {FormEvent} from "react";
 import {ChannelType, IUser} from "@mdm/mdm-core";
-import {SearchComponent, SearchedUserItem} from "../../../components/inputs/Search";
 import {InputGroup} from "../../../components/inputs/InputGroup";
 import {
   ICreateChannelModalProps,
   useGoBack,
   useNewChannelForm,
-  useSearchUser
 } from "./hooks";
 import {Form, useLocation} from "react-router-dom";
 import {useCreateChannelMutation} from "../channels.api";
 import {QueryStatus} from "@reduxjs/toolkit/query";
 import {ToastNotificationContext} from "../../../providers/ToastNotificationProvider";
+import {UserSearchPicker} from "../../../components/users/UserSearchPicker";
 
 
 export default function NewChannelModal({title, type}: ICreateChannelModalProps) {
@@ -112,52 +111,11 @@ export default function NewChannelModal({title, type}: ICreateChannelModalProps)
 }
 
 
-export interface IUserSearchPickerProps {
-  selected: IUser[],
-  toggleSelected: (_:IUser)=>void;
-  multiple: boolean;
-  error?: string | undefined;
-}
-
-export function UserSearchPicker({selected, toggleSelected, error, multiple}: IUserSearchPickerProps) {
-  const {
-    search, setSearch, results,
-  } = useSearchUser();
-  return (
-    <div className="flex flex-col items-stretch justify-start">
-      <SearchComponent value={search}
-                       onChange={(e) => setSearch(e.target.value)}
-                       type="search"
-                       id="default-search"
-                       placeholder="Search Users"/>
-      <div className="flex flex-row gap-2 py-2 px-2 flex-wrap">
-        {
-          selected.map((user,index) =>
-            <Chip remove={() => toggleSelected(user)}
-                  user={user}
-                  index={index}
-                  label={`${user.firstName} ${user.lastName}`}/>
-          )
-        }
-      </div>
-      <div className="results flex flex-col overflow-y-auto mb-4 h-64">
-        {
-          results.map(user =>
-            <SearchedUserItem  key={user.id}
-                             user={user}
-                             selected={selected.findIndex(u => u.id === user.id) !== -1}
-                             onPress={() => toggleSelected(user)}/>
-          )
-        }
-        <p className="text-red-500 text-xs italic">{error}</p>
-      </div>
-  </div>)
-}
-
-
 export function Chip({user,label,index, remove}: {index:number, label: string, remove: () => void,user:IUser }) {
   return (<div
-    className="center relative flex flex-row items-center bg-slate-300 select-none whitespace-nowrap rounded-lg bg-gradient-to-tr  py-1 px-2.5 align-baseline font-sans  leading-none text-slate-600"
+    className="center relative flex flex-row items-center bg-slate-300 select-none whitespace-nowrap rounded-lg bg-gradient-to-tr  py-1 px-2.5 align-baseline font-sans  leading-none text-slate-600
+      dark:bg-gray-500 dark:bg-opacity-40 dark:shadow-lg dark:text-white
+    "
   >
     <div className="mr-5 mt-px text-xs" style={{fontSize: "11px"}}>{label}</div>
     <div

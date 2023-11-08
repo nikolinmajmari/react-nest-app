@@ -27,21 +27,6 @@ export interface ICreateChannelValidation {
 }
 
 
-export function useSearchUser() {
-  const user = useCurrentUser();
-  const [results, setResults] = React.useState<IUser[]>([]);
-  const [search, setSearch] = React.useState('');
-  //// trigger search as soon as user types something, delay 0.75 s
-  React.useEffect(() => {
-    const timeout = setTimeout(async () => {
-      const result = await users.get({offset: 0, limit: 5, privateChannelCandidate: "true", search});
-      setResults(result.filter(u => u.id != user.id!));
-    }, 750);
-    return () => clearTimeout(timeout);
-  }, [search, user]);
-  return {search, results, setSearch};
-}
-
 export function useCustomEffectOnSuccessOrFailure(status: AsyncStatus, error: string) {
   const {goBack} = useGoBack();
   const notification = React.useContext(ToastNotificationContext);

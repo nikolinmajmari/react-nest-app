@@ -1,4 +1,4 @@
-import {Outlet, useNavigate} from "react-router-dom";
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
 import ChannelDetailsNavigationWrapper from "../components/ChannelDetailsNavigationWrapper";
 import {NavigationHeader} from "../../../components/channels/NavigationHeader";
 import {NavigationButton} from "../../../components/controls/Buttons";
@@ -11,11 +11,19 @@ import {ChannelContext} from "../providers/ChannelProvider";
 
 export default function SettingsNavigator() {
   const navigate=useNavigate();
+  const location = useLocation();
   const {channel} = React.useContext(ChannelContext)!;
+  const isSettingPathMain = location.pathname.endsWith("/chat/channels/" + channel?.id+'/settings')
   return (
     <>
       <NavigationHeader leading={
-        <NavigationButton onClick={() => navigate("/chat/channels/" + channel?.id)}>
+        <NavigationButton onClick={
+          () => navigate(
+            isSettingPathMain ? "/chat/channels/" + channel?.id
+              :
+              "/chat/channels/" + channel?.id+'/settings'
+          )
+        }>
           <TfiArrowLeft/>
         </NavigationButton>
       }

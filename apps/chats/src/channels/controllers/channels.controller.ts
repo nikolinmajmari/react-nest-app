@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 import {ChannelsService} from '../services/channels.service';
-import {ChannelCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto';
+import {ChannelCreateDTO, ChannelMemberCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto';
 import {ChannelValidationPipe} from '../validation/channel.validation.pipe';
 import {MessagingService} from '../services/messaging.service';
 import {BulkDeleteMessagesDTO, CreateMessageDTO} from '../dto/channel.message.dto';
@@ -23,8 +23,6 @@ import ChannelAuthorizer from "../../authorization/ChannelAuthorizer";
 import {Action} from "../../authorization/authorizer.base.";
 import {IUser, MediaType} from "@mdm/mdm-core";
 import {MembersService} from "../services/members.service";
-import {EntityNotFoundError} from "typeorm";
-import ChannelMember from "../entities/channel-member.entity";
 
 @Controller('channels') @ApiTags("channels") @ApiBearerAuth()
 export class ChannelsController {
@@ -145,6 +143,18 @@ export class ChannelsController {
   ){
     const channel = await this.service.findOneOrFail(channelId);
     return this.membersService.findChannelMembers(channel);
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post(':id/members')
+  async addChannelMember(
+    @Body() dto:ChannelMemberCreateDTO,
+    @Param('id') id:string,
+    @Req() req
+  ){
+    const channel = await this.service.findOneOrFail(id);
+    await this.authorization.denyAccessUnlessAuthorized(Action.Update, channel,req.user);
+    return await this.membersService.addChannelMember(channel,dto);
   }
 
   @HttpCode(HttpStatus.OK)

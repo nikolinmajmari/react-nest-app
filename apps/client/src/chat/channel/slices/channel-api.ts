@@ -1,9 +1,19 @@
-import {IChannel} from "@mdm/mdm-core";
+import {IChannel, IChannelMember, IPartialChannelMember} from "@mdm/mdm-core";
 import {channelsApi} from "../../api/channels-api";
 
 export interface IChannelMemberRemoveArgs{
   channel:string;
   member:string;
+}
+
+export interface IChannelMemberAddArgs{
+  channel:string,
+  member:IPartialChannelMember
+}
+
+export interface IChannelMemberBatchAddArgs{
+  channel:string,
+  members:IPartialChannelMember[]
 }
 
 const extendedApi = channelsApi.injectEndpoints({
@@ -12,6 +22,26 @@ const extendedApi = channelsApi.injectEndpoints({
     getChannel:builder.query<IChannel,string>({
       query:(id)=>`/${id}`,
       providesTags: (result,error,id)=>[{type:"Channel",id}]
+    }),
+    addChannelMember:builder.mutation<IChannelMember,IChannelMemberAddArgs>({
+      query:({channel,member})=>({
+        url:`/${channel}/members`,
+        method:'POST',
+        body:member
+      }),
+      async onQueryStarted(arg,{dispatch,queryFulfilled}): Promise<void>  {
+        try{
+          const { data } = await queryFulfilled;
+          dispatch(
+            extendedApi.util.updateQueryData('getChannel',arg.channel,(draft)=>{
+             draft.members.push(data);
+            })
+          );
+        }catch{
+
+        }
+      },
+      invalidatesTags:(res,err,{channel})=>[{type:'Channel',id:channel}]
     }),
     removeChannelMember: builder.mutation<unknown,IChannelMemberRemoveArgs>({
       query:(arg)=>({
@@ -42,5 +72,6 @@ const extendedApi = channelsApi.injectEndpoints({
 
 export const {
   useGetChannelQuery,
+  useAddChannelMemberMutation,
   useRemoveChannelMemberMutation,
 } = extendedApi;

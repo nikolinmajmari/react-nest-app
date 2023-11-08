@@ -35,8 +35,8 @@ export default function MediaGallery(){
             <div className={'flex flex-wrap justify-center px-4 py-2 gap-3 bg-emerald-50 flex-1 overflow-y-auto'}>
                 {
                     data?.map((media:IMedia)=>{
-                        const thumbnail = ServerEndpoint+'/channelsApi/media/'+media.id+'/thumbnail';
-                        const url = ServerEndpoint+'/channelsApi/media/'+media.id+'/content';
+                        const thumbnail = ServerEndpoint+'/api/media/'+media.id+'/thumbnail';
+                        const url = ServerEndpoint+'/api/media/'+media.id+'/content';
                         return (
                             <div className={'h-48 w-48 md:w-56 md:h-56 lg:w-64 lg:h-64'}>
                                 <GaleryImage url={url} thumbnail={thumbnail}/>

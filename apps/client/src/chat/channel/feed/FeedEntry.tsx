@@ -117,8 +117,8 @@ const ChannelEntry = forwardRef<HTMLDivElement,IChannelEntryProps>(function (pro
   }
   const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> =async (e) => {
     onKeyDown(e);
-    if (e.altKey && e.key === "Enter") {
-      if (!alt) {
+    if (e.key === "Enter") {
+      if (!e.altKey) {
         handleFormSubmit(e);
       } else if (contentRef.current) {
         contentRef.current.innerHTML += '<div><br/></div>';

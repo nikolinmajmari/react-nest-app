@@ -53,7 +53,7 @@ export default function ChannelMembers() {
 }
 
 function MemberItemContainer({member, isAdmin, deleteMember}: {
-  member: DeepPartialResolve<IChannelMember>,
+  member: IChannelMember,
   isAdmin: boolean,
   deleteMember: () => void
 }) {
@@ -62,16 +62,14 @@ function MemberItemContainer({member, isAdmin, deleteMember}: {
       alias={`${member?.user?.firstName} ${member?.user?.lastName}`}
       avatar={"A"}
       role={member?.role??""}
+      key={member.id}
       isAdmin={isAdmin ?? false}
       onActionClick={deleteMember}
     >
       <MemberActionsMenu
         removeMember={deleteMember}
         makeAdmin={()=>1}
-        disableCalls={()=>1}
-        enableCalls={()=>1}
-        disableSentMessage={()=>1}
-        enableSentMessage={()=>1}
+        member={member}
       />
     </MemberItem>
   );

@@ -4,7 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpStatus,
+  HttpStatus, NotFoundException,
   Param,
   Patch,
   Post,
@@ -15,70 +15,82 @@ import {
 import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 import {ChannelsService} from '../services/channels.service';
 import {ChannelCreateDTO, ChannelMemberCreateDTO, ChannelUpdateDTO} from '../dto/channel.dto';
-import {ChannelValidationPipe} from '../validation/channel.validation.pipe';
+import {ChannelValidationPipe} from '../pipes/channel.validation.pipe';
 import {MessagingService} from '../services/messaging.service';
 import {BulkDeleteMessagesDTO, CreateMessageDTO} from '../dto/channel.message.dto';
 import {Request} from "express";
-import ChannelAuthorizer from "../../authorization/ChannelAuthorizer";
+import ChannelsAuthorizer from "../channels.authorizer";
 import {Action} from "../../authorization/authorizer.base.";
 import {IUser, MediaType} from "@mdm/mdm-core";
 import {MembersService} from "../services/members.service";
+import ChannelsRepository from "../repositories/channels.repository";
+import Channel from "../entities/channel.entity";
+import {ParameterResolverPipe} from "../pipes/parameter.resolver.pipe";
+import ChannelMember from "../entities/channel-member.entity";
 
 @Controller('channels') @ApiTags("channels") @ApiBearerAuth()
 export class ChannelsController {
 
   constructor(
+    private readonly repository:ChannelsRepository,
     private readonly service: ChannelsService,
-    private readonly authorization: ChannelAuthorizer,
+    private readonly authorization: ChannelsAuthorizer,
     private readonly messagingService: MessagingService,
     private readonly membersService:MembersService,
   ) {
   }
 
   @Get("") @HttpCode(HttpStatus.OK) get(@Req() request: Request) {
-    return this.service.findUserChannels(request.user);
+    return this.repository.findUserChannels(request.user);
   }
 
 
   @Post("") @HttpCode(HttpStatus.CREATED) @UsePipes(new ChannelValidationPipe())
   async create(@Body() dto: ChannelCreateDTO, @Req() request:Request) {
-    const created = await this.service.createChannelForUser(dto, request.user);
-    return await this.service.findUserChannel(created.id,request.user);
+    return await this.service.createChannelForUser(dto, request.user);
   }
 
-  @HttpCode(HttpStatus.OK) @Get(":id")
-  async getChannel(@Req() request: Request, @Param("id") id: string) {
+  @HttpCode(HttpStatus.OK) @Get(":channel")
+  async getChannel(
+    @Req() request: Request,
+    @Param("channel",ParameterResolverPipe) channel: Channel
+  ) {
     const user = request.user as IUser;
-    const channel = await this.service.findOneOrFail(id);
-    await this.authorization.denyAccessUnlessAuthorized(Action.View, channel, user);
-    return this.service.findUserChannel(id, user);
+    await this.authorization.authorize(Action.View,user,channel);
+    return this.repository.findUserChannel(channel.id, user);
   }
 
-  @HttpCode(HttpStatus.OK) @Patch(":id")
-  async patchChannel(@Param("id") id: string, @Body() dto: ChannelUpdateDTO, @Req() request: Request) {
+  @HttpCode(HttpStatus.OK)
+  @Patch(":channel")
+  async patchChannel(
+    @Param("channel",ParameterResolverPipe) channel: Channel,
+    @Body() dto: ChannelUpdateDTO,
+    @Req() request: Request
+  ) {
     const user = request.user as IUser;
-    const channel = await this.service.findOneOrFail(id);
-    await this.authorization.denyAccessUnlessAuthorized(Action.Update, channel, user);
+    await this.authorization.authorize(Action.Update, user,channel);
     return await this.service.updateChannel(channel, request.user, dto);
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT) @Delete(":id")
-  async delete(@Param("id") id: string, @Req() request: Request) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(":channel")
+  async delete(
+    @Param("channel",ParameterResolverPipe) channel: Channel,
+    @Req() request: Request
+  ) {
     const user = request.user as IUser;
-    const channel = await this.service.findOneOrFail(id);
-    await this.authorization.denyAccessUnlessAuthorized(Action.Update, channel, user);
+    await this.authorization.authorize(Action.Update, user,channel);
     await this.service.deleteChannel(channel);
   }
 
 
-  @HttpCode(HttpStatus.OK) @Get(":id/messages")
+  @HttpCode(HttpStatus.OK) @Get(":channel/messages")
   async getMessages(
-    @Param("id") id: string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
     @Req() req,
     @Query('skip') skip:number,
     @Query('take') take:number
     ) {
-    const channel = await this.service.findOneOrFail(id);
     const messages =  await this.messagingService.getMessages(channel, {
       skip:skip??0,
       take:take??10,
@@ -91,9 +103,13 @@ export class ChannelsController {
     }
   }
 
-  @HttpCode(HttpStatus.CREATED) @Post(":id/messages")
-  async postMessage(@Param("id") id: string, @Body() dto: CreateMessageDTO, @Req() req) {
-    const channel = await this.service.findOneOrFail(id);
+  @HttpCode(HttpStatus.CREATED)
+  @Post(":channel/messages")
+  async postMessage(
+    @Param("channel",ParameterResolverPipe) channel: Channel,
+    @Body() dto: CreateMessageDTO,
+    @Req() req
+  ) {
     const message = await this.messagingService.createMessage({
       channel, user: req.user, dto
     });
@@ -101,33 +117,30 @@ export class ChannelsController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete(':id/messages')
+  @Delete(':channel/messages')
   async deleteMessages(
-    @Param('id') id:string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
     @Body() body:BulkDeleteMessagesDTO,
   ){
-    const channel = await this.service.findOneOrFail(id);
     return await this.messagingService.deleteMessages(body.messagesId,channel);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':channel/messages/:message')
   async deleteMessage(
-    @Param("channel") channelId:string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
     @Param('message') messageId:string,
   ){
-    const channel = await this.service.findOneOrFail(channelId);
     const message = await this.messagingService.findOrFail(messageId,channel);
     await this.messagingService.deleteMessage(message);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get(':id/media')
+  @Get(':channel/media')
   async getChannelMedia(
-      @Param('id') channelId:string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
       @Query('category') category:string,
   ){
-    const channel = await this.service.findOneOrFail(channelId);
     return await this.service.findChannelMedia(channel,
         category=='docs'?
             [MediaType.file,MediaType.pdf]
@@ -137,36 +150,32 @@ export class ChannelsController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get(':id/members')
+  @Get(':channel/members')
   async getChannelMembers(
-    @Param('id') channelId:string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
   ){
-    const channel = await this.service.findOneOrFail(channelId);
     return this.membersService.findChannelMembers(channel);
   }
 
   @HttpCode(HttpStatus.CREATED)
-  @Post(':id/members')
+  @Post(':channel/members')
   async addChannelMember(
     @Body() dto:ChannelMemberCreateDTO,
-    @Param('id') id:string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
     @Req() req
   ){
-    const channel = await this.service.findOneOrFail(id);
-    await this.authorization.denyAccessUnlessAuthorized(Action.Update, channel,req.user);
+    await this.authorization.authorize(Action.Update,req.user,channel);
     return await this.membersService.addChannelMember(channel,dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Delete(':channel/members/:id')
+  @Delete(':channel/members/:member')
   async removeChannelMember(
-    @Param('channel') channelId:string,
-    @Param('id') memberId:string,
+    @Param("channel",ParameterResolverPipe) channel: Channel,
+    @Param('member',ParameterResolverPipe) member:ChannelMember,
   ){
-    const channel = await this.service.findOneOrFail(channelId);
-    const member = await this.membersService.findChannelMember(memberId);
     if((await member.channel).id!==channel.id){
-      throw new Error('could not find');
+      throw new NotFoundException();
     }
     await this.membersService.removeMember(member);
   }

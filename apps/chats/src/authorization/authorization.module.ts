@@ -6,7 +6,7 @@ import Channel from "../channels/entities/channel.entity";
 import ChannelMember from "../channels/entities/channel-member.entity";
 import Message from "../channels/entities/message.entity";
 import Media from "../media/media.entity";
-import ChannelAuthorizer from "./ChannelAuthorizer";
+import ChannelsAuthorizer from "../channels/channels.authorizer";
 
 @Module({
   imports:[
@@ -15,10 +15,10 @@ import ChannelAuthorizer from "./ChannelAuthorizer";
     ])
   ],
   providers:[
-    RolesGuard,ChannelAuthorizer
+    RolesGuard,ChannelsAuthorizer
   ],
   exports:[
-    RolesGuard,ChannelAuthorizer
+    RolesGuard,ChannelsAuthorizer
   ]
 })
 

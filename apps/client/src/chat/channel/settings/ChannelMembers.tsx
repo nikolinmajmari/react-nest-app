@@ -7,6 +7,7 @@ import {FaPlusCircle} from "react-icons/fa";
 import {AiOutlineGooglePlus} from "react-icons/ai";
 import {BiPlus} from "react-icons/bi";
 import NewMemberModal from "./members/NewMember";
+import MemberActionsMenu from "./members/MemberActionsMenu";
 
 export default function ChannelMembers() {
   const {channel, isAdmin} = React.useContext(ChannelContext);
@@ -63,7 +64,16 @@ function MemberItemContainer({member, isAdmin, deleteMember}: {
       role={member?.role??""}
       isAdmin={isAdmin ?? false}
       onActionClick={deleteMember}
-    />
+    >
+      <MemberActionsMenu
+        removeMember={deleteMember}
+        makeAdmin={()=>1}
+        disableCalls={()=>1}
+        enableCalls={()=>1}
+        disableSentMessage={()=>1}
+        enableSentMessage={()=>1}
+      />
+    </MemberItem>
   );
 }
 
@@ -72,10 +82,11 @@ interface IMemberItemProps {
   alias: string,
   role: string,
   isAdmin: boolean,
-  onActionClick: () => void
+  onActionClick: () => void;
+  children?:React.ReactNode;
 }
 
-function MemberItem({alias, avatar, role, isAdmin, onActionClick}: IMemberItemProps) {
+function MemberItem({alias, avatar, role, isAdmin, onActionClick,children}: IMemberItemProps) {
   return (
     <div className="flex flex-row pb-5">
       <div className="avatar w-12 h-12 bg-cyan-900 rounded-full flex items-center justify-center">
@@ -86,13 +97,7 @@ function MemberItem({alias, avatar, role, isAdmin, onActionClick}: IMemberItemPr
         <em className="text-sm">{role}</em>
       </div>
       {
-        isAdmin && (
-          <div className="action">
-            <button onClick={onActionClick} className="bg-red-800 hover:bg-red-900 p-2 rounded-full">
-              <TfiTrash className="text-white " size={'16'}/>
-            </button>
-          </div>
-        )
+        children
       }
     </div>
   )

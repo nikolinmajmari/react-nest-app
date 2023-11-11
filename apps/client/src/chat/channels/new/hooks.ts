@@ -64,7 +64,7 @@ export function useNewChannelForm(type: ChannelType) {
       return [...users.filter(u => u.id !== user.id)];
     });
   }
-  /// validation
+  /// pipes
   const [validation, setValidation] = React.useState<ICreateChannelValidation>({});
   const validate = () => {
     if (selected.length === 0) {

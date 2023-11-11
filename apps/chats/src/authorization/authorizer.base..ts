@@ -18,16 +18,18 @@ export type IAction =
 
 
 export interface IAuthorizer<T>{
-  denyAccessUnlessAuthorized(action: IAction, subject: T, user: IUser):Promise<void>;
+  authorize(action: IAction,user: IUser, subject: T,message?:string):Promise<void>;
 }
 
 
 export abstract class Authorizer<T> implements IAuthorizer<T>{
-  async denyAccessUnlessAuthorized(action: IAction, subject: T, user: IUser):Promise<void>{
-    if(!await this.isAuthorized(action,subject,user)){
-      throw new UnauthorizedException();
+  async authorize(action: IAction, user: IUser,subject?: T,message="Access Denied"):Promise<void>{
+    if(!await this.isAuthorized(action,user,subject)){
+      throw new UnauthorizedException(
+        {message:message,status:401}
+      );
     }
   }
 
-  protected abstract isAuthorized(action: IAction, subject: T, user: IUser): Promise<boolean>;
+  abstract isAuthorized(action: IAction, user: IUser, subject?: T): Promise<boolean>;
 }

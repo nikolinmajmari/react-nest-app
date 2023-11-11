@@ -1,5 +1,5 @@
-import {Action, IAction, Authorizer} from "./authorizer.base.";
-import Channel from "../channels/entities/channel.entity";
+import {Action, IAction, Authorizer} from "../authorization/authorizer.base.";
+import Channel from "./entities/channel.entity";
 import {IUser, MemberRole} from "@mdm/mdm-core";
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -7,7 +7,7 @@ import {Brackets, Repository} from "typeorm";
 
 
 @Injectable()
-export default class ChannelAuthorizer extends Authorizer<Channel>{
+export default class ChannelsAuthorizer extends Authorizer<Channel>{
 
   constructor(
     @InjectRepository(Channel)
@@ -15,6 +15,9 @@ export default class ChannelAuthorizer extends Authorizer<Channel>{
   ) {
     super();
   }
+
+  //// query builder creator functions
+
 
   async userIsMember(channel:Channel,user:IUser,requireAdmin:boolean=false){
     const query =  this.channelRepository.createQueryBuilder('ch')
@@ -35,7 +38,7 @@ export default class ChannelAuthorizer extends Authorizer<Channel>{
     return query.getExists();
   }
 
-  async isAuthorized(action: IAction, subject: Channel, user: IUser): Promise<boolean>  {
+  async isAuthorized(action: IAction, user: IUser,subject: Channel): Promise<boolean>  {
     switch (action){
       case "delete":
       case Action.Delete:

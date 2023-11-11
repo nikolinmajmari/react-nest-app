@@ -31,7 +31,7 @@ export default function NewChannelModal({title, type}: ICreateChannelModalProps)
       error,
       reset
     }] = useCreateChannelMutation();
-  /// form and validation
+  /// form and pipes
   const {
     selected, toggleSelected,
     channelName, setChannelName,

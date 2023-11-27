@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {createBrowserRouter, Navigate, Route, RouterProvider, Routes, useLocation} from "react-router-dom";
+import {createBrowserRouter, Navigate, Outlet, Route, RouterProvider, Routes, useLocation} from "react-router-dom";
 import Chat, {ChannelContainer} from '../chat';
 import {Login} from "../auth/login";
 import {SignUp} from "../auth/signup";
@@ -23,6 +23,8 @@ import MediaGallery from "../chat/channel/media/Galery";
 import MediaDocuments from "../chat/channel/media/Documents";
 import MediaLinks from "../chat/channel/media/Links";
 import ChannelDetailsNavigation from "../chat/channel/ChannelDetailsNavigation";
+import WebSocketConnectionProvider from "../providers/WebsocketConnectionProvider";
+import MultiProvider from "../providers/MultiProvider";
 
 function Root(){
   const location = useLocation();
@@ -34,28 +36,38 @@ function Root(){
           <Route path="login" element={<Login/>}/>
           <Route path="signup" element={<SignUp/>}/>
         </Route>
-
-        <Route path="/chat" element={<NavigationContainer/>}>
-          <Route path='channels' element={<Chat/>}>
-            <Route path=":channel" element={<ChannelContainer/>}>
-              <Route element={<ChannelDetailsNavigation/>}>
-                <Route path="settings" element={<SettingsNavigator/>}>
-                  <Route path="members" element={<ChannelMembers/>}/>
-                  <Route path="" element={<ChannelSettings/>}/>
-                </Route>
-                <Route path="media" element={<MediaNavigator/>}>
-                  <Route path="docs" element={<MediaDocuments/>}/>
-                  <Route path="links" element={<MediaLinks/>}/>
-                  <Route path="" element={<MediaGallery/>}/>
+        {/** protected routes  **/}
+        <Route element={
+          <MultiProvider providers={
+            [
+              WebSocketConnectionProvider
+            ]
+          }>
+            <Outlet/>
+          </MultiProvider>
+        }>
+          <Route path="chat" element={<NavigationContainer/>}>
+            <Route path='channels' element={<Chat/>}>
+              <Route path=":channel" element={<ChannelContainer/>}>
+                <Route element={<ChannelDetailsNavigation/>}>
+                  <Route path="settings" element={<SettingsNavigator/>}>
+                    <Route path="members" element={<ChannelMembers/>}/>
+                    <Route path="" element={<ChannelSettings/>}/>
+                  </Route>
+                  <Route path="media" element={<MediaNavigator/>}>
+                    <Route path="docs" element={<MediaDocuments/>}/>
+                    <Route path="links" element={<MediaLinks/>}/>
+                    <Route path="" element={<MediaGallery/>}/>
+                  </Route>
                 </Route>
               </Route>
+              <Route path="" element={<ChannelEmpty/>}/>
             </Route>
-            <Route path="" element={<ChannelEmpty/>}/>
+            <Route path='calls' element={<div>Calls</div>}>
+              <Route path="*" element={<div>Calls</div>}/>
+            </Route>
+            <Route path={"*"} element={<NotFound label={'Channels'}/>}/>
           </Route>
-          <Route path='calls' element={<div>Calls</div>}>
-            <Route path="*" element={<div>Calls</div>}/>
-          </Route>
-          <Route path={"*"} element={<NotFound label={'Channels'}/>}/>
         </Route>
         <Route path={"*"} element={<NotFound label={'Log In'} location={'/auth/login'}/>}/>
       </Routes>

@@ -26,4 +26,5 @@ export default class Message extends CommonEntity implements IMessageEntity {
         super();
         Object.assign(this, partial);
     }
+
 }

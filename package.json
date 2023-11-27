@@ -15,7 +15,7 @@
     "@nestjs/jwt": "^10.1.1",
     "@nestjs/passport": "^10.0.1",
     "@nestjs/platform-express": "^10.2.7",
-    "@nestjs/platform-socket.io": "^10.2.7",
+    "@nestjs/platform-ws": "^10.2.8",
     "@nestjs/swagger": "^7.1.10",
     "@nestjs/typeorm": "^10.0.0",
     "@nestjs/websockets": "^10.2.7",
@@ -23,6 +23,7 @@
     "@reduxjs/toolkit": "^1.9.5",
     "@swc/helpers": "~0.5.0",
     "@types/express": "^4.17.18",
+    "@types/uuid": "^9.0.7",
     "axios": "^1.5.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -54,6 +55,7 @@
     "tslib": "^2.3.0",
     "typeorm": "^0.3.17",
     "use-long-press": "^3.2.0",
+    "uuid": "^9.0.1",
     "ws": "^8.14.2"
   },
   "devDependencies": {

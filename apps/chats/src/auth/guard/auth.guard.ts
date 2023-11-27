@@ -31,6 +31,7 @@ export class AuthGuard implements CanActivate {
 
 
         const request = context.switchToHttp().getRequest();
+        console.log('guard for',request);
         const token = this.extractJwtFromHttpHeader(request);
         if (!token) {
             throw new UnauthorizedException();

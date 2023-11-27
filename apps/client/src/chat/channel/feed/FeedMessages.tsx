@@ -2,8 +2,8 @@ import React, {forwardRef} from "react";
 import InfiniteScroll from "react-infinite-scroll-component"
 import Message, {IChatMessageProgress, MessageFlowType} from "../components/messages/Message";
 import {
-  useAbortMediaProgress, useChannelFeedHasMore,
-  useChannelFeedMessages,
+  useAbortMediaProgress, useAddWsMessage, useChannelFeedHasMore,
+  useChannelFeedMessages, useDispatchAddMessage,
   useDispatchLoadFeed,
   useRetryPostMessage
 } from "../../../app/hooks/feed";
@@ -13,6 +13,9 @@ import {motion, AnimatePresence} from "framer-motion";
 import ThreeDotsWave from "../../../components/ThreeDotsWave";
 import {ChannelContext} from "../providers/ChannelProvider";
 import {SelectedContext} from "../../../providers/SelectedContextProvider";
+import {WebSocketContext} from "../../../providers/WebsocketConnectionProvider";
+import {IWsEvent, WsEvents} from "../../../../../../libs/mdm-core/src/lib/ws";
+import {IMessage} from "@mdm/mdm-core";
 
 
 const FeedMessages = forwardRef(function (props, fwRef) {
@@ -20,6 +23,26 @@ const FeedMessages = forwardRef(function (props, fwRef) {
   const {channel} = React.useContext(ChannelContext);
   const loadFeed = useDispatchLoadFeed();
   const hasMore = useChannelFeedHasMore();
+  const addMessage = useAddWsMessage();
+  const wsProvider = React.useContext(WebSocketContext);
+  const handleMessage = React.useCallback((ev:MessageEvent<any>)=>{
+    const result = JSON.parse(ev.data) as IWsEvent<IMessage>;
+    if(result.event === WsEvents.CHANNEL_MESSAGE_CREATED && result.params.channel === channel?.id){
+      /// message is for this channel
+      console.log(messages.filter(m=>m.id===result.data.id));
+      if(messages.findIndex(m=>m.id===result.data.id)===-1){
+        setTimeout(()=> addMessage(result.data));
+      }
+    }
+  },[channel,messages,addMessage])
+  React.useEffect(()=>{
+    if(wsProvider.webSocket?.readyState===WebSocket.OPEN){
+      wsProvider.webSocket.addEventListener('message',handleMessage);
+    }
+    return ()=>{
+      wsProvider.webSocket?.removeEventListener('message',handleMessage);
+    }
+  },[wsProvider.webSocket,handleMessage,messages]);
   return (
     <>
      <InfiniteScroll

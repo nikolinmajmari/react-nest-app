@@ -1,12 +1,16 @@
 import { IUser } from "@mdm/mdm-core";
 import { useAppDispatch,useAppSelector } from ".";
-import { LoginCredentials } from "../../auth/auth.model";
+import {IAuthState, LoginCredentials} from "../../auth/auth.model";
 import loginThunk from "../../auth/thunks/signInThunk";
 import { useCallback } from "react";
 
 
 export function useCurrentUser():IUser{
     return useAppSelector(root=>root.auth.user);
+}
+
+export function useAuth():IAuthState{
+  return useAppSelector(root=>root.auth);
 }
 
 export function useAuthStatus(){

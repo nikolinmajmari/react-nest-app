@@ -1,5 +1,6 @@
 import {IChannel, IChannelMember, IPartialChannelMember} from "@mdm/mdm-core";
 import {channelsApi} from "../../api/channels-api";
+import {channels} from "../../../api.client/client";
 
 export interface IChannelMemberRemoveArgs{
   channel:string;
@@ -9,6 +10,12 @@ export interface IChannelMemberRemoveArgs{
 export interface IChannelMemberAddArgs{
   channel:string,
   member:IPartialChannelMember
+}
+
+export interface IMemberUpdateArgs{
+  channel:string,
+  member:string;
+  update:Pick<IChannelMember, "role">;
 }
 
 export interface IChannelMemberBatchAddArgs{
@@ -37,11 +44,31 @@ const extendedApi = channelsApi.injectEndpoints({
              draft.members.push(data);
             })
           );
+        }catch{}
+      },
+     // invalidatesTags:(res,err,{channel})=>[{type:'Channel',id:channel}]
+    }),
+    updateChannelMember:builder.mutation<IChannelMember,IMemberUpdateArgs>({
+      queryFn:async (arg)=>{
+        return await channels.updateMember(arg.member!,arg.update);
+      },
+      async onQueryStarted(arg, api): Promise<void>  {
+        const patchResult = api.dispatch(
+          extendedApi.util.updateQueryData('getChannel',arg.channel,(draft)=>{
+            const id = draft.members.findIndex(m=>m.id==arg.member);
+            draft.members[id] = {
+              ...draft.members[id],
+              ...arg.update
+            }
+          })
+        );
+        try{
+          const data = await api.queryFulfilled;
         }catch{
-
+          patchResult.undo();
         }
       },
-      invalidatesTags:(res,err,{channel})=>[{type:'Channel',id:channel}]
+   //   invalidatesTags: (result,error,args)=>([{type:'Channel',id:args.channel}])
     }),
     removeChannelMember: builder.mutation<unknown,IChannelMemberRemoveArgs>({
       query:(arg)=>({
@@ -63,9 +90,7 @@ const extendedApi = channelsApi.injectEndpoints({
           patchResult.undo();
         }
       },
-      invalidatesTags: (result,error,args)=>([
-        {type:'Channel',id:args.channel}
-      ])
+      //invalidatesTags: (result,error,args)=>([{type:'Channel',id:args.channel}])
     })
   })
 })
@@ -73,5 +98,6 @@ const extendedApi = channelsApi.injectEndpoints({
 export const {
   useGetChannelQuery,
   useAddChannelMemberMutation,
+  useUpdateChannelMemberMutation,
   useRemoveChannelMemberMutation,
 } = extendedApi;

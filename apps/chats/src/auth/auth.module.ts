@@ -9,6 +9,9 @@ import {JwtAuthGuard} from './guard/jwt-auth.guard';
 import {JwtStrategy} from './strategies/jwt.strategy';
 import {PassportModule} from '@nestjs/passport';
 import {RefreshStrategy} from './strategies/refresh.strategy';
+import {WsJwtStrategy} from "./strategies/ws-jwt.strategy";
+import {WsJwtAuthGuard} from "./guard/ws-jwt-auth.guard";
+import {WsAuthGuard} from "./guard/ws-auth.guard";
 
 @Module({
     imports: [
@@ -20,8 +23,11 @@ import {RefreshStrategy} from './strategies/refresh.strategy';
     ],
     providers: [
         AuthService,
+        WsAuthGuard,
         LocalStrategy,
         JwtStrategy,
+        WsJwtStrategy,
+        WsJwtAuthGuard,
         RefreshStrategy,
         {
             provide: APP_GUARD,

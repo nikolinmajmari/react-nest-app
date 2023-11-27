@@ -9,6 +9,7 @@ import {UsersModule} from '../users/users.module';
 import {ChannelsModule} from '../channels/channels.module';
 import {MediaModule} from '../media/media.module';
 import {AuthorizationModule} from "../authorization/authorization.module";
+import {EventsModule} from "../events/events.module";
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import {AuthorizationModule} from "../authorization/authorization.module";
       AuthorizationModule,
       UsersModule,
       ChannelsModule,
+      EventsModule
     ],
     controllers: [AppController],
     providers: [AppService],

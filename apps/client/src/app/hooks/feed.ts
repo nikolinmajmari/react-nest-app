@@ -1,21 +1,24 @@
-import {IChannel, IMedia} from "@mdm/mdm-core";
+import {IChannel, IMedia, IMessage} from "@mdm/mdm-core";
 import {useAppDispatch, useAppSelector} from ".";
 import {useCurrentUser} from "./auth";
-import {useCallback} from "react";
+import React, {useCallback} from "react";
 import {
   abortMediaProgress,
   addMessage,
   completeMediaProgress,
   loadFeedThunk,
-  postMessageThunk, restartMediaProgress,
+  postMessageThunk,
+  restartMediaProgress,
   startMediaProgress,
   updateMediaProgress
 } from "../../chat/channel/slices/channel-feed.slice";
-import {IFeedMessage, IFeedMessageMedia, MediaStatus} from "../../chat/channel/slices/channel-feed.model";
+import {IFeedMessage, MediaStatus, MessageStatus} from "../../chat/channel/slices/channel-feed.model";
 import {useDispatch} from "react-redux";
 
-import {media, media as mediaClient} from "../../api.client/client";
+import {media as mediaClient} from "../../api.client/client";
 import deleteMessagesThunk from "../../chat/channel/slices/thunks/deleteMessagesThunk";
+import {WebSocketContext} from "../../providers/WebsocketConnectionProvider";
+import {WsEvents} from "../../../../../libs/mdm-core/src/lib/ws";
 
 
 export function useChannelFeedMessages() {
@@ -62,6 +65,16 @@ export function useDispatchAddMessage() {
   }
 }
 
+export function useAddWsMessage(){
+  const dispatch = useAppDispatch();
+  return (message: IMessage) => {
+    dispatch(addMessage({
+      ...message,
+      status: MessageStatus.sent
+    }));
+  }
+}
+
 export interface IPostMessageArgs {
   slug: string,
   content: string;
@@ -85,7 +98,7 @@ export function usePostMessage(channel:string) {
   return useCallback(async function (args: IPostMessageArgs) {
     const {slug, content, media, onAfterAdd} = args;
     if(!args.media){
-      postMessageThunk(slug, {content});
+      postMessageThunk(slug, {content,sender:user});
       if (onAfterAdd) {
         onAfterAdd();
       }
@@ -114,7 +127,7 @@ export function usePostMessage(channel:string) {
         },
       });
       completeMediaProgress({slug});
-      postMessageThunk(slug, { content: content, media: uploadedMedia});
+      postMessageThunk(slug, { content: content, media: uploadedMedia,sender:user});
     } catch (e) {
       dispatch(abortMediaProgress({slug}));
     }
@@ -123,6 +136,7 @@ export function usePostMessage(channel:string) {
 
 export function useRetryPostMessage(channel:string,message:IFeedMessage){
   const slug= message.slug!;
+  const user = useCurrentUser();
   const postMessage = usePostMessageThunk(channel);
   const dispatch = useAppDispatch();
   return useCallback(async function (){
@@ -135,16 +149,18 @@ export function useRetryPostMessage(channel:string,message:IFeedMessage){
         },
       });
       completeMediaProgress({slug});
-      postMessage(slug,{
+      await postMessage(slug, {
         content: message.content,
-        media: uploadedMedia
+        media: uploadedMedia,
+        sender: user
       })
     }else{
-      postMessage(slug,{
+      await postMessage(slug, {
         content: message.content,
+        sender: user
       })
     }
-  },[message,channel])
+  },[message,channel,user])
 }
 
 export function usePostMessageThunk(channel:string) {
@@ -153,11 +169,29 @@ export function usePostMessageThunk(channel:string) {
   if (!channel || !user) {
     throw new Error('currentUser and channel must be defined in store');
   }
-  return useCallback(function (slug: string, message: Pick<IFeedMessage, 'content' | 'media'>) {
+  const wsContext = React.useContext(WebSocketContext);
+  return useCallback(function (slug: string, message: Pick<IFeedMessage, 'content' | 'media'|'sender'>) {
+    console.log(wsContext,wsContext.rpcSocket,wsContext.webSocket?.readyState==WebSocket.OPEN);
+    if(wsContext && wsContext.rpcSocket && wsContext.webSocket?.readyState==WebSocket.OPEN){
+      const sentMessagePromise =  new Promise<IFeedMessage>((resolve,reject)=>{
+
+        wsContext.rpcSocket?.send<IFeedMessage,unknown>({
+          data: message,
+          params:{channel},
+          event:WsEvents.CHANNEL_MESSAGE_CREATE
+        }).then(res=>{
+          console.log('resolving ',res);
+          resolve(res.result!);
+        },err=>reject(err));
+      });
+      return dispatch(postMessageThunk({
+        channelId: channel, message: message, user, slug,promise:sentMessagePromise
+      }))
+    }
     dispatch(postMessageThunk({
       channelId: channel, message: message, user, slug
     }))
-  }, [dispatch, user, channel])
+  }, [dispatch, user, channel,wsContext])
 }
 
 

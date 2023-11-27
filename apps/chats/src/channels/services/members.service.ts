@@ -2,7 +2,7 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import User from "../../users/entities/user.entity";
-import {UpdateChannelmemberDTO, UpdateChannelSettingsDTO} from "../dto/channel.member.dto";
+import {UpdateChannelMemberDTO, UpdateChannelSettingsDTO} from "../dto/channel.member.dto";
 import ChannelMember from "../entities/channel-member.entity";
 import Channel from "../entities/channel.entity";
 import {ChannelMemberCreateDTO} from "../dto/channel.dto";
@@ -72,11 +72,13 @@ export class MembersService {
         return await this.repository.save(member);
     }
 
-    async updateChannelMember(member: ChannelMember, dto: UpdateChannelmemberDTO) {
-        return await this.repository.save({
-            ...member,
-            ...dto
-        });
+    async updateChannelMember(member: ChannelMember, dto: UpdateChannelMemberDTO) {
+      member = {
+        ...member,
+        ...dto
+      }
+      console.log(member,dto);
+      return await this.repository.save(member);
     }
 
 

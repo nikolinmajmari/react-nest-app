@@ -58,6 +58,7 @@ export class UsersService {
     async findUserByIdentifier(email: string): Promise<User | undefined> {
         return await this.repository.findOne({
             where: {email},
+           select: {},
             cache: {
                 id: `user.${email}`,
                 milliseconds: 5000

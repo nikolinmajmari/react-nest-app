@@ -1,15 +1,15 @@
-import {Body, Delete, HttpCode, HttpStatus, Injectable, Param, Patch, Put, Req} from "@nestjs/common";
+import {Body, Controller, Delete, HttpCode, HttpStatus, Injectable, Param, Patch, Put, Req} from "@nestjs/common";
 import {MembersService} from "../services/members.service";
-import {UpdateChannelmemberDTO} from "../dto/channel.member.dto";
+import {UpdateChannelMemberDTO} from "../dto/channel.member.dto";
 
 
 @Injectable()
+@Controller('members')
 export class MembersController{
 
   constructor(
     private readonly service:MembersService
-  ) {
-  }
+  ) {}
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
@@ -26,23 +26,8 @@ export class MembersController{
   @Patch(':id')
   async patch(
     @Param('id') memberId:string,
-    @Body() dto:UpdateChannelmemberDTO,
-    @Req() req
-  ){
+    @Body() dto:UpdateChannelMemberDTO  ){
     const member = await this.service.findMember(memberId);
-    const channel = await member.channel;
     return await this.service.updateChannelMember(member,dto);
   }
-
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Put(':id/role')
-  async put(
-    @Param('id') memberId:string,
-    @Body() dto:Pick<UpdateChannelmemberDTO, 'role'>  ){
-    const member = await this.service.findMember(memberId);
-    const channel = await member.channel;
-    return await this.service.updateChannelMember(member,dto);
-  }
-
-
 }

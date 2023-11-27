@@ -1,4 +1,4 @@
-import {IsBoolean, IsOptional} from "class-validator";
+import {IsBoolean, IsOptional, IsString} from "class-validator";
 import {ChannelUserSettings} from "../entities/channel-settings";
 import {MemberRole} from "@mdm/mdm-core";
 
@@ -10,6 +10,9 @@ export class UpdateChannelSettingsDTO implements ChannelUserSettings {
 }
 
 
-export class UpdateChannelmemberDTO {
+export class UpdateChannelMemberDTO {
+
+    @IsString()
+    @IsOptional()
     role: MemberRole;
 }

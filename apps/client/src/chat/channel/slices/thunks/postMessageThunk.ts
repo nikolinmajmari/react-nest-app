@@ -7,12 +7,18 @@ export interface IPostMessageArgs {
   slug: string;
   user: IUser,
   channelId: string,
-  message: Pick<IFeedMessage, "content" | "media">
+  message: Pick<IFeedMessage, "content" | "media">;
+  promise?: Promise<IFeedMessage>;
 }
+
+
 
 const postMessageThunk = createAsyncThunk<IFeedMessage, IPostMessageArgs>(
   '/channels/messages/post', async (args, thunkapi) => {
-    const {message, user, channelId, slug} = args;
+    if(args.promise){
+      return await args.promise;
+    }
+    const {message, user, channelId, slug} = args as IPostMessageArgs;
     const id = await channels.postChannelMessage(channelId, {
       content: message.content ?? "",
       media: message.media?.id,

@@ -3,7 +3,12 @@ import ChannelMessagesSkeleton from "../../../components/messages/MessagesSkelet
 import AnimatedOpacity from "../../../components/AnimatedOpacity";
 import ChannelEntry from "./FeedEntry";
 import ChannelFeed from "./FeedMessages";
-import {useChannelFeedStatus, useDispatchLoadFeed, useDispatchLoadInitialFeed} from "../../../app/hooks/feed";
+import {
+  useChannelFeedStatus,
+  useDispatchAddMessage,
+  useDispatchLoadFeed,
+  useDispatchLoadInitialFeed
+} from "../../../app/hooks/feed";
 import {ChannelFeedNavigation, DeleteMessagesNavigation} from "../ChannelNavigation";
 import CircleLoader from "../../../components/CircleLoader";
 import {useInView} from "react-intersection-observer";
@@ -14,10 +19,14 @@ import {ChannelContext} from "../providers/ChannelProvider";
 
 export default function ChannelFeedContainer() {
   const feedRef = React.useRef<HTMLDivElement>(null);
-  const {channel} = React.useContext(ChannelContext)
+  const {channel} = React.useContext(ChannelContext);
   const {selected} = React.useContext(SelectedContext);
   const loadInitialFeed = useDispatchLoadInitialFeed();
   const status = useChannelFeedStatus();
+  const addMessage = useDispatchAddMessage();
+  const subscribeAddMessage = ()=>{
+
+  };
   React.useEffect(() => {
     if (channel && channel.id) {
       loadInitialFeed(channel);

@@ -14,6 +14,11 @@ import Media from "../media/media.entity";
 import {MediaModule} from "../media/media.module";
 import ChannelsRepository from "./repositories/channels.repository";
 import {ParameterResolverPipe} from "./pipes/parameter.resolver.pipe";
+import {MembersController} from "./controllers/members.controller";
+import ChannelsGateway from "./channels.gateway";
+import {CommonModule} from "../common/common.module";
+import {ChannelsListener} from "./channels.listener";
+import {EventsModule} from "../events/events.module";
 
 
 @Module({
@@ -22,16 +27,20 @@ import {ParameterResolverPipe} from "./pipes/parameter.resolver.pipe";
             Channel, ChannelMemberEntity, MessageEntity,Media
         ]),
         AuthModule,
+        EventsModule,
+        CommonModule,
         AuthorizationModule,
         MediaModule
     ],
-    controllers: [ChannelsController],
+    controllers: [ChannelsController,MembersController],
     providers: [
         ChannelsService,
         ChannelValidationPipe,
         ParameterResolverPipe,
         MembersService,
         MessagingService,
+        ChannelsGateway,
+        ChannelsListener,
         ChannelsRepository
     ],
     exports: [

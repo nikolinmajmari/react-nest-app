@@ -66,16 +66,25 @@ const channelFeedSlice = createSlice({
       state.messages[index].media!.operation = undefined;
     },
     addMessage(state, action: PayloadAction<IFeedMessage>) {
-      state.messages.push(
-        {
-          ...action.payload,
-          status: MessageStatus.pending,
-          content: action.payload.content??"",
-        }
-      );
+      const idIndex = state.messages.findIndex(m=>m.id===action.payload.id);
+      console.log('adding ',action.payload.id);
+      const payload = {
+        status: MessageStatus.pending,
+        ...action.payload,
+        content: action.payload.content??"",
+      };
+      if(idIndex!==-1){
+        state.messages[idIndex] = {
+          ...state.messages[idIndex],
+          ...payload,
+        };
+      }else{
+        state.messages.push(payload);
+      }
     },
   },
   extraReducers(builder) {
+    ///
     builder
       .addCase(loadFeedThunk.rejected, (state, action) => {
         if (action.payload) {
@@ -96,21 +105,30 @@ const channelFeedSlice = createSlice({
         ];
         state.hasMore = action.payload.data.length == action.payload.meta.take;
       })
+      /// post message thunk
       .addCase(postMessageThunk.fulfilled, (state, action) => {
+        console.log('fullfilling promise');
         const index = state.messages.findIndex(
           (m: IFeedMessage) => m.slug === action.meta.arg.slug
         );
+        console.log(action);
+        const idIndex = state.messages.findIndex(
+          (m: IFeedMessage) => m.id === action.payload.id
+        );
+        console.log('posting message fullfilled',idIndex,state.messages,action.payload);
+        if(idIndex!==-1){
+          return;
+        }
         if (index !== -1) {
           state.messages[index] = {
             ...state.messages[index],
             ...action.payload
           }
-        } else {
-          state.messages.push(action.payload);
         }
       })
       .addCase(postMessageThunk.pending, (state, action) => {
-        const {slug, message, user} = action.meta.arg;
+        console.log('pending promise');
+        const {slug, message} = action.meta.arg;
         const index = state.messages.findIndex(s => slug === s.slug);
         if (index === -1) {
           state.messages = [
@@ -118,7 +136,6 @@ const channelFeedSlice = createSlice({
             {
               slug: slug,
               ...message,
-              sender: user,
               sentStatus: MediaStatus.pending,
             } as unknown as IFeedMessage
           ];
@@ -127,6 +144,7 @@ const channelFeedSlice = createSlice({
         }
       })
       .addCase(postMessageThunk.rejected, (state, action) => {
+        console.log('rejecting promise');
         const index = state.messages.findIndex(
           (m: IFeedMessage) => m.slug !== action.meta.arg.slug
         );

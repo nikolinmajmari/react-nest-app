@@ -4,6 +4,7 @@ import Channel from "../entities/channel.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {ChannelType, IUser, MemberRole} from "@mdm/mdm-core";
 import User from "../../users/entities/user.entity";
+import ChannelMember from "../entities/channel-member.entity";
 
 
 @Injectable()
@@ -137,6 +138,18 @@ export default class ChannelsRepository extends Repository<Channel>{
       .setParameter('id',id)
       .setParameter('userId',user.id);
     return query.getOneOrFail();
+  }
+
+  async findChannelUsers(channel:Channel){
+    return this.manager.createQueryBuilder()
+      .select([
+        'u.firstName','u.lastName','u.id','u.email'
+      ])
+      .from(User,'u')
+      .innerJoin(ChannelMember,'chm','chm.userId = u.id')
+      .innerJoin(Channel,'ch','ch.id = chm.channelId')
+      .where('ch.id = :id',{'id':channel.id})
+      .getMany();
   }
 
 }

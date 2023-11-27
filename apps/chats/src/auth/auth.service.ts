@@ -73,4 +73,19 @@ export class AuthService {
             accessToken, refreshToken
         ]
     }
+
+    async verifyToken(token:string){
+      return await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: jwtConstants.accessTokenSecret,
+          ignoreExpiration: true
+        }
+      );
+    }
+
+    async getUserProfile(email:string){
+      return this.usersService.findUserProfileInfoByIdentifier(email);
+    }
+
 }

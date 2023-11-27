@@ -5,14 +5,14 @@ import {Brackets, EntityManager, FindOptionsWhere, Repository} from "typeorm";
 import Channel from "../entities/channel.entity";
 import User from "../../users/entities/user.entity";
 import {CreateMessageDTO} from "../dto/channel.message.dto";
-import {IMessage} from "@mdm/mdm-core";
+import {IMessage, IPartialUser, IUser} from "@mdm/mdm-core";
 import Media from "../../media/media.entity";
 import {MediaService} from "../../media/services/media.service";
 import {skip} from "rxjs";
 
 
 export interface IUserChannelDTO<T> {
-    user: Partial<User>;
+    user: IPartialUser;
     channel: Channel;
     dto: T;
 }
@@ -32,16 +32,20 @@ export class MessagingService {
     ) {
     }
 
+    createMessageQueryBuilder(){
+      return this.repository.createQueryBuilder('m')
+        .select('m')
+        .addSelect([
+          "user.id", "user.firstName", 'user.lastName', 'user.email', 'user.avatar',
+          'media.id', 'media.uri', 'media.type','media.fileName'
+        ])
+        .leftJoin('m.sender', 'user')
+        .leftJoin('m.media', 'media');
+    }
+
     async getMessages(channel: Channel, query: any) {
         const builder =
-            this.repository.createQueryBuilder('m')
-                .select('m')
-                .addSelect([
-                    "user.id", "user.firstName", 'user.lastName', 'user.email', 'user.avatar',
-                    'media.id', 'media.uri', 'media.type','media.fileName'
-                ])
-                .leftJoin('m.sender', 'user')
-                .leftJoin('m.media', 'media')
+            this.createMessageQueryBuilder()
                 .andWhere('m.channelId = :channelId')
                 .addOrderBy('m.createdAt', 'DESC')
                 .setParameter('channelId', channel.id);
@@ -55,6 +59,12 @@ export class MessagingService {
         return result.reverse();
     }
 
+    async getMessage(id:string){
+      return this.createMessageQueryBuilder()
+        .where('m.id = :id',{'id':id})
+        .getOneOrFail();
+    }
+
 
     async createMessage({user, channel, dto}: IUserChannelDTO<CreateMessageDTO>): Promise<Message> {
         const message = this.repository.create(dto as unknown as Message);
@@ -63,8 +73,9 @@ export class MessagingService {
         const saved = await this.repository.save(message as Message);
         channel.lastMessage = Promise.resolve(saved);
         await this.em.save(channel);
-        return saved;
+        return this.getMessage(message.id);
     }
+
 
     async findOrFail(messageId:string,channel?:Channel){
       const more = {};

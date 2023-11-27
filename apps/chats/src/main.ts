@@ -7,10 +7,12 @@ import {Logger, ValidationPipe} from '@nestjs/common';
 import {NestFactory} from '@nestjs/core';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {AppModule} from './app/app.module';
+import {AppWsAdapter} from "./events/app-ws.adapter";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const globalPrefix = 'api';
+    app.useWebSocketAdapter(new AppWsAdapter())
     app.setGlobalPrefix(globalPrefix);
     app.useGlobalPipes(new ValidationPipe({
         transform: true,

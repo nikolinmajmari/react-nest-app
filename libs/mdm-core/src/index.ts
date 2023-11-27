@@ -5,6 +5,9 @@ export * from './lib/message';
 export * from './lib/media';
 export * from './lib/user';
 
+export * as ws from './lib/ws';
+
+
 
 export interface PaginationResponse<T>{
   data:T[],

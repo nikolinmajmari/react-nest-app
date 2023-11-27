@@ -1,4 +1,11 @@
-import {IChannel, IChannelCreate, IMessage, IMessageCreate, PaginationResponse} from "@mdm/mdm-core";
+import {
+  IChannel,
+  IChannelCreate,
+  IMessage,
+  IMessageCreate,
+  IPartialChannelMember,
+  PaginationResponse
+} from "@mdm/mdm-core";
 import { BaseClient } from "../base-client";
 
 export class ChannelsHandler{
@@ -50,8 +57,9 @@ export class ChannelsHandler{
       });
     }
 
-
-
+    async updateMember(id:string,dto:IPartialChannelMember){
+      return await this.baseClient.patch(`/members/${id}`,dto);
+    }
     async deleteMember(id:string){
         return await this.baseClient.delete(`/members/${id}`);
     }

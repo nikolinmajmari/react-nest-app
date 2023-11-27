@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 export function SettingsBody(props: any) {
   return (
     <div className="flex flex-1 items-center justify-center bg-gray-100 dark:bg-gray-700 dark:text-white py-2">
-      <div className="flex w-2/3 flex-col items-stretch pb-40">
+      <div className="flex w-full px-8 lg:w-2/3 md:flex-4/5 flex-col items-stretch pb-40">
         {props.children}
       </div>
     </div>

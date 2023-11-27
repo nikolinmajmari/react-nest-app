@@ -176,7 +176,10 @@ export function usePostMessageThunk(channel:string) {
       const sentMessagePromise =  new Promise<IFeedMessage>((resolve,reject)=>{
 
         wsContext.rpcSocket?.send<IFeedMessage,unknown>({
-          data: message,
+          data: {
+            ...message,
+            media: message.media?.id
+          },
           params:{channel},
           event:WsEvents.CHANNEL_MESSAGE_CREATE
         }).then(res=>{

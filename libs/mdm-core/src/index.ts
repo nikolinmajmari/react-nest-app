@@ -6,6 +6,7 @@ export * from './lib/media';
 export * from './lib/user';
 
 export * as ws from './lib/ws';
+export * as ev from './lib/event-emitter';
 
 
 

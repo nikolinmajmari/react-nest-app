@@ -25,6 +25,7 @@ import MediaLinks from "../chat/channel/media/Links";
 import ChannelDetailsNavigation from "../chat/channel/ChannelDetailsNavigation";
 import WebSocketConnectionProvider from "../providers/WebsocketConnectionProvider";
 import MultiProvider from "../providers/MultiProvider";
+import AppEventEmitterProvider from "../providers/AppEventEmitterProvider";
 
 function Root(){
   const location = useLocation();
@@ -40,6 +41,7 @@ function Root(){
         <Route element={
           <MultiProvider providers={
             [
+              AppEventEmitterProvider,
               WebSocketConnectionProvider
             ]
           }>

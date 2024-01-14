@@ -8,7 +8,7 @@ import {
   useDispatchAddMessage,
   useDispatchLoadFeed,
   useDispatchLoadInitialFeed
-} from "../../../app/hooks/feed";
+} from "../slices/hooks/feed";
 import {ChannelFeedNavigation, DeleteMessagesNavigation} from "../ChannelNavigation";
 import CircleLoader from "../../../components/CircleLoader";
 import {useInView} from "react-intersection-observer";

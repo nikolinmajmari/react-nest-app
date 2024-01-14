@@ -10,15 +10,20 @@ import {CommonEntity} from "../../common/common.entity";
 export default class Message extends CommonEntity implements IMessageEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
+
     @OneToOne(() => Media)
     @JoinColumn()
     media: Promise<Media | null>;
+
     @Column({type: "text"})
     content: string;
+
     @CreateDateColumn()
     createdAt: Date;
+
     @ManyToOne(() => User, {onDelete: "SET NULL", eager: true})
     sender: Promise<User>;
+
     @ManyToOne(() => Channel, channel => channel.messages, {onDelete: 'CASCADE'})
     channel: Promise<Channel>;
 

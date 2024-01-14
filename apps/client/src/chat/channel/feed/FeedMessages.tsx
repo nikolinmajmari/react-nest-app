@@ -6,7 +6,7 @@ import {
   useChannelFeedMessages, useDispatchAddMessage,
   useDispatchLoadFeed,
   useRetryPostMessage
-} from "../../../app/hooks/feed";
+} from "../slices/hooks/feed";
 import {useCurrentUser} from "../../../app/hooks/auth";
 import {IFeedMessage} from "../slices/channel-feed.model";
 import {motion, AnimatePresence} from "framer-motion";
@@ -14,9 +14,10 @@ import ThreeDotsWave from "../../../components/ThreeDotsWave";
 import {ChannelContext} from "../providers/ChannelProvider";
 import {SelectedContext} from "../../../providers/SelectedContextProvider";
 import {WebSocketContext} from "../../../providers/WebsocketConnectionProvider";
-import {IWsEvent, WsEvents} from "../../../../../../libs/mdm-core/src/lib/ws";
 import {IMessage} from "@mdm/mdm-core";
-
+import emitter from "../../../util/app.emitter";
+import {IAppEvent,middlewares} from "@mdm/event-emitter";
+import {ws} from "@mdm/mdm-core";
 
 const FeedMessages = forwardRef(function (props, fwRef) {
   const messages = useChannelFeedMessages();
@@ -24,25 +25,18 @@ const FeedMessages = forwardRef(function (props, fwRef) {
   const loadFeed = useDispatchLoadFeed();
   const hasMore = useChannelFeedHasMore();
   const addMessage = useAddWsMessage();
-  const wsProvider = React.useContext(WebSocketContext);
-  const handleMessage = React.useCallback((ev:MessageEvent<any>)=>{
-    const result = JSON.parse(ev.data) as IWsEvent<IMessage>;
-    if(result.event === WsEvents.CHANNEL_MESSAGE_CREATED && result.params.channel === channel?.id){
-      /// message is for this channel
-      console.log(messages.filter(m=>m.id===result.data.id));
-      if(messages.findIndex(m=>m.id===result.data.id)===-1){
-        setTimeout(()=> addMessage(result.data));
-      }
-    }
-  },[channel,messages,addMessage])
+  const handleAddMessage = React.useCallback((ev:IAppEvent<IMessage, any>)=>{
+    setTimeout(()=> addMessage(ev.data));
+  },[channel]);
   React.useEffect(()=>{
-    if(wsProvider.webSocket?.readyState===WebSocket.OPEN){
-      wsProvider.webSocket.addEventListener('message',handleMessage);
-    }
+    emitter.on(ws.WsEvents.CHANNEL_MESSAGE_CREATED,
+      middlewares.looseMatch({channel:channel?.id}),
+      handleAddMessage
+    );
     return ()=>{
-      wsProvider.webSocket?.removeEventListener('message',handleMessage);
+      emitter.remove('message',handleAddMessage);
     }
-  },[wsProvider.webSocket,handleMessage,messages]);
+  },[emitter,handleAddMessage]);
   return (
     <>
      <InfiniteScroll

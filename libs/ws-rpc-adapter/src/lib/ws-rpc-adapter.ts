@@ -1,9 +1,17 @@
 import {IWsRequest, IWsResponse} from "libs/mdm-core/src/lib/ws";
 
 /**
- *
+ * This classes enforces rpc protocol for websocket
+ * you may send a message via
+ * const promise = adapter.send({data:payload,params:object,event:string})
+ * and expect result via promise api
+ * promise.then(res=>{id:res.id,result:res.result}).catch(timeout=>timeout);
  */
-export default class WebSocketJsonRPCAdapter{
+export class WSRPCAdapter{
+
+  static timeoutError = {
+    'error':{'message':'operation timed out'}
+  };
 
   /**
    *
@@ -45,7 +53,6 @@ export default class WebSocketJsonRPCAdapter{
    */
   async send<R extends  any,E extends any>(data:IWsRequest<any>):Promise<IWsResponse<R, E>>{
     const id = data.id ?? (Math.random() + 1).toString(36).substring(7);
-    console.log('request with ',id);
     const task =  new Promise<IWsResponse<R, E>>((resolve, reject)=>{
       const handler = (res:IWsResponse<any, any>)=>{
         if(res.error){
@@ -56,7 +63,6 @@ export default class WebSocketJsonRPCAdapter{
       if(id){
         this.handlers.set(id,handler);
       }
-      console.log('sending ',data,' to ',this.webSocket.readyState)
       this.webSocket.send(JSON.stringify({
         ...data,
         id
@@ -67,13 +73,11 @@ export default class WebSocketJsonRPCAdapter{
         if(id){
           this.handlers.delete(id);
         }
-        reject({
-          'error':{'message':'operation timed out'}
-        })
+        reject(WSRPCAdapter.timeoutError)
       },4000);
     });
-    return Promise.race([
-      task,timeout
+    return await Promise.race([
+      task, timeout
     ]) as Promise< IWsResponse<R, E>>;
   }
 }

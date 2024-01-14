@@ -52,7 +52,7 @@ export default function ChannelsContainer() {
              }
              {data.map(
                (ch: IChannel) =>
-                <AnimatePresence>
+                <AnimatePresence key={ch.id}>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

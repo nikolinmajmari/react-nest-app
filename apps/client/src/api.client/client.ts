@@ -2,10 +2,15 @@ import { AuthHandler, BaseClient, ChannelsHandler, MediaHandler, UsersHandler } 
 import axios from "axios";
 import storage from "../core/storage";
 
-export const ServerEndpoint = 'http://localhost:3000';
+export const ServerEndpoint = 'http://192.168.1.4:3000';
 
 const instance = axios.create({
     baseURL: ServerEndpoint+"/api",
+    withCredentials: false,
+    headers: {
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+    }
 });
 
 instance.interceptors.request.use((config)=>{

@@ -14,6 +14,9 @@ export function Login(){
     const handleSignIn = ()=>{
         signIn({email,password});
     }
+    if(error){
+      alert(error);
+    }
 
     if(user){return <Navigate to={"/chat"}/>};
     return (

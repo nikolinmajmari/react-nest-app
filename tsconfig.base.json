@@ -15,8 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@mdm/event-emitter": ["libs/event-emitter/src/index.ts"],
       "@mdm/mdm-core": ["libs/mdm-core/src/index.ts"],
-      "@mdm/mdm-js-client": ["libs/mdm-js-client/src/index.ts"]
+      "@mdm/mdm-js-client": ["libs/mdm-js-client/src/index.ts"],
+      "@mdm/replyable": ["libs/replyable/src/index.ts"],
+      "@mdm/ws-rpc-adapter": ["libs/ws-rpc-adapter/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

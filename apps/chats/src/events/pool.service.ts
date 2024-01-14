@@ -9,19 +9,20 @@ export default class WsPoolService{
 
   private clients = new Map<string,WebSocket>();
 
-  constructor(
-    private emitter:EventEmitter2
-  ) {
+  constructor() {
   }
 
   add(socket:WebSocket):string{
+    console.log('adding',socket.handshake);
     socket.id = uuid();
     this.clients.set(socket.id,socket);
     return socket.id;
   }
 
   getUserConnections(user:IPartialUser){
-    return Array.from(this.clients.values()).filter(v=>v.handshake.user.id===user.id);
+    return Array.from(this.clients.values()).filter(
+      client=>client.handshake.user.id===user.id && client.readyState === client.OPEN
+    );
   }
 
   bulkNotifyUsers(users:IUser[],handler:(conn:WebSocket)=>Promise<void>|void){
@@ -36,12 +37,7 @@ export default class WsPoolService{
   remove(id:string){
     const client = this.clients.get(id);
     if(client){
-      client.close();
       this.clients.set(id,null);
     }
-  }
-
-  count(){
-    return this.clients.size;
   }
 }

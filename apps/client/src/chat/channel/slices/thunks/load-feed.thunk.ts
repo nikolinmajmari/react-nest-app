@@ -8,14 +8,5 @@ const loadFeedThunk = createAsyncThunk<PaginationResponse<IMessage>, {channelId:
   }
 );
 
-function delayed<T>(promise:Promise<T>) {
-  return new Promise<T>((resolve, reject)=>{
-    setTimeout(
-      async ()=>resolve(await promise),
-      10000
-    )
-  })
-}
-
 
 export default loadFeedThunk;

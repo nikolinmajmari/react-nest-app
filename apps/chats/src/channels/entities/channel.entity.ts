@@ -52,7 +52,6 @@ export default class Channel extends CommonEntity implements IChannelEntity {
     constructor(partial: Partial<Channel>) {
         super();
         Object.assign(this, partial);
-
     }
 
 }

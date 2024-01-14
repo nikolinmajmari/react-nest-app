@@ -41,7 +41,6 @@ function Root(){
         <Route element={
           <MultiProvider providers={
             [
-              AppEventEmitterProvider,
               WebSocketConnectionProvider
             ]
           }>
@@ -111,7 +110,7 @@ export function App() {
     <ToastNotificationProvider>
       <ContextMenuProvider>
        <RouterProvider router={router}/>
-    </ContextMenuProvider>
+      </ContextMenuProvider>
     </ToastNotificationProvider>
   );
 }

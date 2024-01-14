@@ -10,7 +10,7 @@ const loginThunk = createAsyncThunk<IAuthLoginResult,LoginCredentials>(
         try{
             return await auth.login(credentials);
         }catch(e){
-            console.log(e);
+            alert(e);
             throw e;
         }
     }
@@ -24,7 +24,7 @@ export function registerLoginThunk(builder: ActionReducerMapBuilder<IAuthState>)
         state.user = action.payload.user;
         state.token = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
-        //// store the data 
+        //// store the data
         storage.setAuthData(action.payload);
     })
     .addCase(loginThunk.pending,(state,action)=>{

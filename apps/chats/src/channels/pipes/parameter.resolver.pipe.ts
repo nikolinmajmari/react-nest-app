@@ -15,8 +15,6 @@ export class ParameterResolverPipe implements  PipeTransform{
   transform(value: any, metadata: ArgumentMetadata): any {
     console.log(value);
     if(metadata.type==='param'){
-      //// resolve entity
-      console.log(metadata.metatype);
       return this.entityManager.getRepository(metadata.metatype)
           .findOneByOrFail({id:value});
     }

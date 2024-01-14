@@ -18,6 +18,8 @@ async function bootstrap() {
         transform: true,
         whitelist: true
     }));
+
+    //
     app.enableCors();
     const config = new DocumentBuilder()
         .setTitle("Chat API")

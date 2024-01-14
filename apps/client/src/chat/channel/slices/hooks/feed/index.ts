@@ -1,24 +1,18 @@
-import {IChannel, IMedia, IMessage} from "@mdm/mdm-core";
-import {useAppDispatch, useAppSelector} from ".";
-import {useCurrentUser} from "./auth";
+import {IChannel, IMedia, IMessage,ws} from "@mdm/mdm-core";
+import {useAppDispatch, useAppSelector} from "../../../../../app/hooks";
+import {useCurrentUser} from "../../../../../app/hooks/auth";
 import React, {useCallback} from "react";
 import {
   abortMediaProgress,
   addMessage,
-  completeMediaProgress,
   loadFeedThunk,
   postMessageThunk,
-  restartMediaProgress,
-  startMediaProgress,
-  updateMediaProgress
-} from "../../chat/channel/slices/channel-feed.slice";
-import {IFeedMessage, MediaStatus, MessageStatus} from "../../chat/channel/slices/channel-feed.model";
-import {useDispatch} from "react-redux";
+} from "../../channel-feed.slice";
+import {IFeedMessage, MessageStatus} from "../../channel-feed.model";
+import {media as mediaClient} from "../../../../../api.client/client";
+import deleteMessagesThunk from "../../thunks/delete-messages.thunk";
+import {WebSocketContext} from "../../../../../providers/WebsocketConnectionProvider";
 
-import {media as mediaClient} from "../../api.client/client";
-import deleteMessagesThunk from "../../chat/channel/slices/thunks/deleteMessagesThunk";
-import {WebSocketContext} from "../../providers/WebsocketConnectionProvider";
-import {WsEvents} from "../../../../../libs/mdm-core/src/lib/ws";
 
 
 export function useChannelFeedMessages() {
@@ -36,7 +30,6 @@ export function useChannelFeedHasMore():boolean{
 export function useDispatchLoadFeed() {
   const dispatch = useAppDispatch();
   const messages = useChannelFeedMessages();
-  console.log('hey from ',messages.length);
   return useCallback(function (channel: IChannel) {
     dispatch(loadFeedThunk({
       channelId:channel.id,skip:messages.length,take:10
@@ -86,82 +79,7 @@ export interface IPostMediaArgs extends  Pick<IMedia, 'type'|'uri'|'fileName'>{
   formData:FormData
 }
 
-/**
- *
- * @returns
- */
-export function usePostMessage(channel:string) {
-  const dispatch = useDispatch();
-  const addMessage = useDispatchAddMessage();
-  const user = useCurrentUser();
-  const postMessageThunk = usePostMessageThunk(channel);
-  return useCallback(async function (args: IPostMessageArgs) {
-    const {slug, content, media, onAfterAdd} = args;
-    if(!args.media){
-      postMessageThunk(slug, {content,sender:user});
-      if (onAfterAdd) {
-        onAfterAdd();
-      }
-      return;
-    }
-    addMessage({
-      media: {
-        uri:media?.uri,
-        type: media?.type,
-        fileName: media?.fileName,
-        status: MediaStatus.pending
-      },
-      slug: slug,
-      content: content
-    });
-    if (onAfterAdd) {
-      onAfterAdd();
-    }
-    try {
-      const [key, request] = mediaClient.upload(args.media.formData);
 
-      dispatch(startMediaProgress({slug: slug,requestKey:key}));
-      const uploadedMedia = await request.reply({
-        onUploadProgress: (e) => {
-          dispatch(updateMediaProgress({slug, progress: e.progress ?? 0}))
-        },
-      });
-      completeMediaProgress({slug});
-      postMessageThunk(slug, { content: content, media: uploadedMedia,sender:user});
-    } catch (e) {
-      dispatch(abortMediaProgress({slug}));
-    }
-  }, [user, postMessage, dispatch, addMessage,channel]);
-}
-
-export function useRetryPostMessage(channel:string,message:IFeedMessage){
-  const slug= message.slug!;
-  const user = useCurrentUser();
-  const postMessage = usePostMessageThunk(channel);
-  const dispatch = useAppDispatch();
-  return useCallback(async function (){
-    if(message.media &&  message.media.operation){
-      const request = mediaClient.storage.get<IMedia>(message.media.operation.requestKey)!;
-      dispatch(restartMediaProgress({slug: message.slug!}));
-      const uploadedMedia = await request.reply({
-        onUploadProgress: (e) => {
-          dispatch(updateMediaProgress({slug:message.slug!, progress: e.progress ?? 0}))
-        },
-      });
-      completeMediaProgress({slug});
-      await postMessage(slug, {
-        content: message.content,
-        media: uploadedMedia,
-        sender: user
-      })
-    }else{
-      await postMessage(slug, {
-        content: message.content,
-        sender: user
-      })
-    }
-  },[message,channel,user])
-}
 
 export function usePostMessageThunk(channel:string) {
   const dispatch = useAppDispatch();
@@ -171,17 +89,15 @@ export function usePostMessageThunk(channel:string) {
   }
   const wsContext = React.useContext(WebSocketContext);
   return useCallback(function (slug: string, message: Pick<IFeedMessage, 'content' | 'media'|'sender'>) {
-    console.log(wsContext,wsContext.rpcSocket,wsContext.webSocket?.readyState==WebSocket.OPEN);
     if(wsContext && wsContext.rpcSocket && wsContext.webSocket?.readyState==WebSocket.OPEN){
       const sentMessagePromise =  new Promise<IFeedMessage>((resolve,reject)=>{
-
         wsContext.rpcSocket?.send<IFeedMessage,unknown>({
           data: {
             ...message,
             media: message.media?.id
           },
           params:{channel},
-          event:WsEvents.CHANNEL_MESSAGE_CREATE
+          event:ws.WsEvents.CHANNEL_MESSAGE_CREATE
         }).then(res=>{
           console.log('resolving ',res);
           resolve(res.result!);
@@ -201,7 +117,7 @@ export function usePostMessageThunk(channel:string) {
 export function useAbortMediaProgress() {
   const dispatch = useAppDispatch();
   return useCallback(function (slug:string,requestKey:string) {
-    mediaClient.storage.get<IMedia>(requestKey)!.controller!.abort();
+    mediaClient.storage.get<IMedia,any>(requestKey)!.controller!.abort();
     dispatch(abortMediaProgress({slug}));
   }, [dispatch])
 }
@@ -216,3 +132,7 @@ export function useDeleteMessages(channel:IChannel){
     }))
   },[channel.id,dispatch]);
 }
+
+
+export * from "./use-post-message";
+export * from "./use-retry-post-message";

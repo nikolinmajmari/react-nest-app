@@ -3,9 +3,7 @@ import {ApiProperty, PartialType} from "@nestjs/swagger";
 import {Type} from "class-transformer";
 import {
     ChannelType,
-    DeepPartialArrayResolve, DeepPartialResolve,
     IChannelMemberCreate,
-    IChannelMemberEntity, IPartialChannel,
     MemberRole
 } from "@mdm/mdm-core";
 

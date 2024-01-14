@@ -1,12 +1,9 @@
 import {
-  MessageBody,
   OnGatewayConnection, OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway, WebSocketServer
 } from "@nestjs/websockets";
-import {Injectable, Logger, UseGuards} from "@nestjs/common";
-import {AuthGuard} from "../auth/guard/auth.guard";
+import { Logger} from "@nestjs/common";
 import {IncomingMessage} from "http";
 import {WebSocket,Server} from "ws";
 import '../types';
@@ -31,6 +28,7 @@ export default class EventsGateway implements OnGatewayInit,OnGatewayConnection,
 
   handleDisconnect(client: WebSocket) {
     client.close();
+    this.pool.remove(client.id);
   }
 
   @WebSocketServer()

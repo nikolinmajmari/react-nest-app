@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {
-  IChannelMessagesState, IFeedMediaMessageSlug,
-  IFeedMessage, IFeedMessageMedia, IFeedMessageMediaSlug,
-  IFeedMessageSlug, IMessageStartMediaProgressPayload,
+  IChannelMessagesState,
+  IFeedMessage,
+  IFeedMessageSlug,
+  IMessageStartMediaProgressPayload,
   IMessageUploadMediaProgressPayload,
   MediaStatus,
   MessageStatus
 } from "./channel-feed.model";
-import loadFeedThunk from "./thunks/loadFeedThunk";
-import postMessageThunk from "./thunks/postMessageThunk";
-import deleteMessagesThunk from "./thunks/deleteMessagesThunk";
+import loadFeedThunk from "./thunks/load-feed.thunk";
+import postMessageThunk from "./thunks/post-message.thunk";
+import deleteMessagesThunk from "./thunks/delete-messages.thunk";
 
 
 const initialState: IChannelMessagesState = {
@@ -24,10 +25,21 @@ const channelFeedSlice = createSlice({
   initialState,
   name: "chat_channels_id_messages",
   reducers: {
-    markMessageSent(state, action) {
+    /// media reducers
+    startMediaProgress(state, action: PayloadAction<IMessageStartMediaProgressPayload>) {
+      const index = state.messages.findIndex(
+        m => m.slug === action.payload.slug
+      );
+      state.messages[index].media!.operation = {
+        requestKey:action.payload.requestKey,
+        progress: 0.1
+      };
+      state.messages[index].media!.uploadType = true;
+    },
+    restartMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
-      state.messages[index].createdAt = new Date();
-      state.messages[index].status = MessageStatus.sent;
+      state.messages[index].media!.operation!.progress=0.1;
+      state.messages[index].media!.uploadType = true;
     },
     abortMediaProgress(state, action:PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(
@@ -40,34 +52,17 @@ const channelFeedSlice = createSlice({
         state.messages.findIndex(
           m =>m?.media?.operation && m.slug === action.payload.slug
         );
-        state.messages[index].media!.operation!.progress = action.payload.progress;
-    },
-    startMediaProgress(state, action: PayloadAction<IMessageStartMediaProgressPayload>) {
-      const index = state.messages.findIndex(
-        m => m.slug === action.payload.slug
-      );
-      state.messages[index].media!.operation = {
-        requestKey:action.payload.requestKey,
-        progress: 0.1
-      };
-      state.messages[index].media!.uploadType = true;
-    },
-    setHasNoMore(state,action){
-      state.hasMore = false;
-    },
-    restartMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
-      const index = state.messages.findIndex(m => m.slug === action.payload.slug);
-      state.messages[index].media!.operation!.progress=0.1;
-      state.messages[index].media!.uploadType = true;
+      state.messages[index].media!.operation!.progress = action.payload.progress;
     },
     completeMediaProgress(state, action: PayloadAction<IFeedMessageSlug>) {
       const index = state.messages.findIndex(m => m.slug === action.payload.slug);
       state.messages[index].media!.status = MediaStatus.succeded;
       state.messages[index].media!.operation = undefined;
     },
+
+    /// message reducers
     addMessage(state, action: PayloadAction<IFeedMessage>) {
       const idIndex = state.messages.findIndex(m=>m.id===action.payload.id);
-      console.log('adding ',action.payload.id);
       const payload = {
         status: MessageStatus.pending,
         ...action.payload,
@@ -107,41 +102,27 @@ const channelFeedSlice = createSlice({
       })
       /// post message thunk
       .addCase(postMessageThunk.fulfilled, (state, action) => {
-        console.log('fullfilling promise');
-        const index = state.messages.findIndex(
-          (m: IFeedMessage) => m.slug === action.meta.arg.slug
+        let index = state.messages.findIndex(
+          (m: IFeedMessage) => m.slug === action.meta.arg.slug || m.id === action.payload.id
         );
-        console.log(action);
-        const idIndex = state.messages.findIndex(
-          (m: IFeedMessage) => m.id === action.payload.id
-        );
-        console.log('posting message fullfilled',idIndex,state.messages,action.payload);
-        if(idIndex!==-1){
-          return;
-        }
-        if (index !== -1) {
-          state.messages[index] = {
-            ...state.messages[index],
-            ...action.payload
-          }
+        index = index===-1 ? state.messages.length : index;
+        state.messages[index] = {
+          ...(state.messages[index]||{}),
+          ...action.payload
         }
       })
       .addCase(postMessageThunk.pending, (state, action) => {
-        console.log('pending promise');
         const {slug, message} = action.meta.arg;
-        const index = state.messages.findIndex(s => slug === s.slug);
-        if (index === -1) {
-          state.messages = [
-            ...state.messages,
-            {
-              slug: slug,
-              ...message,
-              sentStatus: MediaStatus.pending,
-            } as unknown as IFeedMessage
-          ];
-        } else {
-          state.messages[index].status = MessageStatus.pending;
-        }
+        let index = state.messages.findIndex(
+          (m: IFeedMessage) => m.slug === action.meta.arg.slug
+        );
+        index = index ===-1 ? state.messages.length : index;
+        state.messages[index] = {
+          ...(state.messages[index]||{}),
+          slug: slug,
+          ...message,
+          status: MessageStatus.pending,
+        } as IFeedMessage;
       })
       .addCase(postMessageThunk.rejected, (state, action) => {
         console.log('rejecting promise');
@@ -183,11 +164,9 @@ export const {
   addMessage,
   completeMediaProgress,
   abortMediaProgress,
-  markMessageSent,
   restartMediaProgress,
   startMediaProgress,
   updateMediaProgress,
-  setHasNoMore,
 } = channelFeedSlice.actions;
 export {loadFeedThunk, postMessageThunk,deleteMessagesThunk};
 export default channelFeedSlice.reducer;

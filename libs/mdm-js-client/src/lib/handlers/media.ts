@@ -10,11 +10,9 @@ export class MediaHandler extends AbstractRepository{
     ){
       super();
     }
-
-    public cache = new RequestStorage();
-
+    
     upload(data:FormData){
-        return this.replyable<IMedia>(
+        return this.storage.add<IMedia,AxiosRequestConfig>(
           (config)=>{
             return this.baseClient.post<IMedia>(`/media`,data,{
               ...config

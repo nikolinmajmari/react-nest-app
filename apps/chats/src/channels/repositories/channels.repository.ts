@@ -79,18 +79,6 @@ export default class ChannelsRepository extends Repository<Channel>{
   }
 
   //// queries
-  async userIsMember(channel:Channel,user:IUser,requireAdmin:boolean=false){
-    const query =  this.createChannelUserQueryBuilder(channel,user as User);
-    if(requireAdmin){
-      query.andWhere(
-        new Brackets((qb)=>{
-          return qb.orWhere('ch.type = :private',{private:'private'})
-            .orWhere('m.role = :admin',{admin:MemberRole.admin})
-        })
-      );
-    }
-    return query.getExists();
-  }
 
   async privateChannelWithUsersExists(firstMember:string,secondMember:string){
     const query = this.createQueryBuilder('ch')

@@ -21,7 +21,7 @@ export default class WsPoolService{
 
   getUserConnections(user:IPartialUser){
     return Array.from(this.clients.values()).filter(
-      client=>client.handshake.user.id===user.id && client.readyState === client.OPEN
+      client=>client.handshake?.user?.id===user.id && client.readyState === client.OPEN
     );
   }
 

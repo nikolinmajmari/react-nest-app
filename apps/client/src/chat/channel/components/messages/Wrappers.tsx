@@ -19,10 +19,10 @@ export function MessageBodyWrapper(props: IAlignProp & React.HTMLProps<HTMLDivEl
   </div>);
 }
 export function MessageWrapper(props: IAlignProp & React.HTMLProps<HTMLDivElement> & {reduced:boolean}) {
-  const {align, className, ...rest} = props;
+  const {align, className,reduced, ...rest} = props;
   return (
     <div
-      {...rest} className={`flex items-start ${!props.reduced ? 'pt-3':''} pb-1 m-1 gap-2
+      {...rest} className={`flex items-start ${!reduced ? 'pt-3':''} pb-1 m-1 gap-2
             ${align === Align.left ? "flex-row" : "flex-row-reverse"}
             ${className}
             `}>

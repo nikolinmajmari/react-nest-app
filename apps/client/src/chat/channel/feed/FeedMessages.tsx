@@ -94,7 +94,7 @@ export function ChannelMessageContainer({message,previous}: IChannelMessageConta
   let diffDay= message?.createdAt?.toString().slice(0, 10)!=previous?.createdAt?.toString().slice(0, 10);
   return (
    <>
-     <AnimatePresence>
+     <AnimatePresence key={message.id}>
        {
          !message.deleting && (
            <motion.div
@@ -103,6 +103,7 @@ export function ChannelMessageContainer({message,previous}: IChannelMessageConta
              exit={{ opacity: 0 }}
            >
              <Message
+               key={message.id}
                content={message.content ?? ""}
                media={message.media??undefined}
                timestamp={message?.createdAt?.toString().slice(0, 10) ?? ""}

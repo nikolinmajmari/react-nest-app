@@ -2,15 +2,17 @@ import React, {FormEventHandler, forwardRef, KeyboardEventHandler, MutableRefObj
 import {IPostMediaArgs, usePostMessage} from "../slices/hooks/feed";
 import {GrAttachment} from "react-icons/gr";
 import {MediaType} from "@mdm/mdm-core";
-import {useKeyPress} from "./hooks";
 import {AiOutlineSend} from "react-icons/ai";
 import {SelectedContext} from "../../../providers/SelectedContextProvider";
 import {ChannelContext} from "../providers/ChannelProvider";
-import {config, setEndOfContenteditable} from "./util";
+import {config} from "./util";
 import EntryOptionButton from "../components/EntryOptionButton";
 import EntryMedia from "../components/EntryMedia";
 import useMedia from "./hooks/useMedia";
 import EntryContent from "../components/EntryContent";
+import useKeyboard from "./hooks/useKeyboard";
+import useContent from "./hooks/useContent";
+import {EntrySubmitButton} from "../components/EntryButtons";
 
 
 export interface IChannelEntryProps{
@@ -24,20 +26,20 @@ const ChannelEntry = forwardRef<HTMLDivElement,IChannelEntryProps>(function (pro
   const {channel} = React.useContext(ChannelContext)!;
 
   /// refs
-  const formRef = React.useRef<HTMLFormElement>(null)
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const forwardedRef = ref as MutableRefObject<HTMLDivElement>;
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   /// hooks
-  const media = useMedia({ onAfterChange:()=>contentRef?.current?.focus()});
-  const { onKeyUp, onKeyDown} = useKeyPress();
   const postMessage = usePostMessage(channel!.id);
+
+  const content = useContent();
+  const media = useMedia({ onAfterChange: content.focus});
+  const {onKeyDown } = useKeyboard({formRef,contentRef:content.ref});
 
   /// handlers
   const handleAutoScroll = ()=>{
     setTimeout(()=>{
-      forwardedRef.current.scrollTo({
-        top:forwardedRef.current.scrollHeight,
+      (ref as MutableRefObject<HTMLDivElement>).current.scrollTo({
+        top:(ref as MutableRefObject<HTMLDivElement>).current.scrollHeight,
         behavior:'smooth'
       })
     });
@@ -57,39 +59,20 @@ const ChannelEntry = forwardRef<HTMLDivElement,IChannelEntryProps>(function (pro
       media.clear();
     }
     const postArgs = {
-      content: contentRef.current?.innerText ?? "",
+      content: content.ref.current?.innerText ?? "",
       media: mediaPayload,
       slug,
       onAfterAdd: handleAutoScroll
     };
-    if (contentRef.current) {
-      contentRef.current.innerHTML = "";
-      contentRef.current.focus();
-    }
-    console.log('posting',postArgs);
+    content.clear();
     await postMessage(postArgs);
-  }
-  const handleFormOnKeyDown: KeyboardEventHandler<HTMLFormElement> =async (e) => {
-    onKeyDown(e);
-    if (e.key === "Enter") {
-      if (!e.altKey) {
-        handleFormSubmit(e);
-      } else if (contentRef.current) {
-        contentRef.current.innerHTML += '<div><br/></div>';
-        setTimeout(() => setEndOfContenteditable(contentRef.current!));
-      }
-    }
-    if(e.ctrlKey && e.key === 'v'){
-      const data = await navigator.clipboard.read()
-      console.log(data.length);
-    }
   }
 
   return (
     <form onSubmit={props.disabled ? undefined: handleFormSubmit}
           onFocus={props.disabled ? undefined:clear}
           className={'z-10'}
-          onKeyDown={props.disabled ? undefined:handleFormOnKeyDown} onKeyUp={onKeyUp} ref={formRef}
+          onKeyDown={props.disabled ? undefined:onKeyDown} ref={formRef}
           aria-disabled={props.disabled}
           encType="multipart/form-data">
     <input onChange={props.disabled ? undefined:media.onChange}
@@ -98,21 +81,16 @@ const ChannelEntry = forwardRef<HTMLDivElement,IChannelEntryProps>(function (pro
            name="file"
            ref={media.ref}
            className="hidden"></input>
-    <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start
+      <div className=" bg-slate-100 shadow-y-lg bg-opacity-60 sticky bottom-0 backdrop-blur-lg flex flex-col py-3 items-start
                 dark:bg-slate-800
             ">
-      {media.value && <EntryMedia name={media.value} type={MediaType.file} clear={media.clear}/>}
-      <div className="flex flex-row items-center justify-between w-full px-2">
+        {media.value && <EntryMedia name={media.value} type={MediaType.file} clear={media.clear}/>}
+        <div className="flex flex-row items-center justify-between w-full px-2">
         <EntryOptionButton onClick={props.disabled ? undefined :media.trigger}>
           <GrAttachment/>
         </EntryOptionButton>
-        <EntryContent ref={contentRef} disabled={props.disabled??false}></EntryContent>
-        <button
-          type="submit"
-          disabled={props.disabled}
-          className="mx-2 bg-teal-800 hover:bg-teal-900 text-white p-4 rounded-full ">
-          <AiOutlineSend/>
-        </button>
+        <EntryContent ref={content.ref} disabled={props.disabled??false}></EntryContent>
+        <EntrySubmitButton disabled={props.disabled||false}/>
       </div>
     </div>
   </form>);

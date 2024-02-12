@@ -1,12 +1,8 @@
-import {TfiArrowLeft} from "react-icons/tfi";
-import {NavigationHeader} from "../../../components/channels/NavigationHeader";
 import {ChannelType} from "@mdm/mdm-core";
 import React from "react";
-import {SettingsAvatar, SettingsBody, SettingsChannelName, SettingsListItemLink} from "./Components";
+import { SettingsListItemLink} from "./Components";
 import {ChannelContext} from "../providers/ChannelProvider";
-import {LinkButton} from "../../../components/controls/Links";
 import SwitchControl from "../../../components/controls/SwitchControl";
-import {NavigationButton} from "../../../components/controls/Buttons";
 import {useNavigate} from "react-router-dom";
 
 export default function ChannelSettings() {

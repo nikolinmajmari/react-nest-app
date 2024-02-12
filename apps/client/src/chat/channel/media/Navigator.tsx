@@ -1,9 +1,6 @@
-import ChannelDetailsNavigationWrapper from "../components/ChannelDetailsNavigationWrapper";
-import {Outlet, useLocation, useNavigate} from "react-router-dom";
-import AnimatedOpacity from "../../../components/AnimatedOpacity";
-import {
-    LinkButton,
 
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
+import {
     TabLinkNavigation
 } from "../../../components/controls/Links";
 import {NavigationHeader} from "../../../components/channels/NavigationHeader";

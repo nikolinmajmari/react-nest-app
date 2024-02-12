@@ -1,7 +1,10 @@
 import {MediaType} from "@mdm/mdm-core";
 
+//todo move to @mdm/mdm-core
 export const config: { [key: string]: MediaType } = {
-  "audio/mpeg": MediaType.audio, "audio/vorbis": MediaType.audio,
+  'audio/webm;codecs=opus':MediaType.audio,
+  "audio/mpeg": MediaType.audio,
+  "audio/vorbis": MediaType.audio,
 
   /// images
   "image/jpeg": MediaType.image, "image/png": MediaType.image, "image/svg+xml": MediaType.image,

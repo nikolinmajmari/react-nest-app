@@ -114,12 +114,18 @@ export function usePostMessageThunk(channel:string) {
 }
 
 
-export function useAbortMediaProgress() {
+export interface IAbortMediaArgs{
+  slug?:string,
+  requestKey?:string,
+}
+export function useAbortMediaProgress(args:IAbortMediaArgs) {
   const dispatch = useAppDispatch();
-  return useCallback(function (slug:string,requestKey:string) {
-    mediaClient.storage.get<IMedia,any>(requestKey)!.controller!.abort();
-    dispatch(abortMediaProgress({slug}));
-  }, [dispatch])
+  return useCallback(function () {
+    mediaClient.storage.get<IMedia,any>(args.requestKey!)!.controller!.abort();
+    dispatch(abortMediaProgress({
+      slug: args.slug!,
+    }));
+  }, [dispatch,args.requestKey,args.slug])
 }
 
 

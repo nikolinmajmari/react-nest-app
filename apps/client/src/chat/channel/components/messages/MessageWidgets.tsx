@@ -8,11 +8,20 @@ export function MessageAvatar(props: React.HTMLProps<HTMLDivElement>) {
   return (
     <div {...rest}
          className={`avatar mt-2 flex items-center justify-center  bg-teal-400 text-white mx-2 rounded-full w-12 ${className} first-letter:
-           dark:bg-gray-600
+           dark:bg-gray-600 h-12
            `}>
       <span className={'text-lg'}>{
           props.children
       }</span>
+    </div>
+  );
+}
+
+export function EmptyMessageAvatar(){
+  return (
+    <div
+         className={`avatar mt-2 flex items-center justify-center mx-2 rounded-full w-12 bg-transparent dark:bg-transparent h-0`}>
+      <span className={'text-lg'}>&nbsp;</span>
     </div>
   );
 }

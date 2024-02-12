@@ -14,7 +14,7 @@ export default class Media implements IMediaEntity {
     @Column({
         type: "enum", enum: [
             MediaType.file, MediaType.image, MediaType.recording, MediaType.video,
-            MediaType.pdf
+            MediaType.pdf,MediaType.audio,
         ]
     })
     type: MediaType;

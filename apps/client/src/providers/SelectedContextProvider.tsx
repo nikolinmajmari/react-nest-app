@@ -1,4 +1,5 @@
 import React from "react";
+import {useLongPress} from "use-long-press";
 export interface ISelectedContext{
   selected:string[],
   select(item:string):void;
@@ -23,11 +24,13 @@ export const SelectedContext = React.createContext<ISelectedContext>({
   }
 });
 
+
 export function SelectedContextProvider(props:any){
   const [selected,setSelected] = React.useState<string[]>([]);
 
   const isSelected = (item:string)=>selected.indexOf(item)!==-1;
   const select = (item:string)=>{
+    console.log('select',item);
     if(!isSelected(item)){
       setSelected([...selected,item])
     }
@@ -40,6 +43,7 @@ export function SelectedContextProvider(props:any){
     }
   }
   const unSelect = (item:string)=>{
+    console.log('unselect',item);
     setSelected((old)=>old.filter(i=>i!==item));
   }
 

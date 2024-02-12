@@ -22,9 +22,7 @@ export class ChannelsListener {
     //// the event is sent therefore create new message
     this.logger.debug(`Event ${ChannelEvents.messageCreated} dispatched`);
     const users = await this.channelsRepository.findChannelUsers(e.channel!);
-    console.log('channel users',users,' geting notified');
     this.pool.bulkNotifyUsers(users,(ws)=>{
-      console.log('sending data to ',ws.handshake.user.email);
       ws.sendJSON({
         event: WsEvents.CHANNEL_MESSAGE_CREATED,
         data: e.data,

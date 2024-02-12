@@ -6,7 +6,9 @@ export interface IMediaTypeConfig{
 
 const config =  {
   "audio/mpeg":MediaType.audio,
+  "audio/webm":MediaType.audio,
   "audio/vorbis":MediaType.audio,
+  "audio/webm;codecs=opus":MediaType.audio,
 
   /// images
   "image/jpeg":MediaType.image,

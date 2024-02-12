@@ -1,25 +1,43 @@
 import React from "react";
 
-export interface IContentProps{
-  ref: React.RefObject<HTMLInputElement>,
-  focus: ()=>void,
-  clear: ()=>void,
+export interface IUseContentResult{
+    ref: React.RefObject<HTMLDivElement>,
+    hasContent: boolean,
+    refHasContent: ()=>boolean,
+    clear:()=>void,
+    focus:()=>void,
+    sync: ()=>void,
 }
 
-export default function useContent():IContentProps{
-  const ref = React.useRef<HTMLInputElement>(null);
-  const focus = ()=>{
-    setTimeout(()=>ref.current?.focus());
-  };
-  const clear = ()=>{
-    setTimeout(()=>{
-      if (ref.current) {
-        ref.current.innerHTML = "";
-        ref.current.focus();
-      }
-    })
-  }
-  return {
-    ref,clear,focus,
-  }
+
+export default function useContent(){
+    const [hasContent,setHasContent] = React.useState<boolean>(false);
+    const contentRef = React.useRef<HTMLInputElement>(null);
+    const contentFocus = ()=>{
+        setTimeout(()=>contentRef.current?.focus());
+    };
+    const contentClear = ()=> setTimeout(()=>{
+        if (contentRef.current) {
+            contentRef.current.innerHTML = "";
+            contentRef.current.focus();
+        }
+        sync();
+    });
+
+    const refHasContent = ()=>{
+        return contentRef.current!.innerText.replace(/\s/g,'')!=='';
+    }
+
+    const sync = ()=>{
+        setHasContent(contentRef.current!.innerText.replace(/\s/g,'')!=='');
+    }
+
+    return {
+        ref: contentRef,
+        hasContent,
+        refHasContent,
+        focus: contentFocus,
+        clear: contentClear,
+        sync,
+    }
 }

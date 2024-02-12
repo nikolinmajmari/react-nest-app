@@ -24,7 +24,7 @@ export function ChannelFeedNavigation() {
           <NavigationButton onClick={() => navigate('/chat/channels')}>
             <TfiArrowLeft/>
           </NavigationButton>
-          <label className="px-12">{channel?.alias}</label>
+          <label className="px-1">{channel?.alias}</label>
         </>
       }
     >

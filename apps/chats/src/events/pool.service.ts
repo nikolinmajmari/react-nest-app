@@ -13,15 +13,17 @@ export default class WsPoolService{
   }
 
   add(socket:WebSocket):string{
-    console.log('adding',socket.handshake);
     socket.id = uuid();
     this.clients.set(socket.id,socket);
+    socket.on('close',()=>{
+      this.remove(socket.id);
+    })
     return socket.id;
   }
 
   getUserConnections(user:IPartialUser){
     return Array.from(this.clients.values()).filter(
-      client=>client.handshake?.user?.id===user.id && client.readyState === client.OPEN
+      client=>client && client.handshake?.user?.id===user.id && client.readyState === client.OPEN
     );
   }
 
@@ -37,7 +39,7 @@ export default class WsPoolService{
   remove(id:string){
     const client = this.clients.get(id);
     if(client){
-      this.clients.set(id,null);
+      this.clients.set(id,undefined);
     }
   }
 }

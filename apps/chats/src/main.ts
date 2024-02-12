@@ -8,12 +8,14 @@ import {NestFactory} from '@nestjs/core';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {AppModule} from './app/app.module';
 import {AppWsAdapter} from "./events/app-ws.adapter";
+import {EntityNotFoundExceptionFilter} from "./app/filters/EntityNotFoundExceptionFilter";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const globalPrefix = 'api';
     app.useWebSocketAdapter(new AppWsAdapter())
     app.setGlobalPrefix(globalPrefix);
+    app.useGlobalFilters(new EntityNotFoundExceptionFilter());
     app.useGlobalPipes(new ValidationPipe({
         transform: true,
         whitelist: true

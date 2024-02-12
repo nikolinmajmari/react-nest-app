@@ -23,10 +23,6 @@ export default function ChannelFeedContainer() {
   const {selected} = React.useContext(SelectedContext);
   const loadInitialFeed = useDispatchLoadInitialFeed();
   const status = useChannelFeedStatus();
-  const addMessage = useDispatchAddMessage();
-  const subscribeAddMessage = ()=>{
-
-  };
   React.useEffect(() => {
     if (channel && channel.id) {
       loadInitialFeed(channel);

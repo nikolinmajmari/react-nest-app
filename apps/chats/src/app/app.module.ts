@@ -10,6 +10,7 @@ import {ChannelsModule} from '../channels/channels.module';
 import {MediaModule} from '../media/media.module';
 import {AuthorizationModule} from "../authorization/authorization.module";
 import {EventsModule} from "../events/events.module";
+import {EntityNotFoundExceptionFilter} from "./filters/EntityNotFoundExceptionFilter";
 
 @Module({
     imports: [
@@ -23,7 +24,7 @@ import {EventsModule} from "../events/events.module";
       EventsModule
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService,EntityNotFoundExceptionFilter],
 })
 export class AppModule {
 }

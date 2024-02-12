@@ -10,7 +10,7 @@ export interface IAlignProp {
 }
 
 export function MessageBodyWrapper(props: IAlignProp & React.HTMLProps<HTMLDivElement>) {
-  return (<div className="w-2/3 flex flex-row">
+  return (<div className="w-2/3 flex flex-row py-1">
     <div className={`flex flex-col flex-1 items-start
             ${props.align === Align.left ? "items-start" : "items-end"}
         `}>
@@ -21,14 +21,13 @@ export function MessageBodyWrapper(props: IAlignProp & React.HTMLProps<HTMLDivEl
 export function MessageWrapper(props: IAlignProp & React.HTMLProps<HTMLDivElement> & {reduced:boolean}) {
   const {align, className,reduced, ...rest} = props;
   return (
-    <div
-      {...rest} className={`flex items-start ${!reduced ? 'pt-3':''} pb-1 m-1 gap-2
-            ${align === Align.left ? "flex-row" : "flex-row-reverse"}
-            ${className}
-            `}>
-
-    {props.children}
-  </div>);
+    <div className={` ${!reduced ? 'pt-1':''} mb-1 `}>
+      <div  {...rest} className={`flex items-start gap-2 relative
+              ${align === Align.left ? "flex-row" : "flex-row-reverse"}`}>
+        {props.children}
+      </div>
+    </div>
+  );
 }
 
 export function MessageContentWrapper(props: React.HTMLProps<HTMLDivElement>) {

@@ -4,11 +4,12 @@ import {DownloadableFileTile, FileTile, ProgressAction, ReloadAction} from "./Fi
 import React from "react";
 import {MessageContentImage} from "./ImageComponents";
 import {ServerEndpoint} from "../../../../api.client/client";
+import AudioPlayer from "../AudioPlayer";
 
 export interface IMessageMediaProps {
   media: IFeedMessageMedia;
-  cancelProgress: () => void;
-  restartProgress: () => void;
+  cancelProgress?: () => void;
+  restartProgress?: () => void;
 }
 
 
@@ -31,14 +32,16 @@ export function MessageMediaContent(props: IMessageMediaProps) {
       action={ props.media!.operation!.progress !== 0 ?
         <ProgressAction
           progress={props.media.operation!.progress}
-          cancel={props.cancelProgress}
+          cancel={props.cancelProgress!}
         />
         :
         <ReloadAction
-          reload={props.restartProgress}
+          reload={props.restartProgress!}
         />
       }
     />);
+  }else if(media.type == MediaType.audio){
+    return <AudioPlayer uri={url!}/>
   }
   return (
     <DownloadableFileTile type={MediaType.file} fileName={props.media.fileName!} url={url!}/>

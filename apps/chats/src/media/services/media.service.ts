@@ -18,6 +18,7 @@ export class MediaService {
     ) {}
 
     getMediaType(file:Express.Multer.File){
+        console.log(file.mimetype);
       return config[file.mimetype]??MediaType.file;
     }
 

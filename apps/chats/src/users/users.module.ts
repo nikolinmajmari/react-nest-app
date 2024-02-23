@@ -5,10 +5,12 @@ import User from './entities/user.entity';
 import {UsersService} from './users.service';
 import ChannelMember from '../channels/entities/channel-member.entity';
 import {Channel} from 'diagnostics_channel';
+import {AuthService} from "../auth/auth.service";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, ChannelMember, Channel])
+        TypeOrmModule.forFeature([User, ChannelMember, Channel]),
     ],
     controllers: [UsersController],
     providers: [UsersService],

@@ -1,5 +1,7 @@
 import {channelsApi} from "../api/channels-api";
-import {IChannel, IChannelCreate} from "@mdm/mdm-core";
+import {IChannel, IChannelCreate, IMessage} from "@mdm/mdm-core";
+import {useAppDispatch} from "../../app/hooks";
+import React from "react";
 
 const extendedApi = channelsApi.injectEndpoints({
   overrideExisting:false,
@@ -60,8 +62,27 @@ const extendedApi = channelsApi.injectEndpoints({
     }),
   })
 });
+
+function useUpdateLastMessage(channel:IChannel){
+  const dispatch = useAppDispatch();
+  return React.useCallback((lastMessage:IMessage)=>{
+    const update = extendedApi.util.updateQueryData('getChannels',undefined,(draft)=>{
+      const index  = draft.findIndex((item)=>item.id = channel.id);
+      if(index!==-1){
+        draft[index].lastMessage = lastMessage;
+      }
+    });
+    dispatch(update);
+  },[dispatch,channel]);
+}
+
+
+
 export const {
   useGetChannelsQuery,
   useCreateChannelMutation,
   useDeleteChannelMutation,
 } = extendedApi;
+
+export {useUpdateLastMessage};
+

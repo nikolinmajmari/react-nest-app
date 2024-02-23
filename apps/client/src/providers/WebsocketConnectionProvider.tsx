@@ -30,7 +30,7 @@ export default function WebSocketConnectionProvider(props:any){
     });
   }
   React.useEffect(()=>{
-    if(auth.status==="succeeded" && webSocket === null){
+    if(auth.status==="succeeded" && webSocket === null && storage.getAuthData()){
       const token = storage.getAuthData().accessToken;
       const socket = new WebSocket('ws://localhost:3001/?bearerToken='+token);
       socket.addEventListener('message',handleOnMessage);

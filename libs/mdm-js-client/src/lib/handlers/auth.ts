@@ -9,6 +9,17 @@ export class AuthHandler{
     async login(credentials:ICredential):Promise<IAuthLoginResult>{
         return await this.baseClient.post('/auth/login',credentials);
     }
+
+    async loginWithGoogle(idToken:string):Promise<IAuthLoginResult>{
+      return await this.baseClient.post('/auth/google',null,{
+        headers:{
+          'google-oauth-id-token':idToken
+        }
+      })
+    }
+    async signUp(data:any):Promise<IAuthLoginResult>{
+      return await this.baseClient.post('/users',data);
+    }
 }
 
 

@@ -33,7 +33,7 @@ export default class User implements IUserEntity {
     email: string;
     @Exclude({toPlainOnly: true})
     @Column({
-        type: "text"
+        type: "text",nullable:true
     })
     password: string;
     @Column({

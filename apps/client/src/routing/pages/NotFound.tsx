@@ -1,5 +1,6 @@
 import {Link, useLocation, useRoutes} from "react-router-dom";
 import React from "react";
+import { useAuthStatus} from "../../app/hooks/auth";
 
 
 export interface INotFoundProps{
@@ -9,6 +10,7 @@ export interface INotFoundProps{
 export default function NotFound(props:INotFoundProps){
   const location = useLocation();
   const resolvedLocation = location.pathname.split('/').slice(0,-1).join('/');
+  const status = useAuthStatus();
   return (
     <div className="grid flex-1 px-4 bg-white place-content-center">
       <div className="text-center">

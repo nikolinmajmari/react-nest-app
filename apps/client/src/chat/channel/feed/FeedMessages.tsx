@@ -14,29 +14,10 @@ import {IFeedMessage, IFeedMessageMedia} from "../slices/channel-feed.model";
 import {AnimatePresence, motion} from "framer-motion";
 import ThreeDotsWave from "../../../components/ThreeDotsWave";
 import {ChannelContext} from "../providers/ChannelProvider";
-import {SelectedContext} from "../../../providers/SelectedContextProvider";
-import {IChannel, IMessage, ws} from "@mdm/mdm-core";
-import emitter from "../../../util/app.emitter";
-import {IAppEvent, middlewares} from "@mdm/event-emitter";
 import {Align} from "../components/messages/Wrappers";
 import MotionFadeIn from "../../../components/motion/MotionFadeIn";
 import {MessageMediaContent} from "../components/messages/MediaComponents";
-
-function useSubscribe(channel:IChannel){
-  const addMessage = useAddWsMessage();
-  const handleAddMessage = React.useCallback((e:IAppEvent<IMessage, any>)=>{
-    setTimeout(()=> addMessage(e.data));
-  },[channel,addMessage]);
-  React.useEffect(()=>{
-    emitter.on(ws.WsEvents.CHANNEL_MESSAGE_CREATED,
-      middlewares.looseMatch({channel:channel?.id}),
-      handleAddMessage
-    );
-    return ()=>{
-      emitter.remove('message',handleAddMessage);
-    }
-  },[emitter,handleAddMessage]);
-}
+import {useOnChannelMessageReceivedEffect} from "../../hooks";
 
 export function NoMoreWidget(){
   return (
@@ -52,10 +33,14 @@ export function NoMoreWidget(){
 
 const FeedMessages = forwardRef(function (props, fwRef) {
   const messages = useChannelFeedMessages();
+  const addWsMessage = useAddWsMessage();
   const {channel} = React.useContext(ChannelContext);
   const loadFeed = useDispatchLoadFeed();
   const hasMore = useChannelFeedHasMore();
-  useSubscribe(channel!);
+
+  useOnChannelMessageReceivedEffect(channel!,(data)=>{
+    addWsMessage(data);
+  },[addWsMessage]);
   return (
     <>
      <InfiniteScroll

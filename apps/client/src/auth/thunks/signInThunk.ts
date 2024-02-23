@@ -8,7 +8,15 @@ import { IAuthLoginResult } from "@mdm/mdm-js-client";
 const loginThunk = createAsyncThunk<IAuthLoginResult,LoginCredentials>(
     "auth/login",async (credentials:LoginCredentials,thunkApi)=>{
         try{
-            return await auth.login(credentials);
+           if(credentials.email && credentials.password){
+             return await auth.login({
+               email: credentials.email,password: credentials.password
+             });
+           }
+           if(credentials.idToken){
+             return await auth.loginWithGoogle(credentials.idToken);
+           }
+           throw new Error('An error occured');
         }catch(e){
             alert(e);
             throw e;
@@ -19,7 +27,6 @@ const loginThunk = createAsyncThunk<IAuthLoginResult,LoginCredentials>(
 export function registerLoginThunk(builder: ActionReducerMapBuilder<IAuthState>){
     builder
     .addCase(loginThunk.fulfilled,(state,action)=>{
-        console.log(action.payload);
         state.status = "succeeded";
         state.user = action.payload.user;
         state.token = action.payload.accessToken;

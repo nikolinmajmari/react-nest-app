@@ -5,8 +5,7 @@ import ChannelEntry from "./FeedEntry";
 import ChannelFeed from "./FeedMessages";
 import {
   useChannelFeedStatus,
-  useDispatchAddMessage,
-  useDispatchLoadFeed,
+
   useDispatchLoadInitialFeed
 } from "../slices/hooks/feed";
 import {ChannelFeedNavigation, DeleteMessagesNavigation} from "../ChannelNavigation";

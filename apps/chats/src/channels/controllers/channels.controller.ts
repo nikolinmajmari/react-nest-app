@@ -138,7 +138,11 @@ export class ChannelsController {
     @Param("channel", ParameterResolverPipe) channel: Channel,
     @Body() body: BulkDeleteMessagesDTO
   ) {
-    return await this.messagingService.deleteMessages(body.messagesId, channel);
+    await this.messagingService.deleteMessages(body.messagesId, channel);
+    this.eventEmitter.emit(ChannelEvents.messageDeleted,{
+      data: body.messagesId,
+      channel: channel
+    }as IChannelEvent<string[]>)
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

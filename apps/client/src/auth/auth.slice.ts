@@ -25,6 +25,8 @@ const slice = createSlice({
                 state.user = data.user;
                 state.token = data.token;
                 state.refreshToken = data.refreshToken;
+            }else{
+              state.status = 'failed';
             }
         },
         logOut(state){

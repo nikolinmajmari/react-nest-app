@@ -5,6 +5,7 @@ import storage from "../../core/storage";
 
 const channelBaseQuery = fetchBaseQuery({
   baseUrl: `${ServerEndpoint}/api/channels`,
+  mode:"cors",
   prepareHeaders(headers,api){
     const auth = storage.getAuthData();
     if(!auth.accessToken){

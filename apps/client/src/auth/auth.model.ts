@@ -1,8 +1,9 @@
 import { IAsyncState } from "../core/async.state";
 
 export interface LoginCredentials{
-    email:string,
-    password:string
+    email?:string,
+    password?:string,
+    idToken?:string,
 }
 
 
@@ -23,7 +24,7 @@ export interface AuthUser{
 
 export interface SuccessfullLoginResult{
     user:AuthUser,
-    token:string,
+    accessToken:string,
     refreshToken:string
 }
 
@@ -32,6 +33,7 @@ export interface IAuthState extends IAsyncState{
   error: any | null,
   user: any|null,
   token: string|null,
+  accessToken: string|null,
   tokenTimeout: Date|null;
   refreshToken: string|null;
 }

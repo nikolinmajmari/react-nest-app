@@ -1,19 +1,13 @@
 import { ActionReducerMapBuilder, createAsyncThunk } from "@reduxjs/toolkit";
 import { IAuthState, SignUpUserInfo, SuccessfullLoginResult } from "../auth.model";
+import {auth} from "../../api.client/client";
+import storage from "../../core/storage";
 
 
 const signUpThunk = createAsyncThunk<SuccessfullLoginResult,SignUpUserInfo>(
     "auth/signup",async (credentials:SignUpUserInfo,thunkApi)=>{
-        return ({
-            refreshToken: "refresh-token",
-            token:"this is a token",
-            user: {
-                email: "user@email.com",
-                firstName: "FirstName",
-                lastName: "LastName",
-                id: 32
-            }
-        } as SuccessfullLoginResult);
+      await auth.signUp(credentials);
+      return await auth.login(credentials) as unknown as SuccessfullLoginResult;
     }
 );
 
@@ -22,8 +16,10 @@ export function registerSignUpThunk(builder: ActionReducerMapBuilder<IAuthState>
     .addCase(signUpThunk.fulfilled,(state,action)=>{
         state.status = "succeeded";
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.accessToken;
+        state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
+      storage.setAuthData(action.payload);
     })
     .addCase(signUpThunk.pending,(state,action)=>{
         state.status = "loading";

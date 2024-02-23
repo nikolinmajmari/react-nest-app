@@ -15,7 +15,7 @@ import {MessagingService} from "./services/messaging.service";
 import { WsCreateMessageDtoRequest} from "./dto/channel.message.dto";
 import {BadRequestTransformationFilter} from "./filters/bad-request-transformation.filter";
 import ChannelsRepository from "./repositories/channels.repository";
-import {IWsResponse, WsEvents} from "../../../../libs/mdm-core/src/lib/ws";
+import { WsEvents } from "../../../../libs/mdm-core/src/lib/ws";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {ChannelEvents, IChannelEvent} from "./channels.event";
 import Message from "./entities/message.entity";
@@ -73,5 +73,20 @@ export default class ChannelsGateway implements  OnGatewayInit, OnGatewayConnect
     } as IChannelEvent<Message>)
   }
 
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage(WsEvents.CHANNEL_MESSAGE_TYPING)
+  async onChannelMessageTyping(
+    _,@ConnectedSocket() client: WebSocket
+  ){
+    this.eventEmitter.emit(ChannelEvents.messageTyping);
+  }
+
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage(WsEvents.CHANNEL_MESSAGE_TYPING)
+  async onChannelConnected(
+    _,@ConnectedSocket() client: WebSocket
+  ){
+    this.eventEmitter.emit(ChannelEvents.inChat);
+  }
 
 }

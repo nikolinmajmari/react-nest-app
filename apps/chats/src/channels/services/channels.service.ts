@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import { Repository} from "typeorm";
+import {Repository} from "typeorm";
 import {ChannelCreateDTO, ChannelUpdateDTO} from "../dto/channel.dto";
 import Channel from "../entities/channel.entity";
 import User from "../../users/entities/user.entity";
@@ -38,7 +38,8 @@ export class ChannelsService {
         const entity = this.repository.create(dto as unknown as IChannelEntity);
 
         /// if channel is private check if there are
-        return await this.repository.save(entity)
+       const saved =  await this.repository.save(entity);
+       return this.repository.findUserChannel(entity.id,user);
     }
 
     async create(channel: ChannelCreateDTO) {

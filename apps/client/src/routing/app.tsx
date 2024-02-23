@@ -1,5 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {createBrowserRouter, Navigate, Outlet, Route, RouterProvider, Routes, useLocation} from "react-router-dom";
+import {
+  BrowserRouter,
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  RouterProvider,
+  Routes,
+  useLocation
+} from "react-router-dom";
 import Chat, {ChannelContainer} from '../chat';
 import {Login} from "../auth/login";
 import {SignUp} from "../auth/signup";
@@ -25,7 +34,7 @@ import MediaLinks from "../chat/channel/media/Links";
 import ChannelDetailsNavigation from "../chat/channel/ChannelDetailsNavigation";
 import WebSocketConnectionProvider from "../providers/WebsocketConnectionProvider";
 import MultiProvider from "../providers/MultiProvider";
-import AppEventEmitterProvider from "../providers/AppEventEmitterProvider";
+import RequireAuthProvider from "../providers/RequireAuthProvider";
 
 function Root(){
   const location = useLocation();
@@ -38,14 +47,16 @@ function Root(){
           <Route path="signup" element={<SignUp/>}/>
         </Route>
         {/** protected routes  **/}
-        <Route element={
-          <MultiProvider providers={
-            [
-              WebSocketConnectionProvider
-            ]
-          }>
-            <Outlet/>
-          </MultiProvider>
+        <Route path={"*"} element={
+          <RequireAuthProvider>
+            <MultiProvider providers={
+              [
+                WebSocketConnectionProvider
+              ]
+            }>
+              <Outlet/>
+            </MultiProvider>
+          </RequireAuthProvider>
         }>
           <Route path="chat" element={<NavigationContainer/>}>
             <Route path='channels' element={<Chat/>}>
@@ -69,8 +80,10 @@ function Root(){
             </Route>
             <Route path={"*"} element={<NotFound label={'Channels'}/>}/>
           </Route>
+          <Route path={"*"} element={
+            <NotFound label={'Log In'} location={'/auth/login'}/>
+          }/>
         </Route>
-        <Route path={"*"} element={<NotFound label={'Log In'} location={'/auth/login'}/>}/>
       </Routes>
       {
         previousLocation &&
@@ -109,7 +122,7 @@ export function App() {
   return (
     <ToastNotificationProvider>
       <ContextMenuProvider>
-       <RouterProvider router={router}/>
+        <RouterProvider router={router}/>
       </ContextMenuProvider>
     </ToastNotificationProvider>
   );

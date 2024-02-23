@@ -12,6 +12,7 @@ export interface ChannelUserSettings {
     muteNotifications?:boolean;
 }
 
+
 export interface IChannelMemberEntity{
   id:string;
   role:MemberRole;

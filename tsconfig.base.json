@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@mdm/chat-engine": ["libs/chat-engine/src/index.ts"],
       "@mdm/event-emitter": ["libs/event-emitter/src/index.ts"],
       "@mdm/mdm-core": ["libs/mdm-core/src/index.ts"],
       "@mdm/mdm-js-client": ["libs/mdm-js-client/src/index.ts"],

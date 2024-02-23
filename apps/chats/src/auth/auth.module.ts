@@ -12,6 +12,7 @@ import {RefreshStrategy} from './strategies/refresh.strategy';
 import {WsJwtStrategy} from "./strategies/ws-jwt.strategy";
 import {WsJwtAuthGuard} from "./guard/ws-jwt-auth.guard";
 import {WsAuthGuard} from "./guard/ws-auth.guard";
+import {GoogleOauth2Guard} from "./guard/google-oauth2.guard";
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import {WsAuthGuard} from "./guard/ws-auth.guard";
     providers: [
         AuthService,
         WsAuthGuard,
+        GoogleOauth2Guard,
         LocalStrategy,
         JwtStrategy,
         WsJwtStrategy,

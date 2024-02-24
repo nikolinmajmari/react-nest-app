@@ -42,34 +42,32 @@ const FeedMessages = forwardRef(function (props, fwRef) {
     addWsMessage(data);
   },[addWsMessage]);
   return (
-    <>
-     <InfiniteScroll
-       dataLength={messages.length}
-       next={()=>{
-         loadFeed(channel!);
-       }}
-       className={'flex flex-col-reverse'}
-       hasMore={hasMore}
-       inverse={true}
-       endMessage={<NoMoreWidget/>}
-       loader={<ThreeDotsWave/>}
-       scrollableTarget={'chat_feed_scrollable'}
-     >
-       {
-         messages.map(
-           (message, index) =>{
-             const previous = index>0?messages[index-1]:undefined;
-             return(
-               <ChannelMessageContainer key={message.id}
-                                        message={message}
-                                        previous={previous}
-               />
-             );
-           }
-         ).reverse()
-       }
-     </InfiniteScroll>
-    </>
+    <InfiniteScroll
+      dataLength={messages.length}
+      next={()=>{
+        loadFeed(channel!);
+      }}
+      className={'flex flex-col-reverse'}
+      hasMore={hasMore}
+      inverse={true}
+      endMessage={<NoMoreWidget/>}
+      loader={<ThreeDotsWave/>}
+      scrollableTarget={'chat_feed_scrollable'}
+    >
+      {
+        messages.map(
+          (message, index) =>{
+            const previous = index>0?messages[index-1]:undefined;
+            return(
+              <ChannelMessageContainer key={message.id}
+                                       message={message}
+                                       previous={previous}
+              />
+            );
+          }
+        ).reverse()
+      }
+    </InfiniteScroll>
   )
 });
 
@@ -84,12 +82,11 @@ export function ChannelMessageContainer({message,previous}: IChannelMessageConta
   let diffDay= message?.createdAt?.toString().slice(0, 10)!=previous?.createdAt?.toString().slice(0, 10);
   return (
    <>
-     <AnimatePresence key={message.id}>
+     <AnimatePresence key={message.id??Math.random().toString(16)}>
        {
          !message.deleting && (
            <MotionFadeIn>
              <Message
-               key={message.id}
                id={message.id!}
                sender={message.sender}
                content={message.content}
@@ -107,6 +104,7 @@ export function ChannelMessageContainer({message,previous}: IChannelMessageConta
      </AnimatePresence>
      {
        diffDay && message.createdAt && <FeedTimeLabel
+         key={message?.createdAt?.toString().slice(0, 10) ?? Math.random().toString(16)}
          label={ message?.createdAt?.toString().slice(0, 10) ?? ""}
        />
      }

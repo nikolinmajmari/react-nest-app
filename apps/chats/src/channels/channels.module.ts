@@ -19,12 +19,15 @@ import ChannelsGateway from "./channels.gateway";
 import {CommonModule} from "../common/common.module";
 import {ChannelsListener} from "./channels.listener";
 import {EventsModule} from "../events/events.module";
+import MessageRecipient from "./entities/message-recipient.entity";
+import MessagesRepository from "./repositories/messages.repository";
 
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
-            Channel, ChannelMemberEntity, MessageEntity,Media
+            Channel, ChannelMemberEntity, MessageEntity,Media,
+           MessageRecipient
         ]),
         AuthModule,
         EventsModule,
@@ -41,7 +44,8 @@ import {EventsModule} from "../events/events.module";
         MessagingService,
         ChannelsGateway,
         ChannelsListener,
-        ChannelsRepository
+        ChannelsRepository,
+        MessagesRepository,
     ],
     exports: [
         ChannelsService,

@@ -16,7 +16,7 @@ export interface IChannelTileContainerProps {
 }
 
 export default function ChannelTileContainer(props: IChannelTileContainerProps) {
-  /// props
+  //// props
   const {channel, active, navigate} = props;
 
   //// hooks
@@ -29,6 +29,7 @@ export default function ChannelTileContainer(props: IChannelTileContainerProps) 
 
   /// effects
   useOnChannelMessageReceivedEffect(channel,(data)=>{
+    console.log('message',channel,data);
     updateLastMessage(data);
   },[updateLastMessage]);
 

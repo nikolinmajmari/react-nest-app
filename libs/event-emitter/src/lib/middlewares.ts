@@ -9,7 +9,6 @@ const matchParamsMiddleware = function (params:any):MiddlewareFunction{
 
 const looseMatch = function (params:any):MiddlewareFunction{
   return async (event:IAppEvent<any,any>) =>{
-    console.log('matching ',event.params,' with ',params);
     if(!event.params || !params){
       return false;
     }

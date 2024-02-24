@@ -1,5 +1,5 @@
 import ws from 'ws';
-import {IUser} from "@mdm/mdm-core";
+import {IPartialUser, IUser} from "@mdm/mdm-core";
 
 interface IHandShake{
   user?:IUser;
@@ -11,5 +11,11 @@ declare module 'ws' {
     id?: string;
     handshake?:IHandShake;
     sendJSON(json:any):void;
+  }
+}
+
+declare module 'express' {
+  export interface Request{
+    user: IUser
   }
 }

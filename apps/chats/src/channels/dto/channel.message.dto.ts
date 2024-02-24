@@ -2,8 +2,11 @@ import {ApiProperty} from "@nestjs/swagger";
 import {ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested} from "class-validator";
 import {IWsRequest} from "../../../../../libs/mdm-core/src/lib/ws";
 import {Type} from "class-transformer";
+import {IUser} from "@mdm/mdm-core";
 
-
+/**
+ *
+ */
 export class CreateMessageDTO {
     @IsString()
     @ApiProperty()
@@ -11,7 +14,10 @@ export class CreateMessageDTO {
 
     @IsString()
     @IsOptional()
+    @ApiProperty()
     media?: string;
+
+    sender?:string|IUser;
 }
 
 export class WsCreateMessageDtoParams{

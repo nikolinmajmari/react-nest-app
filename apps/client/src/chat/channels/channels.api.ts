@@ -49,7 +49,7 @@ const extendedApi = channelsApi.injectEndpoints({
           extendedApi.util.updateQueryData('getChannels',undefined,(draft)=>{
             const index = draft.findIndex((item)=>item.id==id);
             if(index!==-1){
-              draft.splice(index,1);
+              //draft.splice(index,1);
             }
           })
         )
@@ -67,7 +67,7 @@ function useUpdateLastMessage(channel:IChannel){
   const dispatch = useAppDispatch();
   return React.useCallback((lastMessage:IMessage)=>{
     const update = extendedApi.util.updateQueryData('getChannels',undefined,(draft)=>{
-      const index  = draft.findIndex((item)=>item.id = channel.id);
+      const index  = draft.findIndex((item)=>item.id == channel.id);
       if(index!==-1){
         draft[index].lastMessage = lastMessage;
       }

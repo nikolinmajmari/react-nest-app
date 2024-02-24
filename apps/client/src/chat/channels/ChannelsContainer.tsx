@@ -21,7 +21,7 @@ export default function ChannelsContainer() {
     isUninitialized,
     refetch
   } = useGetChannelsQuery();
-  console.log(data,' as data');
+  console.log('channels ',data);
   const {channel} = useParams();
   const navigate = useNavigate();
   const createNavigateHandler = (channel: IChannel) => {
@@ -48,7 +48,6 @@ export default function ChannelsContainer() {
              }
              {data.map(
                (ch: IChannel) =>{
-                 console.log('rendering',ch);
                  return (
                    <AnimatePresence key={ch.id}>
                      <motion.div

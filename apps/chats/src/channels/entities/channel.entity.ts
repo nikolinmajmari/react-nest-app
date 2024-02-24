@@ -1,9 +1,19 @@
-import {Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  VirtualColumn
+} from "typeorm";
 import Message from "./message.entity";
 import ChannelMember from "./channel-member.entity";
 import {ChannelType, IChannelEntity} from "@mdm/mdm-core";
 import {Expose,} from "class-transformer";
 import {CommonEntity} from "../../common/common.entity";
+import {Virtual} from "../../common/decorators/virtual";
 
 
 @Entity({name: "channel"})
@@ -35,11 +45,9 @@ export default class Channel extends CommonEntity implements IChannelEntity {
         cascade: true,
     })
     messages: Promise<Message[]>;
+
     @OneToMany(() => ChannelMember, member => member.channel, {
         cascade: true,
-    })
-    @Expose({
-        name: 'members'
     })
     members: Promise<ChannelMember[]>;
     @OneToOne(
@@ -48,6 +56,10 @@ export default class Channel extends CommonEntity implements IChannelEntity {
         })
     @JoinColumn()
     lastMessage: Promise<Message | null>;
+
+
+    @Virtual()
+    unread: number | null;
 
     constructor(partial: Partial<Channel>) {
         super();

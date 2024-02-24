@@ -122,9 +122,9 @@ export class ChannelsController {
     @Body() dto: CreateMessageDTO,
     @Req() req:Request
   ) {
-    const message = await this.messagingService.createMessage({
-      channel, user: req.user as IUser, dto
-    });
+    const message = await this.messagingService.createChannelMessage(
+        channel,{ ...dto,sender: req.user.id }
+    );
     this.eventEmitter.emit(ChannelEvents.messageCreated,{
       channel: channel,
       data: await this.messagingService.getMessage(message.id),

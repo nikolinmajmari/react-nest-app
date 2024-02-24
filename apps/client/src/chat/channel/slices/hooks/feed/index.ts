@@ -84,14 +84,15 @@ export interface IPostMediaArgs extends  Pick<IMedia, 'type'|'uri'|'fileName'>{
 export function usePostMessageThunk(channel:string) {
   const dispatch = useAppDispatch();
   const user = useCurrentUser();
+  const wsCtx = React.useContext(WebSocketContext);
   if (!channel || !user) {
     throw new Error('currentUser and channel must be defined in store');
   }
-  const wsContext = React.useContext(WebSocketContext);
   return useCallback(function (slug: string, message: Pick<IFeedMessage, 'content' | 'media'|'sender'>) {
-    if(wsContext && wsContext.rpcSocket && wsContext.webSocket?.readyState==WebSocket.OPEN){
+    console.log(wsCtx.socket);
+    if(wsCtx && wsCtx.rpc){
       const sentMessagePromise =  new Promise<IFeedMessage>((resolve,reject)=>{
-        wsContext.rpcSocket?.send<IFeedMessage,unknown>({
+        wsCtx.rpc?.send<IFeedMessage,unknown>({
           data: {
             ...message,
             media: message.media?.id
@@ -110,7 +111,7 @@ export function usePostMessageThunk(channel:string) {
     dispatch(postMessageThunk({
       channelId: channel, message: message, user, slug
     }))
-  }, [dispatch, user, channel,wsContext])
+  }, [dispatch, user, channel])
 }
 
 

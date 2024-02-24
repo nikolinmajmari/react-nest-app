@@ -9,6 +9,10 @@ import {IMessage, IPartialUser, IUser} from "@mdm/mdm-core";
 import Media from "../../media/media.entity";
 import {MediaService} from "../../media/services/media.service";
 import {skip} from "rxjs";
+import {use} from "passport";
+import MessageRecipient from "../entities/message-recipient.entity";
+import ChannelMember from "../entities/channel-member.entity";
+import MessagesRepository from "../repositories/messages.repository";
 
 
 export interface IUserChannelDTO<T> {
@@ -22,12 +26,9 @@ export interface IUserChannelDTO<T> {
 export class MessagingService {
 
     constructor(
-        @InjectRepository(Message)
-        private readonly repository: Repository<Message>,
+        private readonly repository: MessagesRepository,
         @InjectEntityManager()
         private readonly em: EntityManager,
-        @InjectRepository(Media)
-        private readonly mediaRepository:Repository<Media>,
         private readonly mediaService:MediaService,
     ) {
     }
@@ -66,14 +67,14 @@ export class MessagingService {
     }
 
 
-    async createMessage({user, channel, dto}: IUserChannelDTO<CreateMessageDTO>): Promise<Message> {
-        const message = this.repository.create(dto as unknown as Message);
-        message.channel = Promise.resolve(channel);
-        message.sender = Promise.resolve(user as User);
-        const saved = await this.repository.save(message as Message);
-        channel.lastMessage = Promise.resolve(saved);
+    async createChannelMessage(channel:Channel,payload:CreateMessageDTO): Promise<Message> {
+        const message = await this.repository.save(
+          await this.repository.createChannelMessage(channel,payload)
+        );
+        console.log(message);
+        channel.lastMessage = Promise.resolve(message);
         await this.em.save(channel);
-        return this.getMessage(message.id);
+        return message;
     }
 
 

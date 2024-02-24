@@ -1,9 +1,19 @@
-import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn
+} from "typeorm";
 import Channel from "./channel.entity";
 import User from "../../users/entities/user.entity";
 import {IMessageEntity} from "@mdm/mdm-core";
 import Media from "../../media/media.entity";
 import {CommonEntity} from "../../common/common.entity";
+import MessageRecipient from "./message-recipient.entity";
 
 
 @Entity({name: "message"})
@@ -26,6 +36,11 @@ export default class Message extends CommonEntity implements IMessageEntity {
 
     @ManyToOne(() => Channel, channel => channel.messages, {onDelete: 'CASCADE'})
     channel: Promise<Channel>;
+
+    @OneToMany(()=>MessageRecipient,recipient=>recipient.message,{
+      cascade:true
+    })
+    recipients:Promise<MessageRecipient[]>
 
     constructor(partial: Partial<Message>) {
         super();

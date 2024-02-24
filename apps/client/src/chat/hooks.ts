@@ -11,7 +11,7 @@ export function useOnChannelMessageReceivedEffect(
 ){
   const onMessageReceived = React.useCallback((e:IAppEvent<IMessage, any>)=>{
     setTimeout(()=> callback(e.data));
-  },[channel,callback,...deps]);
+  },[channel.id,callback,...deps]);
   React.useEffect(()=>{
     emitter.on(ws.WsEvents.CHANNEL_MESSAGE_CREATED,
       middlewares.looseMatch({channel:channel!.id}),

@@ -2,9 +2,10 @@ import {Injectable} from "@nestjs/common";
 import {Brackets, Repository, SelectQueryBuilder} from "typeorm";
 import Channel from "../entities/channel.entity";
 import {InjectRepository} from "@nestjs/typeorm";
-import {ChannelType, IUser, MemberRole} from "@mdm/mdm-core";
+import {ChannelType, IPartialUser, IUser, MemberRole} from "@mdm/mdm-core";
 import User from "../../users/entities/user.entity";
 import ChannelMember from "../entities/channel-member.entity";
+import MessageRecipient from "../entities/message-recipient.entity";
 
 
 @Injectable()
@@ -64,6 +65,19 @@ export default class ChannelsRepository extends Repository<Channel>{
     return sqb;
   }
 
+  addSelectUnreadRecipients(builder:SelectQueryBuilder<Channel>,channelAlias:string='ch'){
+    const sqb = this.manager.createQueryBuilder()
+      .from(MessageRecipient,'_rcp')
+      .select('count(_rcp.id)')
+      .innerJoin("_rcp.message","_m")
+      .where('_m.senderId <> :userId')
+      .andWhere(`_m.channelId != ${channelAlias}.id `)
+      .andWhere('_rcp.read is null');
+    builder.addSelect(`
+      (${sqb.getQuery()}) as ${channelAlias}_unread
+    `)
+  }
+
   andWhereUserChannels(builder: SelectQueryBuilder<Channel>,userId:string){
     builder
       .andWhere(
@@ -104,6 +118,7 @@ export default class ChannelsRepository extends Repository<Channel>{
     const query = this.createChannelsQueryBuilder();
     query.select(["ch", "lm"]);
     this.addSelectDynamicChannelAlias(query);
+    this.addSelectUnreadRecipients(query);
     this.andWhereUserChannels(query,user.id);
     query.orderBy('lm.createdAt','DESC')
       .cache(false);
@@ -115,12 +130,13 @@ export default class ChannelsRepository extends Repository<Channel>{
   ) {
     const query = this.createChannelsQueryBuilder();
     query.select([
-      'ch', 'ch.alias',
+      'ch',
       'lm',
       'm',
       'u.id','u.firstName','u.lastName','u.email','u.avatar'
     ]);
     this.addSelectDynamicChannelAlias(query);
+    this.addSelectUnreadRecipients(query);
     query
       .where('ch.id = :id')
       .setParameter('id',id)

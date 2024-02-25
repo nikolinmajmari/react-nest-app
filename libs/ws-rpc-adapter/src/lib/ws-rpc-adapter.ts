@@ -42,7 +42,6 @@ export class WSRPCAdapter{
   }
 
   /**
-   *
    * @private
    */
   private handlers = new Map<string,((res:IWsResponse<any,any>)=>void)|undefined>

@@ -14,10 +14,10 @@ export const channelMediaApi = createApi({
         baseUrl: `${ServerEndpoint}/api/channels`,
         prepareHeaders(headers,api){
             const auth = storage.getAuthData();
-            if(!auth.token){
+            if(!auth.accessToken){
                 console.warn('token was not found');
             }
-            headers.set('Authorization',`Bearer ${auth.token}`);
+            headers.set('Authorization',`Bearer ${auth.accessToken}`);
             return headers;
         }
     }),

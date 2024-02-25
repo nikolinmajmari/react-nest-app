@@ -57,7 +57,7 @@ export class MediaController {
            ) file: Express.Multer.File,
            @Body() dto:MediaContextDTO
     ) {
-      return  this.service.saveMedia(file,dto);
+      return this.service.saveMedia(file,dto);
     }
 
 

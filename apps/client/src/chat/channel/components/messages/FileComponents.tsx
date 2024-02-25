@@ -89,12 +89,12 @@ export function ReloadAction({reload}:{reload:()=>void}){
 
 export function ProgressAction({cancel,progress}:{cancel:()=>void,progress:number}){
   return (
-    <span className={'p-1 cursor-pointer'}
+    <div className={'p-1 cursor-pointer relative'}
           onClick={cancel}>
-      <CircularProgressbar className={'cursor-pointer'}
+      <CircularProgressbar className={'cursor-pointer select-none'}
                            value={progress * 100}
                            text={'X'}
       />
-    </span>
+    </div>
   );
 }

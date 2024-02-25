@@ -78,27 +78,25 @@ export interface IChannelMessageContainerProps {
 
 export function ChannelMessageContainer({message,previous}: IChannelMessageContainerProps) {
   const user = useCurrentUser();
-  const retryPostMessage = useRetryPostMessage(message);
   let diffDay= message?.createdAt?.toString().slice(0, 10)!=previous?.createdAt?.toString().slice(0, 10);
   return (
    <>
      <AnimatePresence key={message.id??Math.random().toString(16)}>
        {
          !message.deleting && (
-           <MotionFadeIn>
-             <Message
-               id={message.id!}
-               sender={message.sender}
-               content={message.content}
-               timestamp={message?.createdAt?.toString().slice(0, 10) ?? ""}
-               align={message.sender?.id !== user.id ? Align.left : Align.right}
-               reduced={
-                 message.sender.id===previous?.sender?.id && (!diffDay||(message.createdAt==undefined))
-               }>
-               { message.media && message.media.operation && <MessageMediaContainer message={message}/> }
-               {message.media && !message.media.operation && <MessageMediaContent media={message.media!}/> }
-             </Message>
-           </MotionFadeIn>
+           <Message
+             key={message.id}
+             id={message.id!}
+             sender={message.sender}
+             content={message.content}
+             timestamp={message?.createdAt?.toString().slice(0, 10) ?? ""}
+             align={message.sender?.id !== user.id ? Align.left : Align.right}
+             reduced={
+               message.sender.id===previous?.sender?.id && (!diffDay||(message.createdAt==undefined))
+             }>
+             { message.media && message.media.operation && <MessageMediaContainer message={message}/> }
+             {message.media && !message.media.operation && <MessageMediaContent media={message.media!}/> }
+           </Message>
          )
        }
      </AnimatePresence>

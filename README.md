@@ -29,6 +29,10 @@ Real time chat applications. Features already implemented.
 
 ![Media Messaging](/docs/gifs/Media%20Management.gif)
 
+- Audio Recording
+
+![Audio Recording](/docs/gifs/Audio%20Recording.gif)
+
 
 ### Channel Management
 - Manage channel members 
